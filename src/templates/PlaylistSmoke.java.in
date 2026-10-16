@@ -1,0 +1,158 @@
+package dev.eyecrasher.jukeboxplaylists;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.JukeboxBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
+import net.minecraft.world.level.block.state.properties.ChestType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+
+/** Executed inside an isolated game server; never included in release jars. */
+public final class PlaylistSmoke {
+    private static final BlockPos POS = new BlockPos(0, 100, 0);
+    private static Level world;
+    private static Container chest;
+    private static PlaylistJukebox box;
+    private static int assertions;
+
+    public static void run(MinecraftServer server) {
+        world = server.overworld();
+        reset();
+        ItemStack named = new ItemStack(Items.MUSIC_DISC_CAT);
+        @NAME_STACK@
+        chest.setItem(0, new ItemStack(Items.STONE));
+        chest.setItem(3, named);
+        chest.setItem(6, new ItemStack(Items.MUSIC_DISC_WARD));
+        tick();
+        check(box.playlist$current().getItem() == Items.MUSIC_DISC_CAT, "empty jukebox starts at first disc slot");
+        check(box.playlist$position() == 3 && chest.getItem(3).isEmpty(), "initial slot is emptied");
+        finish();
+        check(box.playlist$current().getItem() == Items.MUSIC_DISC_WARD, "natural finish advances in slot order");
+        check(chest.getItem(6).getHoverName().getString().equals("Keep this name"), "swap preserves custom item data");
+        finish();
+        check(box.playlist$current().getHoverName().getString().equals("Keep this name"), "playlist wraps without losing names");
+        check(chest.getItem(0).getItem() == Items.STONE, "non-disc items stay untouched");
+
+        box.playlist$position(13);
+        JukeboxBlockEntity entity = (JukeboxBlockEntity) box;
+        CompoundTag saved = @SAVE_ENTITY@;
+        BlockEntity copy = @LOAD_ENTITY@;
+        check(copy instanceof PlaylistJukebox && ((PlaylistJukebox) copy).playlist$position() == 13,
+              "playlist cursor survives vanilla block entity serialization");
+
+        reset();
+        box.playlist$play(new ItemStack(Items.MUSIC_DISC_13));
+        chest.setItem(2, new ItemStack(Items.MUSIC_DISC_CAT));
+        chest.setItem(5, new ItemStack(Items.MUSIC_DISC_WARD));
+        finish();
+        check(box.playlist$current().getItem() == Items.MUSIC_DISC_CAT && chest.getItem(2).getItem() == Items.MUSIC_DISC_13,
+              "manually inserted record swaps into the selected chest slot");
+        finish();
+        check(box.playlist$current().getItem() == Items.MUSIC_DISC_WARD, "second chest disc follows first");
+        finish();
+        check(box.playlist$current().getItem() == Items.MUSIC_DISC_13, "original record reenters the loop");
+
+        reset();
+        box.playlist$play(new ItemStack(Items.MUSIC_DISC_13));
+        box.playlist$position(9);
+        for (int i = 0; i < 8000 && box.playlist$position() != -1; i++) tick();
+        check(box.playlist$position() == -1 && box.playlist$current().getItem() == Items.MUSIC_DISC_13,
+              "empty playlist repeats current disc after natural finish");
+
+        reset();
+        chest.setItem(1, new ItemStack(Items.MUSIC_DISC_CAT));
+        chest.setItem(8, new ItemStack(Items.MUSIC_DISC_WARD));
+        tick();
+        entity = (JukeboxBlockEntity) box;
+        @EJECT@
+        check(box.playlist$current().isEmpty(), "manual eject removes current record");
+        tick();
+        check(box.playlist$current().getItem() == Items.MUSIC_DISC_WARD, "manual eject skips to next record");
+
+        reset();
+        world.setBlock(POS.above(), Blocks.CHEST.defaultBlockState().setValue(ChestBlock.TYPE, ChestType.LEFT), 2);
+        chest = (Container) world.getBlockEntity(POS.above());
+        chest.setItem(0, new ItemStack(Items.MUSIC_DISC_CAT));
+        tick();
+        check(box.playlist$current().isEmpty() && !chest.getItem(0).isEmpty(), "double chests are rejected");
+
+        reset();
+        world.setBlock(POS.above(), Blocks.BARREL.defaultBlockState(), 3);
+        chest = (Container) world.getBlockEntity(POS.above());
+        chest.setItem(0, new ItemStack(Items.MUSIC_DISC_CAT));
+        tick();
+        check(box.playlist$current().isEmpty(), "containers outside the block tag are rejected");
+
+        reset();
+        world.setBlock(POS.above(), Blocks.TRAPPED_CHEST.defaultBlockState(), 3);
+        chest = (Container) world.getBlockEntity(POS.above());
+        chest.setItem(0, new ItemStack(Items.MUSIC_DISC_CAT));
+        tick();
+        check(box.playlist$current().getItem() == Items.MUSIC_DISC_CAT, "trapped chest supports playlists");
+
+        @COPPER_TESTS@
+
+        reset();
+        chest.setItem(2, new ItemStack(Items.MUSIC_DISC_CAT));
+        chest.setItem(6, new ItemStack(Items.MUSIC_DISC_WARD));
+        tick();
+        chest.setItem(6, new ItemStack(Items.STONE));
+        chest.setItem(10, new ItemStack(Items.MUSIC_DISC_PIGSTEP));
+        finish();
+        check(box.playlist$current().getItem() == Items.MUSIC_DISC_PIGSTEP, "edits to chest contents are read at the next transition");
+
+        reset();
+        chest.setItem(0, new ItemStack(Items.MUSIC_DISC_CAT));
+        chest.getItem(0).setCount(2);
+        tick();
+        check(box.playlist$current().isEmpty() && chest.getItem(0).getCount() == 2,
+              "non-vanilla stacked records cannot be truncated");
+
+        reset();
+        chest.setItem(0, new ItemStack(Items.MUSIC_DISC_CAT));
+        PlaylistJukebox removed = box;
+        world.removeBlock(POS, false);
+        removed.playlist$tick();
+        check(chest.getItem(0).getItem() == Items.MUSIC_DISC_CAT, "destroyed jukebox cannot consume a chest record");
+
+        System.out.println("PLAYLIST TESTS PASSED: " + assertions + " assertions");
+        server.halt(false);
+    }
+
+    private static void reset() {
+        world.removeBlock(POS.above(), false);
+        world.removeBlock(POS, false);
+        world.setBlock(POS, Blocks.JUKEBOX.defaultBlockState(), 3);
+        world.setBlock(POS.above(), Blocks.CHEST.defaultBlockState(), 3);
+        box = (PlaylistJukebox) world.getBlockEntity(POS);
+        chest = (Container) world.getBlockEntity(POS.above());
+    }
+
+    private static void tick() {
+        JukeboxBlockEntity entity = (JukeboxBlockEntity) box;
+        @TICK_INSTALLED@
+    }
+
+    private static void finish() {
+        Object previous = box.playlist$current().getItem();
+        for (int i = 0; i < 10000 && box.playlist$current().getItem() == previous; i++) tick();
+        check(box.playlist$current().getItem() != previous, "song reaches next record within its duration");
+    }
+
+    private static void check(boolean condition, String message) {
+        assertions++;
+        if (!condition) throw new AssertionError(message);
+        System.out.println("PLAYLIST CHECK: " + message);
+    }
+}

@@ -1,0 +1,7 @@
+.gradle/
+build/
+dist/
+.agents/
+.sober/
+__pycache__/
+*.log

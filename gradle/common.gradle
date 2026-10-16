@@ -1,0 +1,46 @@
+version = '0.1.0'
+group = 'dev.eyecrasher.jukeboxplaylists'
+base { archivesName = 'jukebox-playlists-' + playlistTarget.loader + '-' + playlistTarget.minecraft }
+def repositoryRoot = file(playlistRoot)
+def generated = layout.buildDirectory.dir('generated/playlist')
+tasks.register('preparePlaylist', Exec) {
+    inputs.dir(new File(repositoryRoot, 'src'))
+    inputs.file(new File(repositoryRoot, 'tools/generate.py'))
+    inputs.file(new File(repositoryRoot, 'versions.json'))
+    inputs.file(new File(repositoryRoot, 'pack-versions.json'))
+    inputs.property('target', playlistTarget.id)
+    outputs.dir(generated)
+    commandLine 'python3', new File(repositoryRoot, 'tools/generate.py'), '--target', playlistTarget.id, '--output', generated.get().asFile
+}
+sourceSets.main {
+    java.setSrcDirs([generated.map { it.dir('java') }])
+    resources.setSrcDirs([generated.map { it.dir('resources') }])
+}
+compileJava.dependsOn preparePlaylist
+processResources.dependsOn preparePlaylist
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = playlistTarget.java == 25 ? 21 : playlistTarget.java
+}
+configurations.matching { it.name.endsWith('CompileClasspath') || it.name.endsWith('RuntimeClasspath') || it.name in ['compileClasspath', 'runtimeClasspath'] }.configureEach {
+    attributes.attribute(org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, playlistTarget.java)
+}
+jar {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    manifest { attributes 'MixinConfigs': 'jukebox-playlists.mixins.json' }
+}
+if (providers.gradleProperty('playlistTest').isPresent()) {
+    if (playlistTarget.loader == 'forge') {
+        // Forge's userdev scanner needs classes and metadata in one root.
+        sourceSets.main.output.resourcesDir = layout.buildDirectory.dir('classes/java/main').get().asFile
+        tasks.named('processResources') {
+            dependsOn tasks.named('compileJava')
+            destinationDir = sourceSets.main.output.resourcesDir
+        }
+    }
+    tasks.named('preparePlaylist') {
+        commandLine 'python3', new File(repositoryRoot, 'tools/generate.py'), '--target', playlistTarget.id, '--output', generated.get().asFile, '--tests'
+        inputs.property('tests', true)
+    }
+}

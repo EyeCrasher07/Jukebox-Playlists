@@ -1,0 +1,60 @@
+package dev.eyecrasher.jukeboxplaylists.mixin;
+
+import dev.eyecrasher.jukeboxplaylists.PlaylistJukebox;
+import dev.eyecrasher.jukeboxplaylists.Playlists;
+import dev.eyecrasher.jukeboxplaylists.Platform;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.JukeboxBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+@IMPORTS@
+
+@Mixin(JukeboxBlockEntity.class)
+public abstract class JukeboxMixin implements PlaylistJukebox@INTERFACES@ {
+    @Unique private int playlist$cursor = -1;
+    @FIELDS@
+
+    @Override public int playlist$position() { return playlist$cursor; }
+    @Override public void playlist$position(int position) { playlist$cursor = position; }
+    @Override public ItemStack playlist$current() {
+        return ((JukeboxBlockEntity) (Object) this).@GET_ITEM@;
+    }
+
+    @Override public void playlist$play(ItemStack stack) {
+        JukeboxBlockEntity jukebox = (JukeboxBlockEntity) (Object) this;
+        @SET_ITEM@
+    }
+
+    @Override public void playlist$tick() {
+        JukeboxBlockEntity jukebox = (JukeboxBlockEntity) (Object) this;
+        Level level = jukebox.getLevel();
+        if (level == null || Platform.isClient(level) || jukebox.isRemoved()) return;
+        @TICK@
+        if (playlist$current().isEmpty()) Playlists.advance(this, false);
+    }
+
+    @EXTRA_METHODS@
+
+    @Inject(method = "@LOAD_METHOD@", at = @At("TAIL"))
+    private void playlist$load(@LOAD_ARGS@, CallbackInfo ci) {
+        playlist$cursor = @READ_CURSOR@;
+        @READ_TIMER@
+    }
+
+    @Inject(method = "@SAVE_METHOD@", at = @At("TAIL"))
+    private void playlist$save(@SAVE_ARGS@, @SAVE_CALLBACK@ ci) {
+        if (playlist$cursor >= 0) tag.putInt("playlist_position", playlist$cursor);
+        @SAVE_TIMER@
+    }
+}

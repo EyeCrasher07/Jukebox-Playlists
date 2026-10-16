@@ -1,0 +1,155 @@
+{
+  "1.16.5": 6,
+  "1.17": {
+    "resource": 7,
+    "data": 7
+  },
+  "1.17.1": {
+    "resource": 7,
+    "data": 7
+  },
+  "1.18": {
+    "resource": 8,
+    "data": 8
+  },
+  "1.18.1": {
+    "resource": 8,
+    "data": 8
+  },
+  "1.18.2": {
+    "resource": 8,
+    "data": 9
+  },
+  "1.19": {
+    "resource": 9,
+    "data": 10
+  },
+  "1.19.1": {
+    "resource": 9,
+    "data": 10
+  },
+  "1.19.2": {
+    "resource": 9,
+    "data": 10
+  },
+  "1.19.3": {
+    "resource": 12,
+    "data": 10
+  },
+  "1.19.4": {
+    "resource": 13,
+    "data": 12
+  },
+  "1.20": {
+    "resource": 15,
+    "data": 15
+  },
+  "1.20.1": {
+    "resource": 15,
+    "data": 15
+  },
+  "1.20.2": {
+    "resource": 18,
+    "data": 18
+  },
+  "1.20.3": {
+    "resource": 22,
+    "data": 26
+  },
+  "1.20.4": {
+    "resource": 22,
+    "data": 26
+  },
+  "1.20.5": {
+    "resource": 32,
+    "data": 41
+  },
+  "1.20.6": {
+    "resource": 32,
+    "data": 41
+  },
+  "1.21": {
+    "resource": 34,
+    "data": 48
+  },
+  "1.21.1": {
+    "resource": 34,
+    "data": 48
+  },
+  "1.21.2": {
+    "resource": 42,
+    "data": 57
+  },
+  "1.21.3": {
+    "resource": 42,
+    "data": 57
+  },
+  "1.21.4": {
+    "resource": 46,
+    "data": 61
+  },
+  "1.21.5": {
+    "resource": 55,
+    "data": 71
+  },
+  "1.21.6": {
+    "resource": 63,
+    "data": 80
+  },
+  "1.21.7": {
+    "resource": 64,
+    "data": 81
+  },
+  "1.21.8": {
+    "resource": 64,
+    "data": 81
+  },
+  "1.21.9": {
+    "resource_major": 69,
+    "resource_minor": 0,
+    "data_major": 88,
+    "data_minor": 0
+  },
+  "1.21.10": {
+    "resource_major": 69,
+    "resource_minor": 0,
+    "data_major": 88,
+    "data_minor": 0
+  },
+  "1.21.11": {
+    "resource_major": 75,
+    "resource_minor": 0,
+    "data_major": 94,
+    "data_minor": 1
+  },
+  "26.1": {
+    "resource_major": 84,
+    "resource_minor": 0,
+    "data_major": 101,
+    "data_minor": 1
+  },
+  "26.1.1": {
+    "resource_major": 84,
+    "resource_minor": 0,
+    "data_major": 101,
+    "data_minor": 1
+  },
+  "26.1.2": {
+    "resource_major": 84,
+    "resource_minor": 0,
+    "data_major": 101,
+    "data_minor": 1
+  },
+  "26.2": {
+    "resource_major": 88,
+    "resource_minor": 0,
+    "data_major": 107,
+    "data_minor": 1
+  },
+  "26.3": {
+    "resource_major": 97,
+    "resource_minor": 1,
+    "data_major": 121,
+    "data_minor": 0
+  }
+}
