@@ -4,7 +4,7 @@
 
 Backports jukebox chest playlists from [Minecraft 26.4 Snapshot 4](https://www.minecraft.net/en-us/article/minecraft-26-4-snapshot-4) to **Minecraft 1.16.5–26.3**. Includes optional support for recorded [LazoDiscs](https://github.com/EyeCrasher07/LazoDiscs).
 
-[Downloads](https://github.com/EyeCrasher07/Jukebox-Playlists/releases) · [Issues](https://github.com/EyeCrasher07/Jukebox-Playlists/issues) · [Verification](docs/VERIFICATION.md)
+[Downloads](https://github.com/EyeCrasher07/Jukebox-Playlists/releases) · [Issues](https://github.com/EyeCrasher07/Jukebox-Playlists/issues)
 
 ## Getting started
 
@@ -79,15 +79,15 @@ cd fabric/26.3
 ./gradlew build
 ```
 
-On Windows use `gradlew.bat build`. The installable JAR is in that project's `build/libs/`; choose the file without a `-dev` suffix. Matrix scripts, development templates and gameplay test instructions: [docs/BUILDING.md](docs/BUILDING.md).
+On Windows use `gradlew.bat build`. The installable JAR is in that project's `build/libs/`; choose the file without a `-dev` suffix. Matrix scripts and development templates are in `tools/`; run `python3 tools/sync_projects.py --check` to check the checked-in projects.
 
 ## Verification
 
 The recorded gameplay checks cover all 90 SDK servers, 52 LazoDiscs server/audio combinations, six native client combinations, LazoDiscs clients on Forge 1.20.2/1.21, and a dedicated Fabric 26.3 server with two separate clients, captured sound and a full restart. The LazoDiscs checks use recordings made with `/lazodisc burn`, including audio longer than its vanilla base disc.
 
-The initial release packaging sets version 1.0.0 and adds GPL texts and author/contact metadata. Every class and runtime resource in all 90 rebuilt JARs is compared byte for byte with the gameplay-tested baseline. Original test hashes and packaging changes are recorded separately in [the verification report](docs/VERIFICATION.md) and [packaging comparison](docs/PACKAGING-VERIFICATION.json).
+The initial release packaging sets version 1.0.0 and adds GPL texts and author/contact metadata. Every class and runtime resource in all 90 rebuilt JARs is compared byte for byte with the gameplay-tested baseline. Original test hashes and packaging comparisons are recorded separately in the release manifest. Detailed local evidence remains in the development workspace.
 
-Created by **EyeCrasher07**. Licensed under [GPL-3.0-only](LICENSE); the incorporated GPL text is in [COPYING](COPYING). [Third-party notices](THIRD-PARTY-NOTICES.md).
+Created by **EyeCrasher07**. Licensed under [GPL-3.0-only](LICENSE).
 
 ---
 
@@ -125,8 +125,8 @@ item.example.my_music_disc=4200
 
 ### Исходники и проверки
 
-Структура соответствует WIGO: `fabric/<версия>`, `forge/<версия>`, `neoforge/<версия>`. Внутри каждой папки есть свои исходники, ресурсы и `gradlew`. Для обычной сборки перейди в нужную папку и выполни `./gradlew build` (`gradlew.bat build` в Windows); готовый JAR без `-dev` будет в `build/libs/`. Требования к JDK указаны выше, подробные команды — в [docs/BUILDING.md](docs/BUILDING.md).
+Структура соответствует WIGO: `fabric/<версия>`, `forge/<версия>`, `neoforge/<версия>`. Внутри каждой папки есть свои исходники, ресурсы и `gradlew`. Для обычной сборки перейди в нужную папку и выполни `./gradlew build` (`gradlew.bat build` в Windows); готовый JAR без `-dev` будет в `build/libs/`. Требования к JDK указаны выше; скрипты сборки всей матрицы находятся в `tools/`.
 
-Проверки в настоящем Minecraft, звук записей LazoDiscs и границы совместимости описаны в [docs/VERIFICATION.md](docs/VERIFICATION.md). При подготовке выпуска отдельно сверено совпадение всех игровых классов и ресурсов с проверенными файлами: изменение лицензии и метаданных не выдаётся за повторный игровой прогон.
+При подготовке выпуска отдельно сверено совпадение всех игровых классов и ресурсов с файлами, проверенными в настоящем Minecraft: изменение лицензии и метаданных не выдаётся за повторный игровой прогон. Хеши проверенных файлов и сравнения включены в манифест релиза.
 
 Автор — **EyeCrasher07**. Лицензия — [GPL-3.0-only](LICENSE).

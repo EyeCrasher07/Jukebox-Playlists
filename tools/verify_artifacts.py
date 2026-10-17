@@ -23,7 +23,7 @@ def main():
         assert checksum == entry["sha256"], "Artifact changed after build: " + str(path)
         with zipfile.ZipFile(path) as archive:
             names = archive.namelist()
-            for license_file, member in [('LICENSE', 'LICENSE_jukebox-playlists.txt'), ('COPYING', 'COPYING_GPL-3.0.txt'), ('NOTICE', 'NOTICE_jukebox-playlists.txt')]:
+            for license_file, member in [('LICENSE', 'LICENSE_jukebox-playlists.txt')]:
                 assert archive.read(member) == (ROOT / license_file).read_bytes(), 'Missing or stale release license: ' + target['id']
             project = ROOT / target['loader'] / target['minecraft']
             for name in ('build.gradle', 'settings.gradle', 'gradle.properties', 'gradlew', 'gradlew.bat', 'gradle/wrapper/gradle-wrapper.jar', 'gradle/wrapper/gradle-wrapper.properties'):

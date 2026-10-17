@@ -12,9 +12,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LICENSES = {
     'LICENSE_jukebox-playlists.txt': 'LICENSE',
-    'COPYING_GPL-3.0.txt': 'COPYING',
-    'NOTICE_jukebox-playlists.txt': 'NOTICE',
 }
+RETIRED_LICENSE_ENTRIES = {'COPYING_GPL-3.0.txt', 'NOTICE_jukebox-playlists.txt'}
 
 
 def gameplay_metadata(data, fabric, expected_version):
@@ -45,13 +44,14 @@ def compare(target, baseline, previous_release, previous_version, release_versio
     with zipfile.ZipFile(io.BytesIO(previous)) as old, zipfile.ZipFile(io.BytesIO(current)) as new:
         old_names = {n for n in old.namelist() if not n.endswith('/')}
         new_names = {n for n in new.namelist() if not n.endswith('/')}
-        assert old_names - set(LICENSES) == new_names - set(LICENSES), 'Changed runtime entry set: ' + target['id']
+        assert old_names - set(LICENSES) - RETIRED_LICENSE_ENTRIES == new_names - set(LICENSES), 'Changed runtime entry set: ' + target['id']
         assert set(LICENSES) <= new_names, 'Missing license entries: ' + target['id']
+        assert not RETIRED_LICENSE_ENTRIES & new_names, 'Retired license copies remain: ' + target['id']
         metadata = 'fabric.mod.json' if fabric else next(n for n in old_names if n.endswith('mods.toml'))
         assert gameplay_metadata(old.read(metadata), fabric, previous_version) == gameplay_metadata(new.read(metadata), fabric, release_version), 'Changed loader/dependency metadata: ' + target['id']
         payload = hashlib.sha256()
         classes = 0
-        for name in sorted(old_names - {metadata} - set(LICENSES)):
+        for name in sorted(old_names - {metadata} - set(LICENSES) - RETIRED_LICENSE_ENTRIES):
             content = old.read(name)
             assert content == new.read(name), 'Changed runtime entry: ' + target['id'] + '/' + name
             payload.update(name.encode() + b'\0' + hashlib.sha256(content).digest())
@@ -66,7 +66,7 @@ def compare(target, baseline, previous_release, previous_version, release_versio
         'tested_baseline_sha256': hashlib.sha256(previous).hexdigest(),
         'runtime_payload_sha256': payload.hexdigest(),
         'unchanged_class_count': classes,
-        'changed_entries': sorted([metadata, *LICENSES]),
+        'changed_entries': sorted([metadata, *LICENSES, *(old_names & RETIRED_LICENSE_ENTRIES)]),
     }
 
 
@@ -111,7 +111,9 @@ def main():
         (ROOT / 'build/results' / (target + '-packaging.json')).write_text(json.dumps({
             'target': target, 'kind': 'packaging', 'result': result,
         }, indent=2) + '\n')
-    (ROOT / 'docs/PACKAGING-VERIFICATION.json').write_text(json.dumps({
+    output = ROOT / '.agents/reports/PACKAGING-VERIFICATION.json'
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps({
         'version': matrix['mod_version'],
         'verified_at': datetime.datetime.now(datetime.UTC).isoformat(timespec='seconds'),
         'baseline_archive_sha256': digest,

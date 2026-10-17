@@ -77,9 +77,9 @@ def main():
         lines[position:position] = [
             '## Подготовка выпуска', '',
             f'После игровых проверок **{len(packaging)}** JAR пересобраны из отдельных проектов `fabric/<версия>`, `forge/<версия>` и `neoforge/<версия>`.',
-            'В метаданных загрузчика установлены номер первого выпуска 1.0.0, лицензия, автор и ссылки; добавлены три файла лицензии и уведомления.',
+            'В метаданных загрузчика установлены номер первого выпуска 1.0.0, GPL-3.0-only, автор и ссылки; в JAR включён текст GPL.',
             'Все классы, mixin-конфигурации, refmap, теги и прочие игровые ресурсы побайтно совпадают с проверенными JAR. Зависимости и ограничения загрузчиков также совпадают.',
-            'Это сравнение упаковки, а не повторный игровой прогон всей матрицы. Исходные SHA-256 игровых запусков сохранены; соответствие новым файлам: `docs/PACKAGING-VERIFICATION.json`.', '',
+            'Это сравнение упаковки, а не повторный игровой прогон всей матрицы. Исходные SHA-256 игровых запусков сохранены; соответствие новым файлам: `.agents/reports/PACKAGING-VERIFICATION.json`.', '',
         ]
     targets = {t['id']: t for t in matrix['targets']}
     for mc in dict.fromkeys(t['minecraft'] for t in matrix['targets']):
@@ -150,7 +150,9 @@ def main():
               'python3 tools/report.py', 'python3 tools/package.py', '```', '',
               'Дополнительные Java передаются через `--java-path`; установленному Forge 1.16.5 нужна Java 8.',
               'Локальные логи, хеши JAR, результаты и история попыток находятся в `build/results`, `build/status.json` и `build/evidence`; эти рабочие каталоги не входят в исходники или полный ZIP.', '']
-    (ROOT / 'docs/VERIFICATION.md').write_text('\n'.join(lines))
+    output = ROOT / '.agents/reports/VERIFICATION.md'
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text('\n'.join(lines))
     print(f'Builds {len(built)}/90; SDK {len(runtime)}/90; clients {len(clients)}; LazoDiscs {len(lazo) + len(patched)}/52 (published {len(lazo)}, metadata fix {len(patched)}); paired {len(pairs)}; Lazo paired {len(lazo_pairs)}')
 
 

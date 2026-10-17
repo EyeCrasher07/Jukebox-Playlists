@@ -17,6 +17,4 @@ jar {
     reproducibleFileOrder = true
     manifest { attributes 'MixinConfigs': 'jukebox-playlists.mixins.json' }
     from(new File(playlistRoot, 'LICENSE')) { rename { 'LICENSE_jukebox-playlists.txt' } }
-    from(new File(playlistRoot, 'COPYING')) { rename { 'COPYING_GPL-3.0.txt' } }
-    from(new File(playlistRoot, 'NOTICE')) { rename { 'NOTICE_jukebox-playlists.txt' } }
 }

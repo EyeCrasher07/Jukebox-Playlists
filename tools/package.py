@@ -43,7 +43,7 @@ def prepare_dependency_fix(pin):
 Это локальное исправление Plasmo Voice 2.1.17. Уведомление об изменении и лицензия сохранены.
 Исходники исходного выпуска находятся в source/. В корне полного комплекта есть
 tools/patch_plasmo_voice.py для воспроизведения исправления из исходного опубликованного JAR.
-Контрольные суммы файлов находятся в SHA256SUMS. Подробности проверок — в docs/VERIFICATION.md полного комплекта.
+Контрольные суммы файлов находятся в SHA256SUMS. Результаты проверок сборки указаны в manifest.json полного комплекта.
 ''')
     contents = [path, source_path, path.parent / 'LICENSE-PlasmoVoice.txt', path.parent / 'NOTICE.txt', path.parent / 'README-RU.md']
     sums = path.parent / 'SHA256SUMS'
@@ -134,11 +134,10 @@ item.example.my_music_disc=4200
 Значение — тики, 20 тиков = 1 секунда. Для ванильных пластинок и записей LazoDiscs настройки не нужны.
 После изменения конфигурации перезапустите игру или сервер.
 
-Результаты проверок: docs/VERIFICATION.md. Подробности механики: docs/MECHANICS.md.
 SHA256SUMS содержит контрольные суммы каждого JAR; manifest.json — версии загрузчиков и результаты игровых проверок.
-Лицензия мода — GPL-3.0-only; тексты находятся в LICENSE и COPYING.
+Лицензия мода — GPL-3.0-only; полный текст находится в LICENSE и внутри JAR.
 После игровых прогонов в метаданных загрузчика установлены номер первого выпуска 1.0.0, лицензия, автор и ссылки.
-Все игровые классы и ресурсы сверены побайтно с проверенными файлами; таблица старых и новых SHA-256 — docs/PACKAGING-VERIFICATION.json.
+Все игровые классы и ресурсы сверены побайтно с проверенными файлами; таблица старых и новых SHA-256 включена в manifest.json.
 В manifest.json exact_release_jar отличает запуск точного файла выпуска от подтверждённого совпадения игровых классов.
 '''
     (ROOT / "dist/INSTALL-RU.md").write_text(install)
@@ -150,12 +149,6 @@ SHA256SUMS содержит контрольные суммы каждого JAR
             output.write(path, str(path.relative_to(ROOT / 'dist')))
         for path, name in [(ROOT / "dist/INSTALL-RU.md", "README.md"),
                            (ROOT / "LICENSE", "LICENSE"),
-                           (ROOT / "COPYING", "COPYING"),
-                           (ROOT / "NOTICE", "NOTICE"),
-                           (ROOT / "THIRD-PARTY-NOTICES.md", "THIRD-PARTY-NOTICES.md"),
-                           (ROOT / "docs/MECHANICS.md", "docs/MECHANICS.md"),
-                           (ROOT / "docs/VERIFICATION.md", "docs/VERIFICATION.md"),
-                           (ROOT / "docs/PACKAGING-VERIFICATION.json", "docs/PACKAGING-VERIFICATION.json"),
                            (ROOT / "fabric-api-pins.json", "fabric-api-pins.json"),
                            (ROOT / "lazodiscs-compatibility.json", "lazodiscs-compatibility.json"),
                            (ROOT / "tools/patch_plasmo_voice.py", "tools/patch_plasmo_voice.py"),
