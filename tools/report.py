@@ -23,13 +23,23 @@ def main():
     for path in (ROOT / 'build/results').glob('*.json'):
         item = json.loads(path.read_text())
         status.setdefault(item['target'], {})[item['kind']] = item['result']
-    # An exact-JAR pass remains evidence only while that same artifact is shipped.
+    # Keep the original tested SHA. A separate strict comparison can establish
+    # that only release version/license/author/contact packaging changed.
     for item in status.values():
+        proof = item.get('packaging', {})
+        if proof.get('success'):
+            artifact = ROOT / proof['artifact']
+            if not artifact.is_file() or hashlib.sha256(artifact.read_bytes()).hexdigest() != proof['sha256']:
+                proof['success'] = False
         for kind in ('client_runtime', 'pair_runtime', 'lazo_runtime', 'lazo_dependency_runtime', 'lazo_pair_runtime', 'lazo_client_runtime'):
             result = item.get(kind, {})
             if result.get('success') and result.get('artifact'):
-                artifact = ROOT / result['artifact']
-                if not artifact.exists() or hashlib.sha256(artifact.read_bytes()).hexdigest() != result.get('sha256'):
+                artifact = ROOT / item.get('build', {}).get('artifact', result['artifact'])
+                current = hashlib.sha256(artifact.read_bytes()).hexdigest() if artifact.is_file() else None
+                if current != result.get('sha256') and proof.get('success') and ROOT / proof['artifact'] == artifact and proof['sha256'] == current and proof['tested_baseline_sha256'] == result.get('sha256'):
+                    result['packaging_only_update'] = True
+                    result['release_sha256'] = current
+                elif current != result.get('sha256'):
                     result['success'] = False
                     result['stale_artifact'] = True
     (ROOT / 'build/status.json').write_text(json.dumps(status, indent=2) + '\n')
@@ -55,12 +65,22 @@ def main():
              f'LazoDiscs 1.0.7 + Plasmo Voice 2.1.17: **{len(lazo) + len(patched)}/{len(pins["targets"])}** сочетаний, **{lazo_count} assertions**. Из них **{len(lazo)}** с неизменёнными опубликованными зависимостями и **{len(patched)}** с локальным исправлением метаданных Plasmo Voice.',
              f'Выделенный сервер и две отдельные клиентские JVM: обычные диски **{len(pairs)}**, LazoDiscs **{len(lazo_pairs)}** сочетаний.', '',
              'Серверная матрица обычных плейлистов проверяет исходники в SDK и ускоряет длительные треки вызовами тикера.',
-             'Клиентские сценарии используют неизменённый JAR из `dist/`, обычные тики мира и звуковой движок Minecraft.',
+             'Клиентские сценарии используют готовый JAR из `dist/`, обычные тики мира и звуковой движок Minecraft. SHA-256 проверенного файла сохраняется в каждой записи.',
              'Неудачные попытки сохраняются отдельно; PASS одного сочетания не переносится на остальные.', '',
              '## Обычные плейлисты', '',
              '`Сервер` — пройден SDK; `Клиент` — дополнительно 15 проверок точного JAR; `2 клиента` — отдельный сетевой сценарий с перезапуском.',
              '`JAR` означает только сборку, `—` — загрузчик отсутствует для этого релиза.', '',
              '| Minecraft | Fabric | Forge | NeoForge |', '| --- | --- | --- | --- |']
+    packaging = passes('packaging')
+    if packaging:
+        position = lines.index('## Обычные плейлисты')
+        lines[position:position] = [
+            '## Подготовка выпуска', '',
+            f'После игровых проверок **{len(packaging)}** JAR пересобраны из отдельных проектов `fabric/<версия>`, `forge/<версия>` и `neoforge/<версия>`.',
+            'В метаданных загрузчика установлены номер первого выпуска 1.0.0, лицензия, автор и ссылки; добавлены три файла лицензии и уведомления.',
+            'Все классы, mixin-конфигурации, refmap, теги и прочие игровые ресурсы побайтно совпадают с проверенными JAR. Зависимости и ограничения загрузчиков также совпадают.',
+            'Это сравнение упаковки, а не повторный игровой прогон всей матрицы. Исходные SHA-256 игровых запусков сохранены; соответствие новым файлам: `docs/PACKAGING-VERIFICATION.json`.', '',
+        ]
     targets = {t['id']: t for t in matrix['targets']}
     for mc in dict.fromkeys(t['minecraft'] for t in matrix['targets']):
         row = [mc]
@@ -87,6 +107,8 @@ def main():
               '## Клиенты и звук', '']
     for key, result in clients.items():
         lines.append(f"- `{key}`: SHA-256 `{result['sha256']}`; лог `{result['log']}`.")
+        if result.get('packaging_only_update'):
+            lines.append(f"  SHA-256 выпуска после изменения упаковки: `{result['release_sha256']}`.")
     for key, result in passes('lazo_client_runtime').items():
         lines += ['', f"**LazoDiscs, одиночный клиент {key}**: SHA-256 `{result['sha256']}`; лог `{result['log']}`.",
                   'Настоящая команда `/lazodisc burn` создаёт записи 440/880 Гц. Проверяются активный источник Plasmo Voice с положительной громкостью, отсутствие ванильного звука, естественный переход и сохранение всех данных записей; затем 15 проверок обычных пластинок. Микрофон отключён.']
@@ -111,14 +133,14 @@ def main():
     review = ROOT / 'build/evidence/visual-review.json'
     if review.exists():
         reviewed = json.loads(review.read_text())
-        lines += ['', f"Открыто и осмотрено кадров этой версии: **{len(reviewed['screenshots'])}**. Перечень и хеши: `build/evidence/visual-review.json`."]
+        lines += ['', f"При подготовке выпуска открыто и осмотрено оригинальных кадров: **{len(reviewed['screenshots'])}**. Перечень и хеши: `build/evidence/visual-review.json`."]
     lines += ['', '## Границы проверки', '',
               f'Серверная проверка с LazoDiscs выполнена для {len(lazo) + len(patched)} перечисленных PASS; полный сетевой и звуковой сценарий — на Fabric 26.3. Вариант с исправленным PV проверяется отдельно от опубликованных файлов.',
               'Остальные сочетания основной матрицы не имеют опубликованного LazoDiscs 1.0.7. Модпаки, шейдеры, OptiFine, ресурспаки и прочие интеграции LazoDiscs отдельно не проверялись.',
               'Проверены стандартные Fabric/Forge/NeoForge. Vanilla/Paper не загружают эти моды; гибридные ядра и прокси отдельно не проверялись.',
               'Проверяется декодирование локальных WAV и реальная передача Plasmo Voice; доступность YouTube и других внешних сервисов зависит от LazoDiscs и не проверяется этим сценарием.',
               'Forge 1.20.6 использует совместимость Mixin JAVA_17 из-за встроенной Mixin 0.8.5; игровая JVM остаётся Java 21.', '',
-              '## Команды', '', '```bash', 'python3 tools/build.py', 'python3 tools/verify_artifacts.py',
+              '## Команды', '', '```bash', 'python3 tools/sync_projects.py --check', 'python3 tools/build_matrix.py', 'python3 tools/verify_artifacts.py',
               'python3 tools/runtime_matrix.py --eula-file /path/to/accepted/eula.txt',
               'python3 tools/client_test.py --target fabric-26.3',
               'python3 tools/lazo_deps.py',
@@ -127,7 +149,7 @@ def main():
               'python3 tools/pair_test.py --lazo --audio --eula-file /path/to/accepted/eula.txt',
               'python3 tools/report.py', 'python3 tools/package.py', '```', '',
               'Дополнительные Java передаются через `--java-path`; установленному Forge 1.16.5 нужна Java 8.',
-              'Логи, хеши JAR, результаты и история попыток находятся в `build/results`, `build/status.json` и `build/evidence`.', '']
+              'Локальные логи, хеши JAR, результаты и история попыток находятся в `build/results`, `build/status.json` и `build/evidence`; эти рабочие каталоги не входят в исходники или полный ZIP.', '']
     (ROOT / 'docs/VERIFICATION.md').write_text('\n'.join(lines))
     print(f'Builds {len(built)}/90; SDK {len(runtime)}/90; clients {len(clients)}; LazoDiscs {len(lazo) + len(patched)}/52 (published {len(lazo)}, metadata fix {len(patched)}); paired {len(pairs)}; Lazo paired {len(lazo_pairs)}')
 

@@ -64,18 +64,25 @@ def main():
         dependency_patch = pins.get(target['id'], {}).get('dependency_patch')
         dependency_result = result.get('lazo_dependency_runtime', {})
         expected = ROOT / 'build/compat-deps' / dependency_patch['filename'] if dependency_patch else None
-        dependency_verified = bool(expected and expected.is_file() and dependency_result.get('success') and dependency_result.get('audio_verified') and dependency_result.get('sha256') == result['build']['sha256'] and any(d.get('sha256') == hashlib.sha256(expected.read_bytes()).hexdigest() for d in dependency_result.get('dependencies', [])))
+        dependency_verified = bool(expected and expected.is_file() and dependency_result.get('success') and dependency_result.get('audio_verified') and (dependency_result.get('sha256') == result['build']['sha256'] or dependency_result.get('packaging_only_update')) and any(d.get('sha256') == hashlib.sha256(expected.read_bytes()).hexdigest() for d in dependency_result.get('dependencies', [])))
         releases.append({**target, "file": str(Path(result["build"]["artifact"]).relative_to("dist")),
                          "sha256": result["build"]["sha256"],
                          "runtime_tested": result.get("runtime", {}).get("success", False),
                          "client_runtime_tested": result.get("client_runtime", {}).get("success", False),
                          "pair_runtime_tested": result.get("pair_runtime", {}).get("success", False),
-                         "lazodiscs_runtime_tested": result.get("lazo_runtime", {}).get("success", False) and result.get("lazo_runtime", {}).get("audio_verified", False) and result.get("lazo_runtime", {}).get("sha256") == result["build"]["sha256"],
+                         "lazodiscs_runtime_tested": result.get("lazo_runtime", {}).get("success", False) and result.get("lazo_runtime", {}).get("audio_verified", False) and (result.get("lazo_runtime", {}).get("sha256") == result["build"]["sha256"] or result.get("lazo_runtime", {}).get("packaging_only_update", False)),
                          "lazodiscs_pair_runtime_tested": result.get("lazo_pair_runtime", {}).get("success", False),
                          "lazodiscs_client_runtime_tested": result.get("lazo_client_runtime", {}).get("success", False),
                          "lazodiscs_dependency_patch": dependency_patch,
                          "lazodiscs_patched_dependency_runtime_tested": dependency_verified,
-                         "production_runtime_tested": result.get("production_runtime", {}).get("success", False)})
+                         "production_runtime_tested": result.get("production_runtime", {}).get("success", False),
+                         "packaging_verification": result.get('packaging'),
+                         "runtime_evidence": {kind: {
+                             "success": evidence.get('success', False),
+                             "tested_sha256": evidence.get('sha256'),
+                             "exact_release_jar": evidence.get('sha256') == result['build']['sha256'],
+                             "packaging_only_update": evidence.get('packaging_only_update', False),
+                         } for kind in ('client_runtime', 'pair_runtime', 'lazo_runtime', 'lazo_dependency_runtime', 'lazo_client_runtime', 'lazo_pair_runtime') if (evidence := result.get(kind))}})
     compatibility_files, fixes = [], []
     for pin in pins.values():
         if pin.get('dependency_patch'):
@@ -87,7 +94,7 @@ def main():
             paths, fix = prepare_dependency_fix(pin)
             compatibility_files.extend(paths)
             fixes.append(fix)
-    manifest = {"version": matrix["mod_version"], "releases": releases, "dependency_fixes": fixes}
+    manifest = {"version": matrix["mod_version"], "license": "LGPL-3.0-only", "releases": releases, "dependency_fixes": fixes}
     (ROOT / "dist/manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     install = '''# Jukebox Playlists
 
@@ -129,6 +136,10 @@ item.example.my_music_disc=4200
 
 Результаты проверок: docs/VERIFICATION.md. Подробности механики: docs/MECHANICS.md.
 SHA256SUMS содержит контрольные суммы каждого JAR; manifest.json — версии загрузчиков и результаты игровых проверок.
+Лицензия мода — LGPL-3.0-only; тексты находятся в LICENSE и COPYING.
+После игровых прогонов в метаданных загрузчика установлены номер первого выпуска 1.0.0, лицензия, автор и ссылки.
+Все игровые классы и ресурсы сверены побайтно с проверенными файлами; таблица старых и новых SHA-256 — docs/PACKAGING-VERIFICATION.json.
+В manifest.json exact_release_jar отличает запуск точного файла выпуска от подтверждённого совпадения игровых классов.
 '''
     (ROOT / "dist/INSTALL-RU.md").write_text(install)
     archive = ROOT / "dist" / ("jukebox-playlists-" + matrix["mod_version"] + "-all.zip")
@@ -138,8 +149,13 @@ SHA256SUMS содержит контрольные суммы каждого JAR
         for path in compatibility_files:
             output.write(path, str(path.relative_to(ROOT / 'dist')))
         for path, name in [(ROOT / "dist/INSTALL-RU.md", "README.md"),
+                           (ROOT / "LICENSE", "LICENSE"),
+                           (ROOT / "COPYING", "COPYING"),
+                           (ROOT / "NOTICE", "NOTICE"),
+                           (ROOT / "THIRD-PARTY-NOTICES.md", "THIRD-PARTY-NOTICES.md"),
                            (ROOT / "docs/MECHANICS.md", "docs/MECHANICS.md"),
                            (ROOT / "docs/VERIFICATION.md", "docs/VERIFICATION.md"),
+                           (ROOT / "docs/PACKAGING-VERIFICATION.json", "docs/PACKAGING-VERIFICATION.json"),
                            (ROOT / "fabric-api-pins.json", "fabric-api-pins.json"),
                            (ROOT / "lazodiscs-compatibility.json", "lazodiscs-compatibility.json"),
                            (ROOT / "tools/patch_plasmo_voice.py", "tools/patch_plasmo_voice.py"),

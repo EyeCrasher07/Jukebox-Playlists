@@ -27,7 +27,7 @@ def prepare(target, java_paths=(), lazo=False, audio_base=None):
         raise ValueError('Client fixture supports 26.3, 1.16.5 and Fabric/Forge 1.20.6')
     folder = ROOT / 'build/targets' / (('client-lazo-' if lazo else 'client-') + target['id'])
     folder.mkdir(parents=True, exist_ok=True)
-    original = ROOT / 'build/targets' / target['id']
+    original = ROOT / loader / mc
     for name in ('settings.gradle', 'gradle.properties'):
         shutil.copyfile(original / name, folder / name)
     if java_paths:
@@ -45,10 +45,10 @@ def prepare(target, java_paths=(), lazo=False, audio_base=None):
     resources = folder / 'probe/resources'
     hit = lambda pos: f'new BlockHitResult(Vec3.atCenterOf({pos}), Direction.SOUTH, {pos}, false)'
     use = lambda pos: f'mc.gameMode.useItemOn(mc.player, ' + ('mc.level, ' if legacy else '') + f'InteractionHand.MAIN_HAND, {hit(pos)})'
-    source = (ROOT / 'src/clienttest/ClientChecks.java.in').read_text()
+    source = (ROOT / 'tools/templates/clienttest/ClientChecks.java.in').read_text()
     replacements = {
         'LAZO_AUDIO_CHECK': 'lazoScenario();' if lazo else '',
-        'LAZO_CLIENT_METHODS': (ROOT / 'src/clienttest/LazoClientScenario.java.in').read_text() if lazo else '',
+        'LAZO_CLIENT_METHODS': (ROOT / 'tools/templates/clienttest/LazoClientScenario.java.in').read_text() if lazo else '',
         'EXECUTE_COMMAND': 'performCommand' if legacy else 'performPrefixedCommand',
         'ENVIRONMENT_COMMANDS': ', '.join(map(json.dumps, ['time set day', 'weather clear', 'difficulty peaceful'] + (['gamerule advance_time false', 'gamerule advance_weather false', 'gamerule spawn_mobs false'] if modern else ['gamerule doDaylightCycle false', 'gamerule doWeatherCycle false', 'gamerule doMobSpawning false']))),
         'SOUND_ID': 'getIdentifier' if modern else 'getLocation',
@@ -136,7 +136,8 @@ import org.spongepowered.asm.mixin.injection.callback.*;
         for service in services:
             # The installed client uses Forge's normal launcher, not userdev.
             (resources / 'META-INF/services' / service).unlink(missing_ok=True)
-    build = (original / 'build.gradle').read_text().split("apply from: new File(playlistRoot, 'gradle/common.gradle')")[0]
+    build = (original / 'build.gradle').read_text().split("apply from: new File(playlistRoot, 'gradle/release.gradle')")[0]
+    build = build.replace("file('../..').absolutePath", json.dumps(str(ROOT)))
     build = build.replace('jukebox_playlists { source sourceSets.main }', 'playlist_client_checks { source sourceSets.main }').replace('jukebox_playlists { sourceSet(sourceSets.main) }', 'playlist_client_checks { sourceSet(sourceSets.main) }')
     build = build.replace("args '--mixin.config=jukebox-playlists.mixins.json'", "args '--mixin.config=playlist-client-checks.mixins.json'")
     build = build.replace('jukebox-playlists.mixins.json', 'playlist-client-checks.mixins.json')

@@ -26,14 +26,14 @@ def prepare(target, output, tests=False, lazo_tests=False):
     resources = output / "resources"
     java_dir.mkdir(parents=True, exist_ok=True)
     resources.mkdir(parents=True, exist_ok=True)
-    for source in (ROOT / "src/main/java").rglob("*.java"):
-        dest = java_dir / source.relative_to(ROOT / "src/main/java")
+    for source in (ROOT / "tools/templates/main/java").rglob("*.java"):
+        dest = java_dir / source.relative_to(ROOT / "tools/templates/main/java")
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, dest)
-    write(java_dir / PACKAGE / 'mixin/LazoPlaybackMixin.java', (ROOT / 'src/templates/LazoPlaybackMixin.java.in').read_text())
+    write(java_dir / PACKAGE / 'mixin/LazoPlaybackMixin.java', (ROOT / 'tools/templates/templates/LazoPlaybackMixin.java.in').read_text())
     if legacy:
         dest = java_dir / PACKAGE / "LegacyDiscLengths.java"
-        shutil.copyfile(ROOT / "src/legacy/java" / PACKAGE / "LegacyDiscLengths.java", dest)
+        shutil.copyfile(ROOT / "tools/templates/legacy/java" / PACKAGE / "LegacyDiscLengths.java", dest)
     fields = "@Unique private long playlist$elapsed;" if legacy else "@Shadow private boolean isPlaying;" if not songs else ""
     get_item = "getRecord()" if legacy or classic else "getItem(0)" if v < (1, 20, 3) else "getTheItem()"
     if legacy or classic:
@@ -88,7 +88,7 @@ def prepare(target, output, tests=False, lazo_tests=False):
         "READ_TIMER": 'playlist$elapsed = tag.contains("jukebox_playlists:elapsed") ? tag.getLong("jukebox_playlists:elapsed") : 0;' if legacy else "",
         "SAVE_TIMER": 'tag.putLong("jukebox_playlists:elapsed", playlist$elapsed);' if legacy else "",
     }
-    source = (ROOT / "src/templates/JukeboxMixin.java.in").read_text()
+    source = (ROOT / "tools/templates/templates/JukeboxMixin.java.in").read_text()
     for key, value in replacements.items():
         source = source.replace("@" + key + "@", value)
     write(java_dir / PACKAGE / "mixin/JukeboxMixin.java", source)
@@ -165,11 +165,11 @@ public final class JukeboxPlaylistsMod {{ public JukeboxPlaylistsMod() {{}} }}
               "injectors": {"defaultRequire": 1}}
     if mc == '1.16.5':
         formatter = 'Lnet/minecraft/class_2338;method_23854()Ljava/lang/String;' if target['loader'] == 'fabric' else 'Lnet/minecraft/util/math/BlockPos;func_229422_x_()Ljava/lang/String;'
-        write(java_dir / PACKAGE / 'mixin/LazoLegacyPositionMixin.java', (ROOT / 'src/templates/LazoLegacyPositionMixin.java.in').read_text().replace('@FORMATTER@', formatter))
+        write(java_dir / PACKAGE / 'mixin/LazoLegacyPositionMixin.java', (ROOT / 'tools/templates/templates/LazoLegacyPositionMixin.java.in').read_text().replace('@FORMATTER@', formatter))
         config['mixins'].append('LazoLegacyPositionMixin')
     if target['id'] == 'forge-1.21':
         for name, subfolder in (('LazoBootstrapMixin', 'mixin/'), ('LazoBootstrapPlugin', '')):
-            write(java_dir / PACKAGE / (subfolder + name + '.java'), (ROOT / 'src/templates' / (name + '.java.in')).read_text())
+            write(java_dir / PACKAGE / (subfolder + name + '.java'), (ROOT / 'tools/templates/templates' / (name + '.java.in')).read_text())
         config['mixins'].append('LazoBootstrapMixin')
         config['plugin'] = 'dev.eyecrasher.jukeboxplaylists.LazoBootstrapPlugin'
     if (target["loader"] == "forge" and v < (1, 20, 5)) or (target["loader"] == "neoforge" and mc == "1.20.1"):
@@ -192,6 +192,8 @@ public final class JukeboxPlaylistsMod {{ public JukeboxPlaylistsMod() {{}} }}
     if target["loader"] == "fabric":
         metadata = {"schemaVersion": 1, "id": "jukebox_playlists", "version": mod_version,
                     "name": "Jukebox Playlists", "description": "Chest playlists for vanilla jukeboxes, backported from 26.4.",
+                    "authors": ["EyeCrasher07"], "license": "LGPL-3.0-only",
+                    "contact": {"homepage": "https://github.com/EyeCrasher07/Jukebox-Playlists", "sources": "https://github.com/EyeCrasher07/Jukebox-Playlists", "issues": "https://github.com/EyeCrasher07/Jukebox-Playlists/issues"},
                     "environment": "*", "mixins": ["jukebox-playlists.mixins.json"],
                     "depends": {"fabricloader": ">=0.19.5", "minecraft": "=" + mc, "java": ">=" + str(target["java"])}}
         old_api_id = mc in {"1.16.5", "1.17", "1.17.1", "1.18", "1.18.1", "1.19", "1.19.1"}
@@ -203,11 +205,14 @@ public final class JukeboxPlaylistsMod {{ public JukeboxPlaylistsMod() {{}} }}
         filename = "neoforge.mods.toml" if neo and v >= (1, 20, 5) else "mods.toml"
         metadata = f'''modLoader="javafml"
 loaderVersion="{language_version}"
-license="Unspecified"
+license="LGPL-3.0-only"
+issueTrackerURL="https://github.com/EyeCrasher07/Jukebox-Playlists/issues"
 [[mods]]
 modId="jukebox_playlists"
 version="{mod_version}"
 displayName="Jukebox Playlists"
+authors="EyeCrasher07"
+displayURL="https://github.com/EyeCrasher07/Jukebox-Playlists"
 description="Chest playlists for vanilla jukeboxes, backported from 26.4."
 [[dependencies.jukebox_playlists]]
 modId="minecraft"
@@ -224,7 +229,7 @@ side="BOTH"
     if tests:
         prepare_tests(target, java_dir, resources)
         if lazo_tests:
-            source = (ROOT / 'src/templates/LazoSmoke.java.in').read_text()
+            source = (ROOT / 'tools/templates/templates/LazoSmoke.java.in').read_text()
             eject = 'entity.popOutTheItem();' if songs else 'entity.popOutRecord();' if v >= (1, 19, 4) else '((net.minecraft.world.level.block.JukeboxBlock) Blocks.JUKEBOX).use(world.getBlockState(POS), world, POS, null, net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(POS), net.minecraft.core.Direction.UP, POS, false));'
             write(java_dir / PACKAGE / 'LazoSmoke.java', source.replace('@EJECT@', eject))
             mixin = java_dir / PACKAGE / 'mixin/ServerTestMixin.java'
@@ -245,7 +250,7 @@ def prepare_tests(target, java_dir, resources):
     load = "BlockEntity.loadStatic(entity.getBlockState(), saved)" if mc == "1.16.5" else "BlockEntity.loadStatic(POS, entity.getBlockState(), saved)" if v < (1, 20, 5) else "BlockEntity.loadStatic(POS, entity.getBlockState(), saved, world.registryAccess())"
     eject = "entity.popOutTheItem();" if v >= (1, 21) else "entity.popOutRecord();" if v >= (1, 19, 4) else "((JukeboxBlock) Blocks.JUKEBOX).use(world.getBlockState(POS), world, POS, null, InteractionHand.MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(POS), Direction.UP, POS, false));"
     tick = "((net.minecraft.world.level.block.entity.TickableBlockEntity) entity).tick();" if mc == "1.16.5" else "((JukeboxBlock) Blocks.JUKEBOX).getTicker(world, entity.getBlockState(), (net.minecraft.world.level.block.entity.BlockEntityType) entity.getType()).tick(world, POS, entity.getBlockState(), entity);"
-    source = (ROOT / "src/templates/PlaylistSmoke.java.in").read_text()
+    source = (ROOT / "tools/templates/templates/PlaylistSmoke.java.in").read_text()
     copper = ""
     if v >= (1, 21, 9):
         variants = [wax + oxidation + "copper_chest" for wax in ("", "waxed_") for oxidation in ("", "exposed_", "weathered_", "oxidized_")]

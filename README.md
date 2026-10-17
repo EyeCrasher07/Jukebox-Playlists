@@ -1,149 +1,132 @@
 # Jukebox Playlists
 
-Перенос механики плейлистов из Minecraft 26.4 Snapshot 4 в релизы **1.16.5–26.3**.
-Проект выпускает отдельный JAR для каждой версии игры и загрузчика: Fabric, Forge и NeoForge, где они существуют.
-Точная матрица из 35 релизов и 90 сочетаний находится в [versions.json](versions.json).
+[English](#jukebox-playlists) · [Русский](#русский)
 
-## Использование
+Backports jukebox chest playlists from [Minecraft 26.4 Snapshot 4](https://www.minecraft.net/en-us/article/minecraft-26-4-snapshot-4) to **Minecraft 1.16.5–26.3**. Includes optional support for recorded [LazoDiscs](https://github.com/EyeCrasher07/LazoDiscs).
 
-1. Установите JAR для своей версии Minecraft и загрузчика из `dist/fabric`, `dist/forge` или `dist/neoforge` в `mods`.
-2. Для Fabric установите совместимую Fabric API. Закреплённые версии перечислены в `fabric-api-pins.json`.
-3. Поставьте **одиночный сундук** прямо над обычным проигрывателем и положите туда пластинки.
+[Downloads](https://github.com/EyeCrasher07/Jukebox-Playlists/releases) · [Issues](https://github.com/EyeCrasher07/Jukebox-Playlists/issues) · [Verification](docs/VERIFICATION.md)
 
-Проигрыватель сам возьмёт первую пластинку. После окончания трека он обменяет её со следующей пластинкой по порядку слотов.
-Пустые слоты и другие предметы пропускаются; после последнего слота поиск продолжается с начала.
-Если пластинок в сундуке больше нет, текущая повторяется. Извлечение пластинки переключает на следующую.
-Подходят обычный сундук, сундук-ловушка и присутствующие в версии медные сундуки. Двойные сундуки исключены.
+## Getting started
 
-Позиция плейлиста сохраняется в данных проигрывателя как `playlist_position` — то же поле использует оригинальный снапшот.
-Имена, NBT и компоненты пластинок сохраняются при обмене. Нестандартные стопки из нескольких пластинок пропускаются для сохранности предметов.
+1. Download **one** JAR for your exact Minecraft version and loader: `jukebox-playlists-<loader>-<minecraft>-1.0.0.jar`. The full ZIP contains all variants; install only the matching file.
+2. Install it in `mods` on the server and clients, or in your single-player installation. Fabric also needs Fabric Loader **0.19.5+** and the matching Fabric API listed below.
+3. Place a **single chest directly above a jukebox** and put music discs in it.
 
-## Старые версии и модовые пластинки
+The jukebox starts automatically, swaps its disc with the next occupied disc slot, and loops through the chest. Empty slots and other items are skipped. If there is no next disc, the current one repeats. Right-clicking to eject a disc advances the playlist; the manually ejected disc drops as usual. Automatic transitions keep discs in the jukebox and chest.
 
-В 1.16.5–1.19 у пластинок ещё нет серверной длительности трека. Для ванильных пластинок длительности заданы в моде.
-Для других пластинок создайте `config/jukebox-playlists-song-lengths.properties` в каталоге запуска игры или сервера:
-
-```properties
-# Ключ — translation key предмета; значение — длительность в игровых тиках (20 тиков = 1 секунда).
-item.example.my_music_disc=4200
-```
-
-Перезапустите игру после изменения файла. Пластинка без известной длительности играет, но автоматически перейти к следующей сервер не сможет.
-Начиная с 1.19.1 используются штатный таймер проигрывателя и длительность, указанная модом пластинки;
-с 1.21 поддерживаются предметы с компонентом `jukebox_playable`.
+Normal chests, trapped chests and copper chests present in the selected game version work. Double chests are excluded. Custom names, item data and the playlist position survive swaps and world reloads.
 
 ## LazoDiscs
 
-Версия **0.2.0** поддерживает записи [LazoDiscs 1.0.7](https://github.com/EyeCrasher07/LazoDiscs).
-Установите Jukebox Playlists, LazoDiscs и подходящий Plasmo Voice на сервер и клиенты; для Fabric также нужна Fabric API.
-Сервер должен использовать совместимый Fabric, Forge или NeoForge. Vanilla/Paper эти JAR не загружают; гибридные ядра отдельно не проверялись.
-Точные опубликованные сочетания и контрольные суммы LazoDiscs/Plasmo Voice закреплены в [lazodiscs-compatibility.json](lazodiscs-compatibility.json).
-Это 52 сочетания: 25 Fabric, 15 Forge и 12 NeoForge. Для остальных версий из основной матрицы релиз LazoDiscs 1.0.7 отсутствует.
+Install **LazoDiscs 1.0.7** and the matching **Plasmo Voice 2.1.17** on the server and clients. Burn discs with LazoDiscs and place them in the same chest. Recorded and native discs can be mixed. The next track starts one second after the recording actually finishes; the underlying vanilla disc's duration does not cut it off. The recording's URL, title, UUID, volume and radius are preserved.
 
-**Forge 1.20.2:** готовый исправленный Plasmo Voice включён в комплект:
-`compat/forge-1.20.2/plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar`
-(отдельный файл также находится в `dist/compat/forge-1.20.2/`).
-Замените им старый Plasmo Voice в `mods` сервера и клиентов, затем перезапустите игру или сервер.
-Запускать Python для установки не требуется. Вместе с JAR приложены исходники, лицензия, описание изменения и контрольные суммы.
+The pinned dependency matrix contains **52 combinations**: 25 Fabric, 15 Forge and 12 NeoForge. Other Minecraft versions in the main matrix do not have a LazoDiscs 1.0.7 release. Exact files and hashes: [lazodiscs-compatibility.json](lazodiscs-compatibility.json).
 
-В опубликованном PV для Minecraft 1.20.2–1.20.4 требуется Forge/FML 49, а у 1.20.2 используется 48.
-В готовой копии исправлены два минимальных номера загрузчика; классы и библиотеки сохранены.
-Для самостоятельного воспроизведения из исходного опубликованного JAR оставлена утилита:
+**Forge 1.20.2:** use `compat/forge-1.20.2/plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar` from the full ZIP instead of the original PV file, on both server and clients. The original declares Forge/FML 49 while this game version uses 48. The supplied copy changes those two minimums only; classes and libraries are unchanged. Its notice, license, upstream source archive and checksums are included. This is a local metadata correction. Installation does not require Python.
 
-```bash
-python3 tools/patch_plasmo_voice.py /path/to/plasmovoice-forge-1.20.4-2.1.17.jar
+This integration is optional. Standard discs work without LazoDiscs. Use a matching Fabric, Forge or NeoForge server; Vanilla/Paper cannot load these mods. Hybrid servers and arbitrary modpacks have not been verified.
+
+## Supported builds
+
+The first release, **1.0.0**, provides **90 builds** across **35 Minecraft releases**: 35 Fabric, 32 Forge and 23 NeoForge. A dash means no build for that pair. These are the pinned build and verification targets.
+
+| Minecraft | Fabric API | Forge | NeoForge |
+| --- | --- | --- | --- |
+| 1.16.5 | 0.42.0+1.16 | 1.16.5-36.2.42 | — |
+| 1.17 | 0.36.0+1.17 | — | — |
+| 1.17.1 | 0.46.1+1.17 | 1.17.1-37.1.1 | — |
+| 1.18 | 0.44.0+1.18 | 1.18-38.0.17 | — |
+| 1.18.1 | 0.46.6+1.18 | 1.18.1-39.1.2 | — |
+| 1.18.2 | 0.77.0+1.18.2 | 1.18.2-40.3.12 | — |
+| 1.19 | 0.58.0+1.19 | 1.19-41.1.0 | — |
+| 1.19.1 | 0.58.5+1.19.1 | 1.19.1-42.0.9 | — |
+| 1.19.2 | 0.77.0+1.19.2 | 1.19.2-43.5.2 | — |
+| 1.19.3 | 0.76.1+1.19.3 | 1.19.3-44.1.23 | — |
+| 1.19.4 | 0.87.2+1.19.4 | 1.19.4-45.4.5 | — |
+| 1.20 | 0.83.0+1.20 | 1.20-46.0.14 | — |
+| 1.20.1 | 0.92.12+1.20.1 | 1.20.1-47.4.28 | 1.20.1-47.1.106 |
+| 1.20.2 | 0.91.6+1.20.2 | 1.20.2-48.1.0 | 20.2.93 |
+| 1.20.3 | 0.91.1+1.20.3 | 1.20.3-49.0.2 | 20.3.8-beta |
+| 1.20.4 | 0.97.3+1.20.4 | 1.20.4-49.2.13 | 20.4.253 |
+| 1.20.5 | 0.97.8+1.20.5 | — | 20.5.21-beta |
+| 1.20.6 | 0.100.8+1.20.6 | 1.20.6-50.2.14 | 20.6.144 |
+| 1.21 | 0.102.0+1.21 | 1.21-51.0.33 | 21.0.167 |
+| 1.21.1 | 0.116.17+1.21.1 | 1.21.1-52.1.20 | 21.1.262 |
+| 1.21.2 | 0.106.1+1.21.2 | — | 21.2.1-beta |
+| 1.21.3 | 0.114.1+1.21.3 | 1.21.3-53.1.16 | 21.3.100 |
+| 1.21.4 | 0.119.4+1.21.4 | 1.21.4-54.1.22 | 21.4.161 |
+| 1.21.5 | 0.128.2+1.21.5 | 1.21.5-55.1.18 | 21.5.101 |
+| 1.21.6 | 0.128.2+1.21.6 | 1.21.6-56.0.9 | 21.6.20-beta |
+| 1.21.7 | 0.129.0+1.21.7 | 1.21.7-57.0.3 | 21.7.25-beta |
+| 1.21.8 | 0.136.1+1.21.8 | 1.21.8-58.1.26 | 21.8.57 |
+| 1.21.9 | 0.134.1+1.21.9 | 1.21.9-59.0.5 | 21.9.16-beta |
+| 1.21.10 | 0.138.4+1.21.10 | 1.21.10-60.1.18 | 21.10.64 |
+| 1.21.11 | 0.141.6+1.21.11 | 1.21.11-61.2.4 | 21.11.48 |
+| 26.1 | 0.155.3+26.1.2 | 26.1-62.0.9 | 26.1.0.19-beta |
+| 26.1.1 | 0.155.3+26.1.2 | 26.1.1-63.0.2 | 26.1.1.15-beta |
+| 26.1.2 | 0.155.3+26.1.2 | 26.1.2-64.1.5 | 26.1.2.122 |
+| 26.2 | 0.161.0+26.2 | 26.2-65.1.5 | 26.2.0.93 |
+| 26.3 | 0.162.0+26.3 | 26.3-66.0.12 | 26.3.0.86 |
+
+## Building from source
+
+Each `fabric/<minecraft>`, `forge/<minecraft>` and `neoforge/<minecraft>` directory contains its version-specific Java sources, resources, Gradle configuration and wrapper. Shared archive settings are in `gradle/release.gradle`. Python and private development files are not required for a normal build.
+
+Run Gradle on **JDK 25** for Forge and Minecraft 26.x, and **JDK 21** for the other Fabric/NeoForge projects. Also install the compiler toolchains selected by the project: JDK 17 for early versions, 21 for 1.20.5–1.21.11 and 25 for 26.x. For example, from the repository root:
+
+```sh
+cd fabric/26.3
+./gradlew build
 ```
 
-Утилита проверяет SHA-512 оригинала, меняет два минимальных номера загрузчика и добавляет описание изменения;
-классы, библиотеки, лицензии и исходный файл сохраняются. Это локальное исправление, не официальный релиз Plasmo Voice.
-На остальных сочетаниях используются опубликованные JAR без изменений.
+On Windows use `gradlew.bat build`. The installable JAR is in that project's `build/libs/`; choose the file without a `-dev` suffix. Matrix scripts, development templates and gameplay test instructions: [docs/BUILDING.md](docs/BUILDING.md).
 
-Запишите пластинку обычной командой LazoDiscs и положите её в сундук над проигрывателем.
-В одной очереди можно смешивать записи LazoDiscs и обычные пластинки. Обмен сохраняет URL, название, UUID, радиус и громкость.
-Следующий трек запускается спустя секунду после окончания **настоящего аудио**, а таймер исходной ванильной пластинки не обрывает запись.
-Это работает и на 1.16.5–1.19 без файла длительностей. Пустая очередь повторяет запись, извлечение переключает дальше.
-Если LazoDiscs сообщает об ошибке загрузки, через ту же паузу очередь переходит дальше; для единственной записи повторяется попытка.
+## Verification
 
-Совместимость необязательна: без LazoDiscs мод работает с обычными пластинками.
-Библиотеки звука и зависимости LazoDiscs в JAR плейлистов не включены.
+The recorded gameplay checks cover all 90 SDK servers, 52 LazoDiscs server/audio combinations, six native client combinations, LazoDiscs clients on Forge 1.20.2/1.21, and a dedicated Fabric 26.3 server with two separate clients, captured sound and a full restart. The LazoDiscs checks use recordings made with `/lazodisc burn`, including audio longer than its vanilla base disc.
 
-## Сборка и проверка
+The initial release packaging sets version 1.0.0 and adds LGPL texts and author/contact metadata. Every class and runtime resource in all 90 rebuilt JARs is compared byte for byte with the gameplay-tested baseline. Original test hashes and packaging changes are recorded separately in [the verification report](docs/VERIFICATION.md) and [packaging comparison](docs/PACKAGING-VERIFICATION.json).
 
-Нужны Python 3 и JDK: 17 для ранних версий, 21 для 1.20.5–1.21.11 и 25 для 26.x.
-Для полного набора установите все три JDK; Gradle обнаруживает их автоматически, дополнительные пути можно передать через `PLAYLIST_JAVA_PATHS`.
-Дистрибутивы Gradle закреплены; при отсутствии локальной установки используются стандартные Gradle Wrapper.
+Created by **EyeCrasher07**. Licensed under [LGPL-3.0-only](LICENSE); the incorporated GPL text is in [COPYING](COPYING). [Third-party notices](THIRD-PARTY-NOTICES.md).
 
-```bash
-python3 tools/build.py --target fabric-26.3
-python3 tools/build.py --target forge-1.16.5
-python3 tools/build.py                          # вся матрица
-python3 tools/verify_artifacts.py
-python3 tools/report.py
-python3 tools/package.py                       # проверенный комплект в одном ZIP
+---
+
+## Русский
+
+Перенос плейлистов проигрывателя из **Minecraft 26.4 Snapshot 4** на **1.16.5–26.3**. Доступны 90 отдельных сборок: Fabric, Forge и NeoForge там, где загрузчик существует. Таблица выше показывает точные версии.
+
+### Установка и использование
+
+1. Скачай **один** JAR для своей версии игры и загрузчика из [GitHub Releases](https://github.com/EyeCrasher07/Jukebox-Playlists/releases). Из полного ZIP нужен только соответствующий файл.
+2. Положи его в `mods` сервера и клиентов либо одиночной игры. Для Fabric также нужны Fabric Loader **0.19.5+** и подходящая Fabric API из таблицы.
+3. Поставь **одиночный сундук прямо над проигрывателем** и положи туда пластинки.
+
+Первая пластинка запускается сама. После окончания трека проигрыватель меняет её местами со следующей по порядку слотов и обходит сундук по кругу. Пустые слоты и другие предметы пропускаются. Если следующей пластинки нет, текущая повторяется. Извлечение правым кликом переключает дальше; извлечённая вручную пластинка выпадает обычным способом. При автоматическом переходе пластинки остаются в сундуке и проигрывателе.
+
+Подходят обычные сундуки, сундуки-ловушки и медные сундуки в версиях, где они есть. Двойные сундуки исключены. Имена, данные предметов и позиция плейлиста сохраняются.
+
+### Записи LazoDiscs
+
+Поставь LazoDiscs **1.0.7** и подходящий Plasmo Voice **2.1.17** на сервер и клиенты. Запиши пластинки обычной командой LazoDiscs и положи их в тот же сундук. Записи можно смешивать с ванильными треками. Переход происходит через секунду после завершения настоящего аудио; длина исходной ванильной пластинки запись не обрывает. URL, название, UUID, громкость и радиус сохраняются.
+
+Для **Forge 1.20.2** замени исходный Plasmo Voice готовым `compat/forge-1.20.2/plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar` из полного ZIP на сервере и клиентах. Python для установки не нужен. В копии исправлены два минимальных номера Forge/FML с 49 на 48, классы и библиотеки сохранены. Рядом приложены уведомление, лицензия, исходники и контрольные суммы.
+
+Закреплены 52 сочетания LazoDiscs и PV; на остальных версиях из основной матрицы нет выпуска LazoDiscs 1.0.7. Без LazoDiscs обычные пластинки работают самостоятельно. Нужен совместимый Fabric/Forge/NeoForge-сервер. Vanilla/Paper эти моды не загружают; гибридные ядра и произвольные модпаки отдельно не проверялись.
+
+### Старые модовые пластинки
+
+В 1.16.5–1.19 у пластинок нет серверной длительности. Для ванильных треков она уже задана; для записей LazoDiscs используется настоящее завершение аудио. Для других модовых пластинок создай `config/jukebox-playlists-song-lengths.properties`:
+
+```properties
+item.example.my_music_disc=4200
 ```
 
-`--offline` использует только уже загруженные зависимости.
-Артефакты лежат в `dist/`, логи — в `build/logs/`, результаты — в `build/status.json`.
-Все зависимости закреплены в `versions.json`; `python3 tools/resolve_versions.py` обновляет версии загрузчиков из официальных репозиториев.
+Ключ — translation key предмета, значение — длительность в тиках: 20 тиков = 1 секунда. Перезапусти игру или сервер после изменения. Без известной длительности трек звучит, но сервер не сможет автоматически перейти дальше. С 1.19.1 используется штатная длительность, а с 1.21 поддерживается компонент `jukebox_playable`.
 
-Внутриигровые проверки запускают отдельный локальный сервер и временный мир. Передайте существующий файл уже принятого Minecraft EULA:
+### Исходники и проверки
 
-```bash
-python3 tools/build.py --target fabric-26.3 --smoke --eula-file /path/to/accepted/eula.txt
-```
+Структура соответствует WIGO: `fabric/<версия>`, `forge/<версия>`, `neoforge/<версия>`. Внутри каждой папки есть свои исходники, ресурсы и `gradlew`. Для обычной сборки перейди в нужную папку и выполни `./gradlew build` (`gradlew.bat build` в Windows); готовый JAR без `-dev` будет в `build/libs/`. Требования к JDK указаны выше, подробные команды — в [docs/BUILDING.md](docs/BUILDING.md).
 
-Для игровых проверок Forge дополнительно нужна Java 8 для служебного загрузчика Gradle; укажите её параметром `--java-path /path/to/java8`.
-Для Fabric параметр `--production-smoke` запускает переименованный тестовый JAR через обычный серверный установщик.
+Проверки в настоящем Minecraft, звук записей LazoDiscs и границы совместимости описаны в [docs/VERIFICATION.md](docs/VERIFICATION.md). При подготовке выпуска отдельно сверено совпадение всех игровых классов и ресурсов с проверенными файлами: изменение лицензии и метаданных не выдаётся за повторный игровой прогон.
 
-Проверяются автозапуск, порядок и замыкание очереди, обмен предметов, сохранение имён и позиции,
-повтор трека, ручное извлечение, сундуки-ловушки, двойные сундуки, изменения содержимого и разрушение проигрывателя.
-Тестовый код включается только в отдельную тестовую сборку.
-
-Полный серверный прогон проверяет оставшиеся сочетания версий, по два одновременно:
-
-```bash
-python3 tools/runtime_matrix.py --eula-file /path/to/accepted/eula.txt
-```
-
-Проверка в настоящем клиенте использует неизменённый JAR из `dist/` и отдельный тестовый мод:
-
-```bash
-python3 tools/client_test.py --target fabric-26.3
-python3 tools/client_test.py --target forge-1.16.5 --java-path /path/to/java8
-python3 tools/client_matrix.py --java-path /path/to/java8  # шесть клиентских сочетаний по очереди
-```
-
-Клиентская проверка доступна для 1.16.5, 26.3 и Fabric/Forge 1.20.6. Сначала нужен мир соответствующей версии из серверной проверки Fabric.
-Она ждёт полного окончания пластинки «11» при обычных тиках мира, проверяет переход на Cat, переключение правым кликом,
-повтор, сохранение имени и отсутствие наложения звуков. Логи и снимки сохраняются в `build/evidence/`.
-
-Для Fabric 26.3 отдельный сценарий запускает точный JAR на выделенном сервере и два настоящих клиента:
-
-```bash
-python3 tools/pair_test.py --audio --eula-file /path/to/accepted/eula.txt
-```
-
-Сценарии совместимости используют опубликованные JAR LazoDiscs/Plasmo Voice и неизменённый JAR плейлистов:
-
-```bash
-python3 tools/lazo_deps.py
-python3 tools/lazo_test.py --target fabric-26.3 --eula-file /path/to/accepted/eula.txt
-python3 tools/lazo_matrix.py --eula-file /path/to/accepted/eula.txt
-python3 tools/client_test.py --target forge-1.20.2 --lazo-startup --java-path /path/to/java8 --java-path /path/to/java17
-python3 tools/client_test.py --target forge-1.21 --lazo-startup --java-path /path/to/java8
-python3 tools/pair_test.py --lazo --audio --eula-file /path/to/accepted/eula.txt
-```
-
-В серверных сценариях отдельный тестовый мод проверяет завершение настоящих WAV-записей, обмен, повтор, смешанную очередь,
-устаревший callback и разрушение блока. Forge 1.16.5–1.20.4 запускается через официальный установщик; Fabric — через production launcher;
-остальные сочетания — в SDK с готовыми модами. Для установленного Forge 1.16.5 передайте Java 8 через `--java-path`.
-Парный сценарий на Fabric 26.3 дополнительно проверяет запись командой `/lazodisc burn`, 104-секундный трек поверх пластинки «11»,
-приём разных звуков обоими клиентами и полный перезапуск. Микрофоны тестовых клиентов отключены.
-
-Проверяются передача начала/перехода/переключения трека обоим клиентам и сохранение порядка после полного перезапуска сервера и клиентов.
-`--audio` требует PulseAudio/PipeWire и FFmpeg: он записывает только отдельные временные аудиоканалы тестовых клиентов.
-Каждая попытка получает собственную папку с логами, кадрами, результатами и хешем JAR. Серверная матрица использует SDK;
-клиентские и парные сценарии отдельно проверяют неизменённые устанавливаемые файлы.
-
-Подробности оригинальной механики: [docs/MECHANICS.md](docs/MECHANICS.md).
-Результаты выполненных проверок: [docs/VERIFICATION.md](docs/VERIFICATION.md).
+Автор — **EyeCrasher07**. Лицензия — [LGPL-3.0-only](LICENSE).

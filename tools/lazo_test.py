@@ -92,7 +92,7 @@ def prepare(target, java_paths, eula, base_url, attempt, plasmo_jar=None):
     build = build.replace('build/run/server', run_name).replace('jukebox_playlists {', 'playlist_lazo_checks {').replace('jukebox-playlists.mixins.json', 'playlist-lazo-checks.mixins.json')
     build = build.replace("layout.buildDirectory.dir('run/server')", 'layout.projectDirectory.dir(' + json.dumps(run_name) + ')')
     build += "\nversion='checks'\nbase { archivesName='playlist-lazo-checks' }\nsourceSets.main { java.setSrcDirs(['probe/java']); resources.setSrcDirs(['probe/resources']) }\n"
-    build += 'dependencies { compileOnly files(' + json.dumps(str(ROOT / 'build/targets' / target['id'] / 'build/classes/java/main')) + ') }\n'
+    build += 'dependencies { compileOnly files(' + json.dumps(str(ROOT / target['loader'] / target['minecraft'] / 'build/classes/java/main')) + ') }\n'
     build += "tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8'; options.release=" + str(min(target['java'], 21)) + " }\njar { manifest { attributes 'MixinConfigs':'playlist-lazo-checks.mixins.json' } }\n"
     build += 'configurations.matching { it.name.endsWith("CompileClasspath") || it.name.endsWith("RuntimeClasspath") || it.name in ["compileClasspath", "runtimeClasspath"] }.configureEach { attributes.attribute(org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, ' + str(target['java']) + ') }\n'
     if target['loader'] == 'forge':

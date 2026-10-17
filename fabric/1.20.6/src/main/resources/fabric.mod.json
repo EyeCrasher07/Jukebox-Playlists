@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "jukebox_playlists",
+  "version": "1.0.0",
+  "name": "Jukebox Playlists",
+  "description": "Chest playlists for vanilla jukeboxes, backported from 26.4.",
+  "authors": [
+    "EyeCrasher07"
+  ],
+  "license": "LGPL-3.0-only",
+  "contact": {
+    "homepage": "https://github.com/EyeCrasher07/Jukebox-Playlists",
+    "sources": "https://github.com/EyeCrasher07/Jukebox-Playlists",
+    "issues": "https://github.com/EyeCrasher07/Jukebox-Playlists/issues"
+  },
+  "environment": "*",
+  "mixins": [
+    "jukebox-playlists.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "=1.20.6",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

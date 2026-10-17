@@ -1,0 +1,16 @@
+plugins { id 'java-library'; id 'net.neoforged.gradle.userdev' version '7.1.39' }
+ext.playlistRoot = file('../..').absolutePath
+ext.playlistTarget = new groovy.json.JsonSlurper().parseText('{"id": "neoforge-1.20.2", "minecraft": "1.20.2", "loader": "neoforge", "loader_version": "20.2.93", "java": 17}')
+
+java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
+dependencies { implementation 'net.neoforged:neoforge:20.2.93' }
+repositories { mavenCentral() }
+runs {
+    configureEach { workingDirectory file('build/run/server'); modSources { add('jukebox_playlists', sourceSets.main) } }
+    server { argument '--nogui' }
+}
+tasks.withType(net.neoforged.gradle.common.runtime.tasks.JavaSourceTransformer).configureEach {
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) })
+}
+
+apply from: new File(playlistRoot, 'gradle/release.gradle')

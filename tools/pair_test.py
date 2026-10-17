@@ -73,14 +73,15 @@ def until(condition, seconds, message):
 
 
 def prepare(target, folder, role, coord, port, release, java_paths, lazo=False, voice_port=None):
-    original = ROOT / 'build/targets' / target['id']
+    original = ROOT / target['loader'] / target['minecraft']
     folder.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(original / 'settings.gradle', folder / 'settings.gradle')
     properties = 'org.gradle.jvmargs=-Xmx1G\norg.gradle.workers.max=1\n'
     if java_paths:
         properties += 'org.gradle.java.installations.paths=' + ','.join(map(str, java_paths)) + '\n'
     write(folder / 'gradle.properties', properties)
-    build = (original / 'build.gradle').read_text().split("apply from: new File(playlistRoot, 'gradle/common.gradle')")[0]
+    build = (original / 'build.gradle').read_text().split("apply from: new File(playlistRoot, 'gradle/release.gradle')")[0]
+    build = build.replace("file('../..').absolutePath", json.dumps(str(ROOT)))
     build += "\nversion='pair-probe'\nsourceSets.main { java.setSrcDirs(['probe/java']); resources.setSrcDirs(['probe/resources']) }\n"
     build += "dependencies { productionRuntimeMods 'net.fabricmc.fabric-api:fabric-api:" + target['fabric_api'] + "' }\n"
     mods = "configurations.productionRuntimeMods, file(" + json.dumps(str(release)) + ")"
@@ -113,7 +114,7 @@ def prepare(target, folder, role, coord, port, release, java_paths, lazo=False, 
 '''.replace('MODS', mods)
     else:
         src = folder / 'probe/java/dev/eyecrasher/playlistpair'
-        write(src / 'PairChecks.java', (ROOT / 'src/clienttest/PairChecks.java').read_text())
+        write(src / 'PairChecks.java', (ROOT / 'tools/templates/clienttest/PairChecks.java').read_text())
         write(src / 'ClientTickMixin.java', '''package dev.eyecrasher.playlistpair.mixin;
 import dev.eyecrasher.playlistpair.PairChecks;
 import net.minecraft.client.Minecraft;

@@ -1,0 +1,14 @@
+{
+  "pack": {
+    "description": "Jukebox Playlists",
+    "pack_format": 101,
+    "min_format": [
+      84,
+      0
+    ],
+    "max_format": [
+      101,
+      1
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+plugins { id 'java-library'; id 'net.neoforged.moddev.legacyforge' version '2.0.148' }
+ext.playlistRoot = file('../..').absolutePath
+ext.playlistTarget = new groovy.json.JsonSlurper().parseText('{"id": "neoforge-1.20.1", "minecraft": "1.20.1", "loader": "neoforge", "loader_version": "1.20.1-47.1.106", "java": 17}')
+
+java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
+legacyForge { enable { neoForgeVersion = '1.20.1-47.1.106'; disableRecompilation = true }
+mods { jukebox_playlists { sourceSet(sourceSets.main) } }
+    runs { server { server(); gameDirectory = file('build/run/server'); programArgument '--nogui' } }
+}
+repositories { mavenCentral() }
+dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
+mixin { add sourceSets.main, 'main.refmap.json'; config 'jukebox-playlists.mixins.json' }
+
+apply from: new File(playlistRoot, 'gradle/release.gradle')

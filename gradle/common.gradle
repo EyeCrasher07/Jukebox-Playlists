@@ -4,7 +4,7 @@ base { archivesName = 'jukebox-playlists-' + playlistTarget.loader + '-' + playl
 def repositoryRoot = file(playlistRoot)
 def generated = layout.buildDirectory.dir('generated/playlist')
 tasks.register('preparePlaylist', Exec) {
-    inputs.dir(new File(repositoryRoot, 'src'))
+    inputs.dir(new File(repositoryRoot, 'tools/templates'))
     inputs.file(new File(repositoryRoot, 'tools/generate.py'))
     inputs.file(new File(repositoryRoot, 'versions.json'))
     inputs.file(new File(repositoryRoot, 'pack-versions.json'))

@@ -1,0 +1,14 @@
+plugins { id 'java'; id 'net.minecraftforge.gradle' version '7.0.17' }
+ext.playlistRoot = file('../..').absolutePath
+ext.playlistTarget = new groovy.json.JsonSlurper().parseText('{"id": "forge-26.2", "minecraft": "26.2", "loader": "forge", "loader_version": "26.2-65.1.5", "java": 25}')
+
+java { toolchain.languageVersion = JavaLanguageVersion.of(25) }
+minecraft {
+runs {
+    configureEach { mods { jukebox_playlists { source sourceSets.main } }; args '--mixin.config=jukebox-playlists.mixins.json' }
+    register('server') { workingDir = layout.buildDirectory.dir('run/server'); args '--nogui' }
+} }
+repositories { minecraft.mavenizer(it); maven fg.forgeMaven; maven fg.minecraftLibsMaven; mavenCentral() }
+dependencies { implementation minecraft.dependency('net.minecraftforge:forge:26.2-65.1.5') }
+
+apply from: new File(playlistRoot, 'gradle/release.gradle')

@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.eyecrasher.jukeboxplaylists.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "JukeboxMixin",
+    "LazoPlaybackMixin",
+    "LazoLegacyPositionMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,22 @@
+// Shared release settings. Each loader/version is a regular Gradle project.
+version = new groovy.json.JsonSlurper().parse(new File(playlistRoot, 'versions.json')).mod_version
+group = 'dev.eyecrasher.jukeboxplaylists'
+base { archivesName = 'jukebox-playlists-' + playlistTarget.loader + '-' + playlistTarget.minecraft }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = Math.min(playlistTarget.java, 21)
+}
+configurations.matching {
+    it.name.endsWith('CompileClasspath') || it.name.endsWith('RuntimeClasspath') ||
+        it.name in ['compileClasspath', 'runtimeClasspath']
+}.configureEach {
+    attributes.attribute(org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, playlistTarget.java)
+}
+jar {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    manifest { attributes 'MixinConfigs': 'jukebox-playlists.mixins.json' }
+    from(new File(playlistRoot, 'LICENSE')) { rename { 'LICENSE_jukebox-playlists.txt' } }
+    from(new File(playlistRoot, 'COPYING')) { rename { 'COPYING_GPL-3.0.txt' } }
+    from(new File(playlistRoot, 'NOTICE')) { rename { 'NOTICE_jukebox-playlists.txt' } }
+}

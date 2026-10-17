@@ -1,0 +1,27 @@
+plugins { id 'java'; id 'net.minecraftforge.gradle' version '7.0.17'; id 'net.minecraftforge.renamer' version '1.0.14' }
+ext.playlistRoot = file('../..').absolutePath
+ext.playlistTarget = new groovy.json.JsonSlurper().parseText('{"id": "forge-1.19.3", "minecraft": "1.19.3", "loader": "forge", "loader_version": "1.19.3-44.1.23", "java": 17}')
+
+java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
+minecraft {
+mappings channel: 'official', version: '1.19.3'
+runs {
+    configureEach { mods { jukebox_playlists { source sourceSets.main } }; args '--mixin.config=jukebox-playlists.mixins.json' }
+    register('server') { workingDir = layout.buildDirectory.dir('run/server'); args '--nogui' }
+} }
+repositories { minecraft.mavenizer(it); maven fg.forgeMaven; maven fg.minecraftLibsMaven; mavenCentral() }
+dependencies { implementation minecraft.dependency('net.minecraftforge:forge:1.19.3-44.1.23') }
+renamer.enableMixinRefmaps { config 'jukebox-playlists.mixins.json' }
+renamer.mappings(minecraft.dependency.toSrg)
+tasks.named('jar') { archiveClassifier = 'dev' }
+def productionJar = renamer.classes(tasks.named('jar', Jar)) {
+    archiveClassifier = ''
+    mappings renamer.mixin.generatedMappings
+    output = layout.buildDirectory.file('libs/' + base.archivesName.get() + '-' + project.version + '.jar')
+}
+tasks.named('assemble') { dependsOn productionJar }
+def playlistRenamerLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) }
+tasks.named('renameJar') { javaLauncher.set(playlistRenamerLauncher) }
+dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
+
+apply from: new File(playlistRoot, 'gradle/release.gradle')

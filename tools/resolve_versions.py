@@ -25,7 +25,7 @@ def main():
     cache.mkdir(parents=True, exist_ok=True)
     raw = {}
     for name, url in SOURCES.items():
-        request = urllib.request.Request(url, headers={"User-Agent": "JukeboxPlaylists-build/0.1"})
+        request = urllib.request.Request(url, headers={"User-Agent": "JukeboxPlaylists-build"})
         with urllib.request.urlopen(request, timeout=45) as response:
             raw[name] = response.read()
         (cache / name).write_bytes(raw[name])
@@ -59,7 +59,9 @@ def main():
                     targets[-1]["fabric_api"] = fabric_api_pins[mc]
             else:
                 missing.append({"minecraft": mc, "loader": name})
-    result = {"mod_version": "0.1.0", "first_minecraft": "1.16.5", "last_minecraft": "26.3",
+    current = ROOT / 'versions.json'
+    mod_version = json.loads(current.read_text())['mod_version'] if current.is_file() else '1.0.0'
+    result = {"mod_version": mod_version, "first_minecraft": "1.16.5", "last_minecraft": "26.3",
               "sources": SOURCES, "targets": targets, "unavailable": missing}
     (ROOT / "versions.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     print(f"{len(releases)} releases, {len(targets)} available loader pairs")

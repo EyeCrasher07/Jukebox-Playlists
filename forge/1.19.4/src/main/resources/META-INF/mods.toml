@@ -1,0 +1,17 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="LGPL-3.0-only"
+issueTrackerURL="https://github.com/EyeCrasher07/Jukebox-Playlists/issues"
+[[mods]]
+modId="jukebox_playlists"
+version="1.0.0"
+displayName="Jukebox Playlists"
+authors="EyeCrasher07"
+displayURL="https://github.com/EyeCrasher07/Jukebox-Playlists"
+description="Chest playlists for vanilla jukeboxes, backported from 26.4."
+[[dependencies.jukebox_playlists]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.19.4]"
+ordering="NONE"
+side="BOTH"

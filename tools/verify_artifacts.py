@@ -23,6 +23,13 @@ def main():
         assert checksum == entry["sha256"], "Artifact changed after build: " + str(path)
         with zipfile.ZipFile(path) as archive:
             names = archive.namelist()
+            for license_file, member in [('LICENSE', 'LICENSE_jukebox-playlists.txt'), ('COPYING', 'COPYING_GPL-3.0.txt'), ('NOTICE', 'NOTICE_jukebox-playlists.txt')]:
+                assert archive.read(member) == (ROOT / license_file).read_bytes(), 'Missing or stale release license: ' + target['id']
+            project = ROOT / target['loader'] / target['minecraft']
+            for name in ('build.gradle', 'settings.gradle', 'gradle.properties', 'gradlew', 'gradlew.bat', 'gradle/wrapper/gradle-wrapper.jar', 'gradle/wrapper/gradle-wrapper.properties'):
+                assert (project / name).is_file(), 'Missing standalone project file: ' + str(project / name)
+            assert (project / 'src/main/java').is_dir() and (project / 'src/main/resources').is_dir()
+            assert str(ROOT) not in (project / 'build.gradle').read_text(), 'Nonportable build path'
             expected = ROOT / "build/artifact-audit" / target["id"]
             prepare(target, expected)
             for resource in (expected / "resources").rglob("*"):
@@ -49,6 +56,8 @@ def main():
                     assert struct.unpack(">H", bytecode[6:8])[0] <= target["java"] + 44, "Wrong Java version in " + name
             if target["loader"] == "fabric":
                 metadata = json.loads(archive.read("fabric.mod.json"))
+                assert metadata['license'] == 'LGPL-3.0-only'
+                assert metadata['authors'] == ['EyeCrasher07']
                 assert metadata["depends"]["minecraft"] == "=" + target["minecraft"]
                 assert not any(n.endswith("mods.toml") for n in names)
                 if not target["minecraft"].startswith("26."):
@@ -58,6 +67,7 @@ def main():
                     assert "refmap" not in config, "Fabric uses direct annotation remapping"
             else:
                 metadata = archive.read(next(n for n in names if n.endswith("mods.toml"))).decode()
+                assert 'license="LGPL-3.0-only"' in metadata
                 assert f'versionRange="[{target["minecraft"]}]"' in metadata
                 assert "fabric.mod.json" not in names
             tag_path = next(n for n in names if n.endswith("/jukebox_containers.json"))

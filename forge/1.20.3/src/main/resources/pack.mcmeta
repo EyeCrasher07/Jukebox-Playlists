@@ -1,0 +1,10 @@
+{
+  "pack": {
+    "description": "Jukebox Playlists",
+    "pack_format": 26,
+    "supported_formats": [
+      22,
+      26
+    ]
+  }
+}

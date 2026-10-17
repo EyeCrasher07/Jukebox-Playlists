@@ -14,6 +14,17 @@ from generate import ROOT, version, write
 
 def project(target, tests=False, java_paths=(), production=False, folder_name=None):
     loader, mc, pin = target["loader"], target["minecraft"], target["loader_version"]
+    if not tests and not production and folder_name is None:
+        folder = ROOT / loader / mc
+        if not (folder / 'build.gradle').is_file():
+            raise FileNotFoundError('Run python3 tools/sync_projects.py first: ' + str(folder))
+        if loader == 'fabric':
+            gv = '9.7.1' if mc.startswith('26.') else '8.14.5'
+        elif loader == 'neoforge' and mc in ('1.20.2', '1.20.3', '1.20.5'):
+            gv = '8.14.5'
+        else:
+            gv = '9.5.1'
+        return folder, gv
     v = version(mc)
     folder = ROOT / "build/targets" / (folder_name or (("production-test-" if production else "test-" if tests else "") + target["id"]))
     folder.mkdir(parents=True, exist_ok=True)
@@ -174,6 +185,9 @@ def main():
         log = ROOT / "build/logs" / (("production-test-" if args.production_smoke else "test-" if args.smoke else "") + target["id"] + ".log")
         log.parent.mkdir(parents=True, exist_ok=True)
         command = gradle(gradle_version) + ["--console=plain", "--max-workers=2"]
+        installations = [p for p in [os.environ.get('PLAYLIST_JAVA_PATHS'), *map(str, args.java_path)] if p]
+        if installations:
+            command.append('-Porg.gradle.java.installations.paths=' + ','.join(installations))
         if args.offline:
             command.append("--offline")
         command += ["-PplaylistTest", "runPlaylistProduction" if args.production_smoke else "runServer"] if args.smoke else ["build"]

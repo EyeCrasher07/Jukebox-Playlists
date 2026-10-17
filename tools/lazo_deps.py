@@ -25,7 +25,7 @@ def dependency(info, kind):
             shutil.copyfile(candidate, destination)
             return destination
     temporary = destination.with_suffix('.' + str(os.getpid()) + '.part')
-    request = urllib.request.Request(info['url'], headers={'User-Agent': 'JukeboxPlaylists/0.2.0 (compatibility verification)'})
+    request = urllib.request.Request(info['url'], headers={'User-Agent': 'JukeboxPlaylists (compatibility verification)'})
     with urllib.request.urlopen(request, timeout=60) as response, temporary.open('wb') as output:
         shutil.copyfileobj(response, output)
     if not valid(temporary):
