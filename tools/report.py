@@ -82,7 +82,7 @@ def main():
         lines.append(f"| {pin['loader']} | {pin['minecraft']} | {outcome} |")
     lines += ['', 'Для Fabric/Forge 1.16.5 добавлен обход вызова недоступного серверного форматтера координат в LazoDiscs.',
               'Для Forge 1.21 добавляется отсутствующий конструктор без аргументов, делегирующий исходному конструктору LazoDiscs с текущим FML-контекстом. Исходный JAR LazoDiscs не меняется.',
-              'Для Forge 1.20.2 опубликованный PV 2.1.17 требует Forge/FML 49, хотя Minecraft-диапазон включает 1.20.2. Утилита `tools/patch_plasmo_voice.py` создаёт отдельную копию с минимумом 48, сохраняя классы и лицензии. Официальная зависимость не изменяется; её отклонение загрузчиком сохранено в истории попыток.',
+              'Для Forge 1.20.2 опубликованный PV 2.1.17 требует Forge/FML 49, хотя Minecraft-диапазон включает 1.20.2. Готовый исправленный JAR с минимумом 48 включён в `compat/forge-1.20.2/` полного ZIP и находится в `dist/compat/forge-1.20.2/`. Классы и библиотеки сохранены; приложены лицензия, исходники и воспроизводимый патчер. Отклонение исходной зависимости сохранено в истории попыток.',
               'Собственный таймер пластинки отключается только для записей LazoDiscs; переход происходит по завершению аудио с паузой 20 тиков.', '',
               '## Клиенты и звук', '']
     for key, result in clients.items():
@@ -90,6 +90,8 @@ def main():
     for key, result in passes('lazo_client_runtime').items():
         lines += ['', f"**LazoDiscs, одиночный клиент {key}**: SHA-256 `{result['sha256']}`; лог `{result['log']}`.",
                   'Настоящая команда `/lazodisc burn` создаёт записи 440/880 Гц. Проверяются активный источник Plasmo Voice с положительной громкостью, отсутствие ванильного звука, естественный переход и сохранение всех данных записей; затем 15 проверок обычных пластинок. Микрофон отключён.']
+        if key == 'forge-1.20.2':
+            lines.append('Использован обычный клиент официально установленного Forge 48.1.0 на Java 17, готовый исправленный PV и неизменённые JAR LazoDiscs/плейлистов. Переименован только независимый тестовый мод.')
     for label, results in (('Обычные пластинки', pairs), ('LazoDiscs', lazo_pairs)):
         for key, result in results.items():
             lines += ['', f"**{label}, {key}**: SHA-256 `{result['sha256']}`.",
@@ -121,6 +123,7 @@ def main():
               'python3 tools/client_test.py --target fabric-26.3',
               'python3 tools/lazo_deps.py',
               'python3 tools/lazo_matrix.py --eula-file /path/to/accepted/eula.txt',
+              'python3 tools/client_test.py --target forge-1.20.2 --lazo-startup --java-path /path/to/java8 --java-path /path/to/java17',
               'python3 tools/pair_test.py --lazo --audio --eula-file /path/to/accepted/eula.txt',
               'python3 tools/report.py', 'python3 tools/package.py', '```', '',
               'Дополнительные Java передаются через `--java-path`; установленному Forge 1.16.5 нужна Java 8.',

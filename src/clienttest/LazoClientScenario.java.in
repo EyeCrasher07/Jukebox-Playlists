@@ -1,4 +1,4 @@
-// Optional Forge 1.21 scenario, inserted into the independent ClientChecks class.
+// Optional LazoDiscs scenario, inserted into the independent ClientChecks class.
 private static void lazoScenario() throws Exception {
     server(() -> {
         var player = mc.getSingleplayerServer().getPlayerList().getPlayers().get(0);

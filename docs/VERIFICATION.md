@@ -1,6 +1,6 @@
 # Проверки
 
-Обновлено: 2026-10-17T07:19:56+00:00
+Обновлено: 2026-10-17T07:32:29+00:00
 
 Версия мода: **0.2.0**. Производственных JAR: **90/90**.
 
@@ -121,7 +121,7 @@ Fabric использует production launcher. Forge 1.16.5–1.20.4 — оф�
 
 Для Fabric/Forge 1.16.5 добавлен обход вызова недоступного серверного форматтера координат в LazoDiscs.
 Для Forge 1.21 добавляется отсутствующий конструктор без аргументов, делегирующий исходному конструктору LazoDiscs с текущим FML-контекстом. Исходный JAR LazoDiscs не меняется.
-Для Forge 1.20.2 опубликованный PV 2.1.17 требует Forge/FML 49, хотя Minecraft-диапазон включает 1.20.2. Утилита `tools/patch_plasmo_voice.py` создаёт отдельную копию с минимумом 48, сохраняя классы и лицензии. Официальная зависимость не изменяется; её отклонение загрузчиком сохранено в истории попыток.
+Для Forge 1.20.2 опубликованный PV 2.1.17 требует Forge/FML 49, хотя Minecraft-диапазон включает 1.20.2. Готовый исправленный JAR с минимумом 48 включён в `compat/forge-1.20.2/` полного ZIP и находится в `dist/compat/forge-1.20.2/`. Классы и библиотеки сохранены; приложены лицензия, исходники и воспроизводимый патчер. Отклонение исходной зависимости сохранено в истории попыток.
 Собственный таймер пластинки отключается только для записей LazoDiscs; переход происходит по завершению аудио с паузой 20 тиков.
 
 ## Клиенты и звук
@@ -132,6 +132,10 @@ Fabric использует production launcher. Forge 1.16.5–1.20.4 — оф�
 - `fabric-1.16.5`: SHA-256 `2693df0c35388aeb68010f310d84bf2074c38bfdede114c753ac1d5f9d6fac03`; лог `build/evidence/fabric-1.16.5/20261017-084421/minecraft.log`.
 - `forge-1.20.6`: SHA-256 `c69a0774e1104768d104005ea62c8528b467f29fbc9d2d2d5b3d8170e02cf3a9`; лог `build/evidence/forge-1.20.6/20261017-085558/minecraft.log`.
 - `forge-26.3`: SHA-256 `17d31a8c3f67f9a37fc7749db26e94784cd4086adf5d3af6629a224661bef1fb`; лог `build/evidence/forge-26.3/20261017-090204/minecraft.log`.
+
+**LazoDiscs, одиночный клиент forge-1.20.2**: SHA-256 `c850421bab98d6f4fa55ca1981cbd74387e7dda8ea8639a99b7d3e5ce86a8fc0`; лог `build/evidence/lazo-client-forge-1.20.2/20261017-092857/minecraft.log`.
+Настоящая команда `/lazodisc burn` создаёт записи 440/880 Гц. Проверяются активный источник Plasmo Voice с положительной громкостью, отсутствие ванильного звука, естественный переход и сохранение всех данных записей; затем 15 проверок обычных пластинок. Микрофон отключён.
+Использован обычный клиент официально установленного Forge 48.1.0 на Java 17, готовый исправленный PV и неизменённые JAR LazoDiscs/плейлистов. Переименован только независимый тестовый мод.
 
 **LazoDiscs, одиночный клиент forge-1.21**: SHA-256 `be16f67071bf425d0d536013a4a229b4bb2b5c83899cfe8eb12bae45c2ff1ecd`; лог `build/evidence/lazo-client-forge-1.21/20261017-091631/minecraft.log`.
 Настоящая команда `/lazodisc burn` создаёт записи 440/880 Гц. Проверяются активный источник Plasmo Voice с положительной громкостью, отсутствие ванильного звука, естественный переход и сохранение всех данных записей; затем 15 проверок обычных пластинок. Микрофон отключён.
@@ -146,7 +150,7 @@ Fabric использует production launcher. Forge 1.16.5–1.20.4 — оф�
 Выход каждого тестового клиента направлен в собственный временный PulseAudio sink; записывается только его PCM.
 Проверены частота и ненулевая амплитуда: custom-a: owner 440.1 Гц, RMS 2195.9, observer 440.2 Гц, RMS 2133.2; custom-b: owner 879.4 Гц, RMS 2181.0, observer 879.4 Гц, RMS 2118.9.
 
-Открыто и осмотрено кадров этой версии: **45**. Перечень и хеши: `build/evidence/visual-review.json`.
+Открыто и осмотрено кадров этой версии: **51**. Перечень и хеши: `build/evidence/visual-review.json`.
 
 ## Границы проверки
 
@@ -165,6 +169,7 @@ python3 tools/runtime_matrix.py --eula-file /path/to/accepted/eula.txt
 python3 tools/client_test.py --target fabric-26.3
 python3 tools/lazo_deps.py
 python3 tools/lazo_matrix.py --eula-file /path/to/accepted/eula.txt
+python3 tools/client_test.py --target forge-1.20.2 --lazo-startup --java-path /path/to/java8 --java-path /path/to/java17
 python3 tools/pair_test.py --lazo --audio --eula-file /path/to/accepted/eula.txt
 python3 tools/report.py
 python3 tools/package.py

@@ -2,6 +2,7 @@
 """Package only verified production artifacts and their installation evidence."""
 import json
 import hashlib
+import shutil
 import zipfile
 from pathlib import Path
 
@@ -9,6 +10,46 @@ import report
 import verify_artifacts
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def prepare_dependency_fix(pin):
+    from lazo_deps import dependency
+    from patch_plasmo_voice import patch
+    info = pin['dependency_patch']
+    fixed = patch(dependency(pin['plasmo'], 'plasmo'), ROOT / 'build/compat-deps' / info['filename'])
+    digest = hashlib.sha256(fixed.read_bytes()).hexdigest()
+    if digest != info['sha256']:
+        raise ValueError('Unexpected Plasmo Voice fix hash')
+    path = ROOT / 'dist' / info['artifact']
+    path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(fixed, path)
+    source = dependency(info['source'], 'sources')
+    source_path = path.parent / 'source' / source.name
+    source_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(source, source_path)
+    with zipfile.ZipFile(fixed) as jar:
+        (path.parent / 'LICENSE-PlasmoVoice.txt').write_bytes(jar.read('META-INF/licenses/LICENSE'))
+        (path.parent / 'NOTICE.txt').write_bytes(jar.read('META-INF/jukebox-playlists-patch.txt'))
+    (path.parent / 'README-RU.md').write_text('''# Plasmo Voice для Forge 1.20.2
+
+Готовый JAR: plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar.
+
+Замените им старый Plasmo Voice в mods сервера и всех клиентов Minecraft 1.20.2 / Forge 48.
+Рядом нужны Jukebox Playlists для Forge 1.20.2 и LazoDiscs 1.0.7 для той же версии.
+После замены перезапустите игру или сервер. Запускать Python для установки не требуется.
+
+В опубликованном PV указан диапазон Minecraft 1.20.2–1.20.4, но минимальный Forge/FML 49.
+В этой копии два минимальных номера исправлены на 48; классы и библиотеки не менялись.
+Это локальное исправление Plasmo Voice 2.1.17. Уведомление об изменении и лицензия сохранены.
+Исходники исходного выпуска находятся в source/. В корне полного комплекта есть
+tools/patch_plasmo_voice.py для воспроизведения исправления из исходного опубликованного JAR.
+Контрольные суммы файлов находятся в SHA256SUMS. Подробности проверок — в docs/VERIFICATION.md полного комплекта.
+''')
+    contents = [path, source_path, path.parent / 'LICENSE-PlasmoVoice.txt', path.parent / 'NOTICE.txt', path.parent / 'README-RU.md']
+    sums = path.parent / 'SHA256SUMS'
+    sums.write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest() + '  ' + str(p.relative_to(path.parent)) + '\n' for p in contents))
+    return contents + [sums], {'target': pin['target'], 'file': info['artifact'], 'sha256': digest,
+                              'source': str(source_path.relative_to(ROOT / 'dist')), 'license': 'LGPL-3.0'}
 
 
 def main():
@@ -35,7 +76,18 @@ def main():
                          "lazodiscs_dependency_patch": dependency_patch,
                          "lazodiscs_patched_dependency_runtime_tested": dependency_verified,
                          "production_runtime_tested": result.get("production_runtime", {}).get("success", False)})
-    manifest = {"version": matrix["mod_version"], "releases": releases}
+    compatibility_files, fixes = [], []
+    for pin in pins.values():
+        if pin.get('dependency_patch'):
+            result = next(r for r in releases if r['id'] == pin['target'])
+            if not result['lazodiscs_patched_dependency_runtime_tested']:
+                raise ValueError('Dependency fix needs a passing server audio check: ' + pin['target'])
+            if not result['lazodiscs_client_runtime_tested']:
+                raise ValueError('Dependency fix needs a passing client audio check: ' + pin['target'])
+            paths, fix = prepare_dependency_fix(pin)
+            compatibility_files.extend(paths)
+            fixes.append(fix)
+    manifest = {"version": matrix["mod_version"], "releases": releases, "dependency_fixes": fixes}
     (ROOT / "dist/manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     install = '''# Jukebox Playlists
 
@@ -58,18 +110,12 @@ def main():
 URL, название, UUID, громкость и радиус записи сохраняются при обмене.
 Если LazoDiscs сообщает об ошибке загрузки, очередь продолжает поиск через ту же паузу.
 
-Для Forge 1.20.2 нужна отдельная копия Plasmo Voice с исправленными метаданными.
-Скачайте исходный plasmovoice-forge-1.20.4-2.1.17.jar по URL из lazodiscs-compatibility.json,
-затем из распакованного комплекта выполните (нужен Python 3):
-
-```bash
-python3 tools/patch_plasmo_voice.py /path/to/plasmovoice-forge-1.20.4-2.1.17.jar
-```
-
-В mods сервера и клиентов установите полученный plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar вместо исходного PV.
-Оригинал не изменяется. Исправляются только два минимальных номера Forge/FML с 49 на 48;
-классы и лицензии сохраняются, добавляется уведомление. Это локальная копия, не официальный выпуск PV.
-Другие сочетания используют опубликованные зависимости без изменений. Сторонние моды в этот ZIP не входят.
+Для Forge 1.20.2 готовый исправленный Plasmo Voice находится в compat/forge-1.20.2/.
+Замените старый PV в mods сервера и клиентов файлом plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar.
+Запускать Python для установки не требуется. Рядом приложены лицензия, описание изменения, исходники и контрольные суммы.
+Исправлены только два минимальных номера Forge/FML с 49 на 48; классы и библиотеки сохранены.
+Это локальная копия, не официальный выпуск PV. Утилита tools/patch_plasmo_voice.py оставлена для воспроизведения исправления.
+Другие сочетания используют опубликованные зависимости без изменений.
 
 В 1.16.5–1.19 длительность нестандартных пластинок задаётся в
 config/jukebox-playlists-song-lengths.properties, например:
@@ -89,6 +135,8 @@ SHA256SUMS содержит контрольные суммы каждого JAR
     with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as output:
         for release in releases:
             output.write(ROOT / "dist" / release["file"], release["file"])
+        for path in compatibility_files:
+            output.write(path, str(path.relative_to(ROOT / 'dist')))
         for path, name in [(ROOT / "dist/INSTALL-RU.md", "README.md"),
                            (ROOT / "docs/MECHANICS.md", "docs/MECHANICS.md"),
                            (ROOT / "docs/VERIFICATION.md", "docs/VERIFICATION.md"),
@@ -99,7 +147,8 @@ SHA256SUMS содержит контрольные суммы каждого JAR
                            (ROOT / "dist/SHA256SUMS", "SHA256SUMS"),
                            (ROOT / "dist/manifest.json", "manifest.json")]:
             output.write(path, name)
-    print(f"Packaged {len(releases)} jars: {archive} ({archive.stat().st_size:,} bytes)")
+    archive.with_suffix('.zip.sha256').write_text(hashlib.sha256(archive.read_bytes()).hexdigest() + '  ' + archive.name + '\n')
+    print(f"Packaged {len(releases)} playlist jars and {len(fixes)} dependency fix: {archive} ({archive.stat().st_size:,} bytes)")
 
 
 if __name__ == "__main__":

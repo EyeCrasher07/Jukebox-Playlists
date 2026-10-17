@@ -40,14 +40,20 @@ item.example.my_music_disc=4200
 Точные опубликованные сочетания и контрольные суммы LazoDiscs/Plasmo Voice закреплены в [lazodiscs-compatibility.json](lazodiscs-compatibility.json).
 Это 52 сочетания: 25 Fabric, 15 Forge и 12 NeoForge. Для остальных версий из основной матрицы релиз LazoDiscs 1.0.7 отсутствует.
 
-**Forge 1.20.2:** опубликованный Plasmo Voice `plasmovoice-forge-1.20.4-2.1.17.jar` объявляет поддержку Minecraft 1.20.2–1.20.4,
-но требует Forge/FML 49; в Minecraft 1.20.2 используется 48. Для этого сочетания нужна отдельная локальная копия с исправленными метаданными:
+**Forge 1.20.2:** готовый исправленный Plasmo Voice включён в комплект:
+`compat/forge-1.20.2/plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar`
+(отдельный файл также находится в `dist/compat/forge-1.20.2/`).
+Замените им старый Plasmo Voice в `mods` сервера и клиентов, затем перезапустите игру или сервер.
+Запускать Python для установки не требуется. Вместе с JAR приложены исходники, лицензия, описание изменения и контрольные суммы.
+
+В опубликованном PV для Minecraft 1.20.2–1.20.4 требуется Forge/FML 49, а у 1.20.2 используется 48.
+В готовой копии исправлены два минимальных номера загрузчика; классы и библиотеки сохранены.
+Для самостоятельного воспроизведения из исходного опубликованного JAR оставлена утилита:
 
 ```bash
 python3 tools/patch_plasmo_voice.py /path/to/plasmovoice-forge-1.20.4-2.1.17.jar
 ```
 
-Установите полученный `plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar` вместо исходного PV на сервер и клиенты.
 Утилита проверяет SHA-512 оригинала, меняет два минимальных номера загрузчика и добавляет описание изменения;
 классы, библиотеки, лицензии и исходный файл сохраняются. Это локальное исправление, не официальный релиз Plasmo Voice.
 На остальных сочетаниях используются опубликованные JAR без изменений.
@@ -123,6 +129,7 @@ python3 tools/pair_test.py --audio --eula-file /path/to/accepted/eula.txt
 python3 tools/lazo_deps.py
 python3 tools/lazo_test.py --target fabric-26.3 --eula-file /path/to/accepted/eula.txt
 python3 tools/lazo_matrix.py --eula-file /path/to/accepted/eula.txt
+python3 tools/client_test.py --target forge-1.20.2 --lazo-startup --java-path /path/to/java8 --java-path /path/to/java17
 python3 tools/client_test.py --target forge-1.21 --lazo-startup --java-path /path/to/java8
 python3 tools/pair_test.py --lazo --audio --eula-file /path/to/accepted/eula.txt
 ```

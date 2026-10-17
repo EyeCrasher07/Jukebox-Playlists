@@ -161,7 +161,9 @@ def main():
     thread = threading.Thread(target=http.serve_forever, daemon=True)
     thread.start()
     kind = 'lazo_dependency_runtime' if args.plasmo_jar else 'lazo_runtime'
-    record = {'target': target['id'], 'kind': kind, 'result': {'success': False, 'evidence': str(evidence.relative_to(ROOT)), 'lazodiscs': pin['lazodiscs']['version'], 'plasmo': pin['plasmo']['version'], 'dependency_override': str(args.plasmo_jar) if args.plasmo_jar else None, 'topology': 'unchanged production playlist/LazoDiscs JARs + independent server probe' + (' + separate Plasmo Voice dependency experiment' if args.plasmo_jar else ' + unchanged pinned Plasmo Voice JAR')}}
+    metadata_fix = bool(args.plasmo_jar and pin.get('dependency_patch') and hashlib.sha256(args.plasmo_jar.read_bytes()).hexdigest() == pin['dependency_patch']['sha256'])
+    dependency_topology = ' + prepared Plasmo Voice Forge 1.20.2 metadata fix' if metadata_fix else ' + separate Plasmo Voice dependency experiment' if args.plasmo_jar else ' + unchanged pinned Plasmo Voice JAR'
+    record = {'target': target['id'], 'kind': kind, 'result': {'success': False, 'evidence': str(evidence.relative_to(ROOT)), 'lazodiscs': pin['lazodiscs']['version'], 'plasmo': pin['plasmo']['version'], 'dependency_override': str(args.plasmo_jar) if args.plasmo_jar else None, 'topology': 'unchanged production playlist/LazoDiscs JARs + independent server probe' + dependency_topology}}
     started = time.monotonic()
     try:
         base_url = 'http://127.0.0.1:' + str(http.server_port)

@@ -1,5 +1,6 @@
 """Installed legacy Forge launches, isolated from development mappings."""
 import hashlib
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 from pathlib import Path
@@ -181,5 +182,108 @@ def run_client(folder, release, loader_pin, java_paths, output):
             arguments.append(value)
     command = [str(java8), '-Xmx2G', '-Djava.library.path=' + str(folder / 'build/run/legacy-natives'),
                '-cp', os.pathsep.join(map(str, classpath)), forge['mainClass'], *arguments, '--width', '960', '--height', '540']
+    output.flush()
+    return subprocess.run(command, cwd=run, stdout=output, stderr=subprocess.STDOUT, timeout=360)
+
+
+def run_client1202(folder, release, loader_pin, java_paths, output, audio_base):
+    """Test the Forge 48 dependency fix with normal installed client mappings."""
+    java = next((Path(p) / 'bin/java' for p in java_paths
+                 if (Path(p) / 'release').is_file() and 'JAVA_VERSION="17.' in (Path(p) / 'release').read_text()), None)
+    if java is None:
+        raise RuntimeError('Pass Java 17 through --java-path for installed Forge 1.20.2')
+    install = folder / 'build/installed'
+    install.mkdir(parents=True, exist_ok=True)
+    (install / 'launcher_profiles.json').write_text('{"profiles":{}}\n')
+    base = json.loads((GRADLE / 'caches/fabric-loom/1.20.2/mojang_minecraft_info.json').read_text())
+    assets = GRADLE / 'caches/fabric-loom/assets'
+    index = assets / 'indexes' / (base['assetIndex']['id'] + '.json')
+    download(base['assetIndex']['url'], index, base['assetIndex']['sha1'])
+    objects = {info['hash'] for info in json.loads(index.read_text())['objects'].values()}
+    def asset(digest):
+        download('https://resources.download.minecraft.net/' + digest[:2] + '/' + digest,
+                 assets / 'objects' / digest[:2] / digest, digest)
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        list(pool.map(asset, objects))
+    output.write('Verified Minecraft 1.20.2 asset index and ' + str(len(objects)) + ' resource objects\n')
+    version_dir = install / 'versions/1.20.2'
+    version_dir.mkdir(parents=True, exist_ok=True)
+    (version_dir / '1.20.2.json').write_text(json.dumps(base))
+    client = version_dir / '1.20.2.jar'
+    cached = GRADLE / 'caches/fabric-loom/1.20.2/minecraft-client.jar'
+    info = base['downloads']['client']
+    if cached.is_file() and hashlib.sha1(cached.read_bytes()).hexdigest() == info['sha1']:
+        shutil.copyfile(cached, client)
+    else:
+        download(info['url'], client, info['sha1'])
+    installer = ROOT / 'build' / ('forge-' + loader_pin + '-installer.jar')
+    download(f'https://maven.minecraftforge.net/net/minecraftforge/forge/{loader_pin}/forge-{loader_pin}-installer.jar', installer)
+    with zipfile.ZipFile(installer) as jar:
+        forge = json.loads(jar.read('version.json'))
+        profile = json.loads(jar.read('install_profile.json'))
+    for library in profile['libraries']:
+        if library.get('downloads', {}).get('artifact', {}).get('url'):
+            library_file(library, install)
+    marker = install / 'installed-successfully'
+    if not marker.is_file():
+        subprocess.run([str(java), '-jar', str(installer), '--installClient', str(install)], stdout=output, stderr=subprocess.STDOUT, timeout=300, check=True)
+        marker.write_text(forge['id'] + '\n')
+    libraries = {}
+    for library in base['libraries'] + forge['libraries']:
+        if allowed(library):
+            parts = library['name'].split(':')
+            libraries[':'.join(parts[:2] + parts[3:])] = library
+    classpath = [library_file(library, install) for library in libraries.values()]
+    classpath.append(client)
+    natives = install / 'natives'
+    natives.mkdir(exist_ok=True)
+    for library in classpath:
+        if 'natives-linux' not in library.name:
+            continue
+        with zipfile.ZipFile(library) as jar:
+            for name in jar.namelist():
+                if name.endswith('.so'):
+                    (natives / Path(name).name).write_bytes(jar.read(name))
+    run = folder / 'build/run/client'
+    run.mkdir(parents=True, exist_ok=True)
+    seed = ROOT / 'build/targets/test-fabric-1.20.2/build/run/server/world'
+    shutil.copytree(seed, run / 'saves/playlist-client-fixture', dirs_exist_ok=True, ignore=shutil.ignore_patterns('session.lock'))
+    mods = run / 'mods'
+    mods.mkdir(exist_ok=True)
+    probe = folder / 'build/libs/playlist-client-checks-client-checks.jar'
+    with zipfile.ZipFile(probe) as original, zipfile.ZipFile(mods / probe.name, 'w') as installed:
+        for entry in original.infolist():
+            data = original.read(entry.filename)
+            if entry.filename == 'main.refmap.json':
+                entry.filename = 'playlist-client-checks.refmap.json'
+            installed.writestr(entry, data)
+    shutil.copyfile(release, mods / release.name)
+    (run / 'options.txt').write_text('onboardAccessibility:false\nguiScale:2\nrenderDistance:3\nsimulationDistance:5\nmaxFps:60\nenableVsync:false\nlang:en_us\ntutorialStep:none\nsoundCategory_music:0.0\nsoundCategory_master:0.35\nsoundCategory_record:1.0\npauseOnLostFocus:false\n')
+    replacements = {'auth_player_name': 'PlaylistTester', 'version_name': forge['id'], 'game_directory': str(run),
+                    'assets_root': str(GRADLE / 'caches/fabric-loom/assets'), 'assets_index_name': base['assetIndex']['id'],
+                    'auth_uuid': '00000000000030008000000000000001', 'auth_access_token': '0',
+                    'clientid': '0', 'auth_xuid': '0', 'user_type': 'legacy', 'version_type': 'release',
+                    'natives_directory': str(natives), 'launcher_name': 'PlaylistChecks', 'launcher_version': '1',
+                    'library_directory': str(install / 'libraries'), 'classpath_separator': os.pathsep,
+                    'classpath': os.pathsep.join(map(str, classpath))}
+    def expand(arguments):
+        expanded = []
+        for argument in arguments:
+            if isinstance(argument, dict):
+                if not allowed(argument):
+                    continue
+                argument = argument['value']
+            for value in argument if isinstance(argument, list) else [argument]:
+                for name, replacement in replacements.items():
+                    value = value.replace('${' + name + '}', replacement)
+                if value.startswith('-DignoreList='):
+                    value += ',' + client.name
+                if '${' in value:
+                    raise ValueError('Unresolved launcher argument: ' + value)
+                expanded.append(value)
+        return expanded
+    command = [str(java), '-Xmx2G', '-Dplaylist.audioBase=' + audio_base,
+               *expand(base['arguments']['jvm'] + forge['arguments']['jvm']), forge['mainClass'],
+               *expand(base['arguments']['game'] + forge['arguments']['game']), '--width', '960', '--height', '540']
     output.flush()
     return subprocess.run(command, cwd=run, stdout=output, stderr=subprocess.STDOUT, timeout=360)

@@ -905,7 +905,17 @@
       "dependency_patch": {
         "tool": "tools/patch_plasmo_voice.py",
         "filename": "plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar",
-        "reason": "Published Plasmo Voice file declares Minecraft 1.20.2 support, but requires FML/Forge 49; Forge 1.20.2 uses 48. Only loader/Forge metadata minimum is corrected; upstream classes and licenses unchanged."
+        "reason": "Published Plasmo Voice file declares Minecraft 1.20.2 support, but requires FML/Forge 49; Forge 1.20.2 uses 48. Only loader/Forge metadata minimum is corrected; upstream classes and licenses unchanged.",
+        "artifact": "compat/forge-1.20.2/plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar",
+        "sha256": "5e5cb11374c2440a18f07f0cb1706534914d814de78b8e043c9b568429aaaf3a",
+        "source": {
+          "filename": "plasmo-voice-2.1.17.tar.gz",
+          "url": "https://codeload.github.com/plasmoapp/plasmo-voice/tar.gz/4c717b85c4bbfa286c7809a4018137142798986b",
+          "hashes": {
+            "sha512": "0060843a5b830947a2b549b936afaae6ffdacf5d4f5eceb849e29ea16a38d124ad7a32fb4088cae0a3be5084b042e7e50aa9da1233322e65f32d959df2931f25"
+          },
+          "revision": "4c717b85c4bbfa286c7809a4018137142798986b"
+        }
       }
     },
     {

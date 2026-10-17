@@ -16,14 +16,14 @@ import traceback
 import zipfile
 
 from build import gradle
-from generate import ROOT, adapt_forge1165, write
+from generate import ROOT, adapt_forge1165, version, write
 
 
 def prepare(target, java_paths=(), lazo=False, audio_base=None):
     mc, loader = target['minecraft'], target['loader']
     modern = mc == '26.3'
     legacy = mc == '1.16.5'
-    if not modern and not (loader in ('fabric', 'forge') and mc in ('1.16.5', '1.20.6')) and not (lazo and target['id'] == 'forge-1.21'):
+    if not modern and not (loader in ('fabric', 'forge') and mc in ('1.16.5', '1.20.6')) and not (lazo and target['id'] in ('forge-1.20.2', 'forge-1.21')):
         raise ValueError('Client fixture supports 26.3, 1.16.5 and Fabric/Forge 1.20.6')
     folder = ROOT / 'build/targets' / (('client-lazo-' if lazo else 'client-') + target['id'])
     folder.mkdir(parents=True, exist_ok=True)
@@ -52,13 +52,13 @@ def prepare(target, java_paths=(), lazo=False, audio_base=None):
         'EXECUTE_COMMAND': 'performCommand' if legacy else 'performPrefixedCommand',
         'ENVIRONMENT_COMMANDS': ', '.join(map(json.dumps, ['time set day', 'weather clear', 'difficulty peaceful'] + (['gamerule advance_time false', 'gamerule advance_weather false', 'gamerule spawn_mobs false'] if modern else ['gamerule doDaylightCycle false', 'gamerule doWeatherCycle false', 'gamerule doMobSpawning false']))),
         'SOUND_ID': 'getIdentifier' if modern else 'getLocation',
-        'OPEN_WORLD': 'if (!opened && ticks > 100 && mc.screen instanceof net.minecraft.client.gui.screens.TitleScreen && mc.getOverlay() == null) { opened = true; mc.loadLevel("playlist-client-fixture"); }' if legacy else 'if (!opened && ticks > 100 && mc.screen instanceof net.minecraft.client.gui.screens.TitleScreen && mc.getOverlay() == null) { opened = true; mc.createWorldOpenFlows().openWorld("playlist-client-fixture", () -> {}); }' if lazo else '',
+        'OPEN_WORLD': 'if (!opened && ticks > 100 && mc.screen instanceof net.minecraft.client.gui.screens.TitleScreen && mc.getOverlay() == null) { opened = true; mc.loadLevel("playlist-client-fixture"); }' if legacy else 'if (!opened && ticks > 100 && mc.screen instanceof net.minecraft.client.gui.screens.TitleScreen && mc.getOverlay() == null) { opened = true; mc.createWorldOpenFlows().loadLevel(mc.screen, "playlist-client-fixture"); }' if lazo and version(mc) < (1, 20, 5) else 'if (!opened && ticks > 100 && mc.screen instanceof net.minecraft.client.gui.screens.TitleScreen && mc.getOverlay() == null) { opened = true; mc.createWorldOpenFlows().openWorld("playlist-client-fixture", () -> {}); }' if lazo else '',
         'CLOSE_SCREEN': 'mc.gui.setScreen(null)' if modern else 'mc.setScreen(null)',
         'CLOSE_CONTAINER': 'mc.player.closeContainer()',
         'SCREEN': 'mc.gui.screen()' if modern else 'mc.screen',
         'USE_CHEST': use('POS.above()'),
         'USE_JUKEBOX': use('POS'),
-        'NAME_STACK': 'named.setHoverName(new net.minecraft.network.chat.TextComponent("Playlist named cat"));' if legacy else 'named.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("Playlist named cat"));',
+        'NAME_STACK': 'named.setHoverName(new net.minecraft.network.chat.TextComponent("Playlist named cat"));' if legacy else 'named.setHoverName(net.minecraft.network.chat.Component.literal("Playlist named cat"));' if version(mc) < (1, 20, 5) else 'named.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, net.minecraft.network.chat.Component.literal("Playlist named cat"));',
         'CLEAR_INVENTORY': 'player.inventory.clearContent();' if legacy else 'player.getInventory().clearContent();',
         'CLEAR_DROPS': 'for (var entity : world.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(POS).inflate(32))) entity.' + ('remove' if legacy else 'discard') + '();',
         'SCREENSHOT': 'Screenshot.grab(mc, false)' if modern else 'Screenshot.grab(new File("."), mc.getWindow().getWidth(), mc.getWindow().getHeight(), mc.getMainRenderTarget(), text -> {})' if legacy else 'Screenshot.grab(new File("."), mc.getMainRenderTarget(), text -> {})',
@@ -89,7 +89,7 @@ import org.spongepowered.asm.mixin.injection.callback.*;
 }
 ''')
     config = {'required': True, 'minVersion': '0.8', 'package': 'dev.eyecrasher.playlistchecks.mixin', 'compatibilityLevel': 'JAVA_21' if modern else 'JAVA_8' if loader == 'forge' and legacy else 'JAVA_17', 'client': ['ClientTickMixin', 'SoundMixin'], 'injectors': {'defaultRequire': 1}}
-    if loader == 'forge' and mc == '1.16.5':
+    if loader == 'forge' and mc in ('1.16.5', '1.20.2'):
         config['refmap'] = 'playlist-client-checks.refmap.json'
     write(resources / 'playlist-client-checks.mixins.json', json.dumps(config, indent=2) + '\n')
     if loader == 'fabric':
@@ -226,7 +226,11 @@ tasks.configureEach { if (name == 'runClient') { getClient().set(true); dependsO
         run = folder / 'build/run/client'
         mods = run / 'mods'
         mods.mkdir(parents=True, exist_ok=True)
-        for dependency in files(target['id']):
+        dependencies = files(target['id'])
+        if target['id'] == 'forge-1.20.2':
+            from patch_plasmo_voice import patch, FILENAME
+            dependencies[1] = patch(dependencies[1], ROOT / 'build/compat-deps' / FILENAME)
+        for dependency in dependencies:
             shutil.copyfile(dependency, mods / dependency.name)
         write(run / 'config/plasmovoice/client.toml', 'check_for_updates=false\n[voice]\nmicrophone_disabled=true\ndisable_input_device=true\n')
         write(run / 'config/lazodiscs/config.toml', '[security]\nallowHttp=true\nallowedDomains=["127.0.0.1"]\n')
@@ -243,12 +247,12 @@ def main():
     parser.add_argument('--target', required=True)
     parser.add_argument('--offline', action='store_true', help='Resolve Gradle dependencies from cache')
     parser.add_argument('--prepare-only', action='store_true')
-    parser.add_argument('--lazo-startup', action='store_true', help='Forge 1.21: burn and play LazoDiscs through Plasmo Voice, then run the native regression')
+    parser.add_argument('--lazo-startup', action='store_true', help='Forge 1.20.2/1.21: burn and play LazoDiscs through Plasmo Voice, then run the native regression')
     parser.add_argument('--java-path', action='append', type=Path, default=[])
     args = parser.parse_args()
     target = next(t for t in json.loads((ROOT / 'versions.json').read_text())['targets'] if t['id'] == args.target)
-    if args.lazo_startup and target['id'] != 'forge-1.21':
-        parser.error('--lazo-startup currently covers Forge 1.21')
+    if args.lazo_startup and target['id'] not in ('forge-1.20.2', 'forge-1.21'):
+        parser.error('--lazo-startup currently covers Forge 1.20.2 and 1.21')
     if args.prepare_only:
         folder, _, _ = prepare(target, args.java_path, args.lazo_startup)
         print(folder)
@@ -286,15 +290,19 @@ def main():
     command = gradle(gv) + ['--console=plain', '--max-workers=2']
     if args.offline:
         command += ['--offline']
-    installed = target['id'] == 'forge-1.16.5'
-    command += ['renameJar', 'preparePlaylistNatives'] if installed else ['runPlaylistClient' if target['loader'] == 'fabric' else 'runClient']
+    installed = target['id'] in ('forge-1.16.5', 'forge-1.20.2')
+    command += ['renameJar', 'preparePlaylistNatives'] if target['id'] == 'forge-1.16.5' else ['renameJar'] if installed else ['runPlaylistClient' if target['loader'] == 'fabric' else 'runClient']
     started = time.monotonic()
     with log.open('w') as output:
         try:
             result = subprocess.run(command, cwd=folder, stdout=output, stderr=subprocess.STDOUT, timeout=720)
             if installed and result.returncode == 0:
-                from installed_forge import run_client
-                result = run_client(folder, release, target['loader_version'], args.java_path, output)
+                if target['id'] == 'forge-1.20.2':
+                    from installed_forge import run_client1202
+                    result = run_client1202(folder, release, target['loader_version'], args.java_path, output, 'http://127.0.0.1:' + str(http.server_port))
+                else:
+                    from installed_forge import run_client
+                    result = run_client(folder, release, target['loader_version'], args.java_path, output)
             success = result.returncode == 0 and 'PLAYLIST CLIENT TESTS PASSED' in log.read_text(errors='replace')
             if success and args.lazo_startup:
                 import tomllib
