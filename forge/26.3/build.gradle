@@ -1,6 +1,4 @@
 plugins { id 'java'; id 'net.minecraftforge.gradle' version '7.0.17' }
-ext.playlistRoot = file('../..').absolutePath
-ext.playlistTarget = new groovy.json.JsonSlurper().parseText('{"id": "forge-26.3", "minecraft": "26.3", "loader": "forge", "loader_version": "26.3-66.0.12", "java": 25}')
 
 java { toolchain.languageVersion = JavaLanguageVersion.of(25) }
 minecraft {
@@ -11,4 +9,22 @@ runs {
 repositories { minecraft.mavenizer(it); maven fg.forgeMaven; maven fg.minecraftLibsMaven; mavenCentral() }
 dependencies { implementation minecraft.dependency('net.minecraftforge:forge:26.3-66.0.12') }
 
-apply from: new File(playlistRoot, 'gradle/release.gradle')
+version = '1.0.1'
+group = 'dev.eyecrasher.jukeboxplaylists'
+base { archivesName = 'jukebox-playlists-forge-26.3' }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+configurations.matching {
+    it.name.endsWith('CompileClasspath') || it.name.endsWith('RuntimeClasspath') ||
+        it.name in ['compileClasspath', 'runtimeClasspath']
+}.configureEach {
+    attributes.attribute(org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
+}
+jar {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    manifest { attributes 'MixinConfigs': 'jukebox-playlists.mixins.json' }
+    from(file('LICENSE')) { rename { 'LICENSE_jukebox-playlists.txt' } }
+}

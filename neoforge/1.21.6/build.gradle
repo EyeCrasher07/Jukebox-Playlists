@@ -1,6 +1,4 @@
 plugins { id 'java-library'; id 'net.neoforged.moddev' version '2.0.148' }
-ext.playlistRoot = file('../..').absolutePath
-ext.playlistTarget = new groovy.json.JsonSlurper().parseText('{"id": "neoforge-1.21.6", "minecraft": "1.21.6", "loader": "neoforge", "loader_version": "21.6.20-beta", "java": 21}')
 
 java { toolchain.languageVersion = JavaLanguageVersion.of(21) }
 neoForge { version = '21.6.20-beta'
@@ -9,4 +7,22 @@ mods { jukebox_playlists { sourceSet(sourceSets.main) } }
 }
 repositories { mavenCentral() }
 
-apply from: new File(playlistRoot, 'gradle/release.gradle')
+version = '1.0.1'
+group = 'dev.eyecrasher.jukeboxplaylists'
+base { archivesName = 'jukebox-playlists-neoforge-1.21.6' }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+configurations.matching {
+    it.name.endsWith('CompileClasspath') || it.name.endsWith('RuntimeClasspath') ||
+        it.name in ['compileClasspath', 'runtimeClasspath']
+}.configureEach {
+    attributes.attribute(org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 21)
+}
+jar {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    manifest { attributes 'MixinConfigs': 'jukebox-playlists.mixins.json' }
+    from(file('LICENSE')) { rename { 'LICENSE_jukebox-playlists.txt' } }
+}

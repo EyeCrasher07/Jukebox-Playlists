@@ -1,6 +1,4 @@
 plugins { id 'net.fabricmc.fabric-loom' version '1.17.21' }
-ext.playlistRoot = file('../..').absolutePath
-ext.playlistTarget = new groovy.json.JsonSlurper().parseText('{"id": "fabric-26.3", "minecraft": "26.3", "loader": "fabric", "loader_version": "0.19.5", "java": 25, "fabric_api": "0.162.0+26.3"}')
 
 java { toolchain.languageVersion = JavaLanguageVersion.of(25) }
 repositories { mavenCentral() }
@@ -11,4 +9,22 @@ implementation 'net.fabricmc:fabric-loader:0.19.5'
 dependencies { implementation 'net.fabricmc.fabric-api:fabric-api:0.162.0+26.3' }
 loom.runs { server { runDir 'build/run/server'; programArg 'nogui' } }
 
-apply from: new File(playlistRoot, 'gradle/release.gradle')
+version = '1.0.1'
+group = 'dev.eyecrasher.jukeboxplaylists'
+base { archivesName = 'jukebox-playlists-fabric-26.3' }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+configurations.matching {
+    it.name.endsWith('CompileClasspath') || it.name.endsWith('RuntimeClasspath') ||
+        it.name in ['compileClasspath', 'runtimeClasspath']
+}.configureEach {
+    attributes.attribute(org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
+}
+jar {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    manifest { attributes 'MixinConfigs': 'jukebox-playlists.mixins.json' }
+    from(file('LICENSE')) { rename { 'LICENSE_jukebox-playlists.txt' } }
+}

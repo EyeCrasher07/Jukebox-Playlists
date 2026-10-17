@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "jukebox_playlists",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "Jukebox Playlists",
   "description": "Chest playlists for vanilla jukeboxes, backported from 26.4.",
   "authors": [
