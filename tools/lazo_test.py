@@ -16,7 +16,7 @@ import time
 import wave
 
 from build import gradle, project
-from generate import ROOT, version, write, prepare as generate
+from generate import ROOT, version, write, prepare as generate, adapt_forge1165
 from lazo_deps import files, pins
 
 
@@ -30,7 +30,7 @@ def audio_fixtures(folder, durations=(5, 7)):
             output.writeframes(b''.join(struct.pack('<h', round(6000 * math.sin(2 * math.pi * frequency * i / 48000))) for i in range(seconds * 48000)))
 
 
-def prepare(target, java_paths, eula, base_url, attempt, plasmo_jar=None):
+def prepare(target, java_paths, eula, base_url, attempt, plasmo_jar=None, legacy_discs=False):
     folder, gv = project(target, False, java_paths, folder_name='lazo-test-' + target['id'])
     jars = files(target['id'])
     if plasmo_jar:
@@ -69,6 +69,22 @@ def prepare(target, java_paths, eula, base_url, attempt, plasmo_jar=None):
         write(folder / 'probe/java' / package / 'LazoChecksMod.java', 'package dev.eyecrasher.playlistlazochecks;\n@' + namespace + '.Mod("playlist_lazo_checks") public final class LazoChecksMod {}\n')
         metadata = next((generated / 'resources/META-INF').glob('*mods.toml'))
         write(resources / 'META-INF' / metadata.name, metadata.read_text().replace('jukebox_playlists', 'playlist_lazo_checks').replace('jukebox-playlists.mixins.json', 'playlist-lazo-checks.mixins.json'))
+    if legacy_discs:
+        from legacy_audio import prepare_fixture
+        prepare_fixture(target, folder / 'probe/java', resources)
+        source = (generated / 'java' / original_package / 'LegacyDiscChecks.java').read_text()
+        source = source.replace('package dev.eyecrasher.jukeboxplaylists;',
+            'package dev.eyecrasher.playlistlazochecks;\nimport dev.eyecrasher.jukeboxplaylists.PlaylistJukebox;\nimport dev.eyecrasher.jukeboxplaylists.LegacyDiscLengths;')
+        write(folder / 'probe/java' / package / 'LegacyDiscChecks.java', source)
+        probe = folder / 'probe/java' / package / 'mixin/ServerTestMixin.java'
+        source = probe.read_text().replace('        dev.eyecrasher.playlistlazochecks.LazoSmoke.tick(', '''        if (!playlist$tested) {
+            playlist$tested = true;
+            dev.eyecrasher.playlistlazochecks.LegacyDiscChecks.run(((MinecraftServer) (Object) this).overworld());
+        }
+        dev.eyecrasher.playlistlazochecks.LazoSmoke.tick(''')
+        write(probe, source)
+        if target['id'] == 'forge-1.16.5':
+            adapt_forge1165(folder / 'probe/java')
     run_name = 'build/run/lazo/' + attempt
     run = folder / run_name
     run.mkdir(parents=True, exist_ok=True)
@@ -128,6 +144,7 @@ def prepare(target, java_paths, eula, base_url, attempt, plasmo_jar=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--legacy-discs', action='store_true', help='Also check bundled OGG RecordItems on the installed server')
     parser.add_argument('--target', required=True)
     parser.add_argument('--eula-file', required=True, type=Path)
     parser.add_argument('--java-path', action='append', default=[], type=Path)
@@ -138,6 +155,8 @@ def main():
     if not args.eula_file.is_file() or 'eula=true' not in args.eula_file.read_text().lower():
         parser.error('An existing accepted Minecraft EULA file is required')
     target = next(t for t in json.loads((ROOT / 'versions.json').read_text())['targets'] if t['id'] == args.target)
+    if args.legacy_discs and version(target['minecraft']) >= (1, 19, 1):
+        parser.error('--legacy-discs requires Minecraft before 1.19.1')
     pin = next(p for p in pins() if p['target'] == target['id'])
     if pin.get('dependency_patch') and not args.plasmo_jar and not args.unmodified_dependency:
         from patch_plasmo_voice import patch, FILENAME
@@ -167,7 +186,7 @@ def main():
     started = time.monotonic()
     try:
         base_url = 'http://127.0.0.1:' + str(http.server_port)
-        folder, gv, jars, release, run = prepare(target, args.java_path, args.eula_file, base_url, attempt, args.plasmo_jar)
+        folder, gv, jars, release, run = prepare(target, args.java_path, args.eula_file, base_url, attempt, args.plasmo_jar, args.legacy_discs)
         before = hashlib.sha256(release.read_bytes()).hexdigest()
         installed_forge = target['loader'] == 'forge' and version(target['minecraft']) < (1, 20, 5)
         argv = gradle(gv) + ['--console=plain', '--max-workers=2']
@@ -186,6 +205,9 @@ def main():
         requests = (evidence / 'http.log').read_text() if (evidence / 'http.log').exists() else ''
         audio_ok = all(name in requests for name in ('/a.wav', '/b.wav')) and text.count('Streaming LazoDisc audio sender started') >= 3 and 'Failed to start streaming LazoDisc' not in text
         record['result'].update(success=result.returncode == 0 and 'PLAYLIST LAZO TESTS PASSED' in text and 'PLAYLIST LAZO TESTS FAILED' not in text and audio_ok, log=str(log.relative_to(ROOT)), audio_verified=audio_ok, dependencies=[{'file': str(p.relative_to(ROOT)), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in jars])
+        if args.legacy_discs:
+            record['result']['legacy_modded_discs'] = 'LEGACY MODDED DISC TESTS PASSED' in text
+            record['result']['success'] &= record['result']['legacy_modded_discs']
         if not record['result']['success']:
             print('\n'.join(text.splitlines()[-65:]))
     finally:

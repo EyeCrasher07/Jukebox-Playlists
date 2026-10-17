@@ -19,7 +19,7 @@ from build import gradle
 from generate import ROOT, adapt_forge1165, version, write
 
 
-def prepare(target, java_paths=(), lazo=False, audio_base=None):
+def prepare(target, java_paths=(), lazo=False, audio_base=None, legacy_discs=False):
     mc, loader = target['minecraft'], target['loader']
     modern = mc == '26.3'
     legacy = mc == '1.16.5'
@@ -65,6 +65,9 @@ def prepare(target, java_paths=(), lazo=False, audio_base=None):
     }
     for key, value in replacements.items():
         source = source.replace('@' + key + '@', value)
+    if legacy_discs:
+        source = source.replace('        // Place records only', '        legacyDiscs();\n        // Place records only')
+        source = source.replace('    private static PlaylistJukebox box()', (ROOT / 'tools/templates/clienttest/LegacyDiscClientScenario.java.in').read_text() + '\n    private static PlaylistJukebox box()')
     write(src / 'ClientChecks.java', source)
     write(src / 'ClientTickMixin.java', '''package dev.eyecrasher.playlistchecks.mixin;
 import dev.eyecrasher.playlistchecks.ClientChecks;
@@ -103,6 +106,9 @@ import org.spongepowered.asm.mixin.injection.callback.*;
             write(resources / 'pack.mcmeta', jar.read('pack.mcmeta').decode())
         text = text.replace('jukebox-playlists.mixins.json', 'playlist-client-checks.mixins.json')
         write(resources / metadata, text)
+    if legacy_discs:
+        from legacy_audio import prepare_fixture
+        prepare_fixture(target, folder / 'probe/java', resources)
     if loader == 'forge' and mc == '1.16.5':
         for generated in ('classes', 'resources', 'libs'):
             shutil.rmtree(folder / 'build' / generated, ignore_errors=True)
@@ -249,17 +255,20 @@ def main():
     parser.add_argument('--offline', action='store_true', help='Resolve Gradle dependencies from cache')
     parser.add_argument('--prepare-only', action='store_true')
     parser.add_argument('--lazo-startup', action='store_true', help='Forge 1.20.2/1.21: burn and play LazoDiscs through Plasmo Voice, then run the native regression')
+    parser.add_argument('--legacy-discs', action='store_true', help='1.16.5: genuine modded RecordItems, bundled OGG and automatic transitions')
     parser.add_argument('--java-path', action='append', type=Path, default=[])
     args = parser.parse_args()
     target = next(t for t in json.loads((ROOT / 'versions.json').read_text())['targets'] if t['id'] == args.target)
     if args.lazo_startup and target['id'] not in ('forge-1.20.2', 'forge-1.21'):
         parser.error('--lazo-startup currently covers Forge 1.20.2 and 1.21')
+    if args.legacy_discs and (target['minecraft'] != '1.16.5' or args.lazo_startup):
+        parser.error('--legacy-discs currently covers Fabric/Forge 1.16.5 without --lazo-startup')
     if args.prepare_only:
-        folder, _, _ = prepare(target, args.java_path, args.lazo_startup)
+        folder, _, _ = prepare(target, args.java_path, args.lazo_startup, legacy_discs=args.legacy_discs)
         print(folder)
         return
     attempt = time.strftime('%Y%m%d-%H%M%S')
-    evidence = ROOT / 'build/evidence' / (('lazo-client-' if args.lazo_startup else '') + target['id']) / attempt
+    evidence = ROOT / 'build/evidence' / (('lazo-client-' if args.lazo_startup else 'legacy-discs-client-' if args.legacy_discs else '') + target['id']) / attempt
     evidence.mkdir(parents=True)
     http = None
     if args.lazo_startup:
@@ -279,7 +288,7 @@ def main():
         http = ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Handler, directory=str(audio)))
         threading.Thread(target=http.serve_forever, daemon=True).start()
     folder, gv, release = prepare(target, args.java_path, args.lazo_startup,
-                                 'http://127.0.0.1:' + str(http.server_port) if http else None)
+                                 'http://127.0.0.1:' + str(http.server_port) if http else None, args.legacy_discs)
     # Retain older test installations without loading two versions together.
     for old in (folder / 'build/run/client/mods').glob('jukebox-playlists-*.jar'):
         if old.name != release.name or old.read_bytes() != release.read_bytes():
@@ -327,13 +336,15 @@ def main():
         stages = ('01-playing-11', '02-chest', '03-natural-transition-cat', '04-repeat-11')
         if args.lazo_startup:
             stages = ('00-lazodiscs-a', '00-lazodiscs-b', *stages)
+        if args.legacy_discs:
+            stages = ('00-modded-slow', '00-modded-short', *stages)
         images = sorted((folder / 'build/run/client/screenshots').glob('*.png'), key=lambda p: p.stat().st_mtime)[-len(stages):]
         for stage, screenshot in zip(stages, images):
             dest = evidence / (stage + '.png')
             shutil.copyfile(screenshot, dest)
             screenshots.append(str(dest.relative_to(ROOT)))
         shutil.copyfile(folder / 'build/run/client/client-checks.txt', evidence / 'checks.txt')
-    kind = 'lazo_client_runtime' if args.lazo_startup else 'client_runtime'
+    kind = 'lazo_client_runtime' if args.lazo_startup else 'legacy_discs_client_runtime' if args.legacy_discs else 'client_runtime'
     record = {'target': target['id'], 'kind': kind, 'result': {'success': success, 'seconds': round(time.monotonic() - started, 1), 'loader_version': target['loader_version'], 'artifact': str(release.relative_to(ROOT)), 'sha256': before, 'log': str(log.relative_to(ROOT)), 'screenshots': screenshots}}
     write(evidence / 'result.json', json.dumps(record, indent=2) + '\n')
     write(ROOT / 'build/results' / (target['id'] + '-' + kind + '.json'), json.dumps(record, indent=2) + '\n')

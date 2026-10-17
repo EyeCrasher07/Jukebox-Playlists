@@ -65,7 +65,8 @@ public abstract class JukeboxMixin implements PlaylistJukebox, net.minecraft.til
         } else {
             if (!playlist$current().isEmpty() && playlist$elapsed >= 0) {
             long length = dev.eyecrasher.jukeboxplaylists.LegacyDiscLengths.ticks(playlist$current());
-            if (length > 0 && playlist$elapsed++ >= length + 20) {
+            // Count playback while the first background resource scan runs.
+            if (playlist$elapsed++ >= length + 20 && length > 0) {
                 playlist$elapsed = -1;
                 Playlists.advance(this, true);
             }

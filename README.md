@@ -6,6 +6,8 @@ Backports jukebox chest playlists from [Minecraft 26.4 Snapshot 4](https://www.m
 
 [Downloads](https://github.com/EyeCrasher07/Jukebox-Playlists/releases) · [Issues](https://github.com/EyeCrasher07/Jukebox-Playlists/issues)
 
+The automatic legacy disc length fix described below is currently available in this development branch. Published 1.0.0 downloads still require manual durations for other mods' discs on 1.16.5–1.19.
+
 ## Getting started
 
 1. Download **one** JAR for your exact Minecraft version and loader: `jukebox-playlists-<loader>-<minecraft>-1.0.0.jar`. The full ZIP contains all variants; install only the matching file.
@@ -27,6 +29,10 @@ The pinned dependency matrix contains **52 combinations**: 25 Fabric, 15 Forge a
 This integration is optional. Standard discs work without LazoDiscs. Use a matching Fabric, Forge or NeoForge server; Vanilla/Paper cannot load these mods. Hybrid servers and arbitrary modpacks have not been verified.
 
 ## Supported builds
+
+On **1.16.5–1.19**, modded disc lengths are read automatically from the mod's bundled `sounds.json` and OGG Vorbis files, including on dedicated servers. Sound-event references and pitch are supported. If an event has random tracks, the longest duration is used to avoid cutting any of them short. Scanning runs in the background and is cached. Recorded LazoDiscs still use their actual playback completion.
+
+If the audio exists only in a client resource pack, supply an optional server override in `config/jukebox-playlists-song-lengths.properties`, for example `item.example.my_music_disc=4200` (210 seconds). Overrides take priority; restart after editing. On 1.19.1+ the game provides native disc durations, and on 1.21+ `jukebox_playable` is supported.
 
 The first release, **1.0.0**, provides **90 builds** across **35 Minecraft releases**: 35 Fabric, 32 Forge and 23 NeoForge. A dash means no build for that pair. These are the pinned build and verification targets.
 
@@ -85,7 +91,7 @@ On Windows use `gradlew.bat build`. The installable JAR is in that project's `bu
 
 The recorded gameplay checks cover all 90 SDK servers, 52 LazoDiscs server/audio combinations, six native client combinations, LazoDiscs clients on Forge 1.20.2/1.21, and a dedicated Fabric 26.3 server with two separate clients, captured sound and a full restart. The LazoDiscs checks use recordings made with `/lazodisc burn`, including audio longer than its vanilla base disc.
 
-The initial release packaging sets version 1.0.0 and adds GPL texts and author/contact metadata. Every class and runtime resource in all 90 rebuilt JARs is compared byte for byte with the gameplay-tested baseline. Original test hashes and packaging comparisons are recorded separately in the release manifest. Detailed local evidence remains in the development workspace.
+The published 1.0.0 packaging was compared byte for byte with its gameplay-tested baseline, allowing version and license metadata changes. The automatic legacy disc length fix changes gameplay code in 13 builds and is checked separately with bundled modded OGG records, server transitions and actual client audio. Original test hashes and packaging comparisons remain separate; detailed local evidence is kept in the development workspace.
 
 Created by **EyeCrasher07**. Licensed under [GPL-3.0-only](LICENSE).
 
@@ -94,6 +100,8 @@ Created by **EyeCrasher07**. Licensed under [GPL-3.0-only](LICENSE).
 ## Русский
 
 Перенос плейлистов проигрывателя из **Minecraft 26.4 Snapshot 4** на **1.16.5–26.3**. Доступны 90 отдельных сборок: Fabric, Forge и NeoForge там, где загрузчик существует. Таблица выше показывает точные версии.
+
+Автоматическое определение длительности старых модовых пластинок пока доступно в этой ветке разработки. В опубликованной 1.0.0 для других модовых пластинок на 1.16.5–1.19 ещё нужна ручная настройка.
 
 ### Установка и использование
 
@@ -115,18 +123,20 @@ Created by **EyeCrasher07**. Licensed under [GPL-3.0-only](LICENSE).
 
 ### Старые модовые пластинки
 
-В 1.16.5–1.19 у пластинок нет серверной длительности. Для ванильных треков она уже задана; для записей LazoDiscs используется настоящее завершение аудио. Для других модовых пластинок создай `config/jukebox-playlists-song-lengths.properties`:
+В **1.16.5–1.19** длительность модовых пластинок автоматически читается из `sounds.json` и OGG Vorbis внутри установленного мода, в том числе на выделенном сервере. Учитываются ссылки на другие звуковые события и скорость воспроизведения. Для случайных вариантов берётся самый длинный, чтобы не обрывать треки. Файлы читаются в фоне, результат кешируется. Для записей LazoDiscs по-прежнему используется настоящее завершение аудио.
+
+Если звук доступен только в клиентском ресурспаке, его длительность можно задать вручную на сервере в `config/jukebox-playlists-song-lengths.properties`:
 
 ```properties
 item.example.my_music_disc=4200
 ```
 
-Ключ — translation key предмета, значение — длительность в тиках: 20 тиков = 1 секунда. Перезапусти игру или сервер после изменения. Без известной длительности трек звучит, но сервер не сможет автоматически перейти дальше. С 1.19.1 используется штатная длительность, а с 1.21 поддерживается компонент `jukebox_playable`.
+Ключ — translation key предмета, значение — длительность в тиках: 20 тиков = 1 секунда. Ручное значение имеет приоритет над автоматическим. Перезапусти игру или сервер после изменения. Если аудио недоступно серверу и длительность не задана, автоматический переход для этой пластинки не выполняется. С 1.19.1 используется штатная длительность, а с 1.21 поддерживается компонент `jukebox_playable`.
 
 ### Исходники и проверки
 
 Папки исходников: `fabric/<версия>`, `forge/<версия>`, `neoforge/<версия>`. Внутри каждой папки есть свои исходники, ресурсы и `gradlew`. Для обычной сборки перейди в нужную папку и выполни `./gradlew build` (`gradlew.bat build` в Windows); готовый JAR без `-dev` будет в `build/libs/`. Требования к JDK указаны выше; скрипты сборки всей матрицы находятся в `tools/`.
 
-При подготовке выпуска отдельно сверено совпадение всех игровых классов и ресурсов с файлами, проверенными в настоящем Minecraft: изменение лицензии и метаданных не выдаётся за повторный игровой прогон. Хеши проверенных файлов и сравнения включены в манифест релиза.
+При подготовке опубликованной 1.0.0 игровые классы и ресурсы побайтно сверены с проверенными файлами; изменение лицензии и метаданных отдельно отражено в манифесте. Автоматическое определение длительности старых пластинок меняет игровой код 13 сборок и проверяется отдельно: настоящие модовые предметы с OGG, переходы на сервере и звук в клиенте. Старые проверки упаковки не выдаются за проверку этого исправления.
 
 Автор — **EyeCrasher07**. Лицензия — [GPL-3.0-only](LICENSE).

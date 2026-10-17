@@ -1,0 +1,28 @@
+    private static void legacyDiscs() throws Exception {
+        server(() -> {
+            chest().setItem(1, new ItemStack(dev.eyecrasher.playlistchecks.LegacyDiscFixture.slowDisc()));
+            chest().setItem(7, new ItemStack(dev.eyecrasher.playlistchecks.LegacyDiscFixture.shortDisc()));
+            chest().setChanged();
+            return null;
+        });
+        await(() -> current(LegacyDiscFixture.slowDisc()), 15000, "modded record starts without a configured duration");
+        await(() -> active("slow"), 10000, "modded OGG reaches the real sound engine");
+        shot("00-modded-slow");
+        Thread.sleep(3000);
+        check(current(LegacyDiscFixture.slowDisc()) && active("slow"), "nested pitch 0.5 keeps the 3.25-second OGG playing beyond five seconds");
+        await(() -> current(LegacyDiscFixture.shortDisc()), 8000, "OGG-derived duration naturally starts the next modded record");
+        await(() -> active("short"), 5000, "next modded OGG plays on the client");
+        check(!active("slow") && onClient(() -> activeCount() == 1), "finished modded audio does not overlap the next track");
+        check(server(() -> chest().getItem(7).getItem() == LegacyDiscFixture.slowDisc()), "modded record remains in the chest after the natural transition");
+        shot("00-modded-short");
+        await(() -> current(LegacyDiscFixture.slowDisc()), 8000, "modded records loop automatically");
+        server(() -> {
+            var world = mc.getSingleplayerServer().overworld();
+            world.removeBlock(POS.above(), false);
+            world.removeBlock(POS, false);
+            world.setBlock(POS, Blocks.JUKEBOX.defaultBlockState(), 3);
+            world.setBlock(POS.above(), Blocks.CHEST.defaultBlockState(), 3);
+            return null;
+        });
+        await(() -> onClient(() -> activeCount() == 0), 5000, "removing the modded jukebox stops its audio");
+    }

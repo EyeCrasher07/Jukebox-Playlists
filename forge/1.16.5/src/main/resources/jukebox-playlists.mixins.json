@@ -6,6 +6,7 @@
   "mixins": [
     "JukeboxMixin",
     "LazoPlaybackMixin",
+    "RecordSoundMixin",
     "LazoLegacyPositionMixin"
   ],
   "injectors": {

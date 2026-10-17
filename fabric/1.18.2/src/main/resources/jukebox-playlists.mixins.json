@@ -6,7 +6,8 @@
   "mixins": [
     "JukeboxMixin",
     "LazoPlaybackMixin",
-    "JukeboxBlockMixin"
+    "JukeboxBlockMixin",
+    "RecordSoundMixin"
   ],
   "injectors": {
     "defaultRequire": 1

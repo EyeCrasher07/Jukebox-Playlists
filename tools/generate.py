@@ -32,8 +32,28 @@ def prepare(target, output, tests=False, lazo_tests=False):
         shutil.copyfile(source, dest)
     write(java_dir / PACKAGE / 'mixin/LazoPlaybackMixin.java', (ROOT / 'tools/templates/templates/LazoPlaybackMixin.java.in').read_text())
     if legacy:
-        dest = java_dir / PACKAGE / "LegacyDiscLengths.java"
-        shutil.copyfile(ROOT / "tools/templates/legacy/java" / PACKAGE / "LegacyDiscLengths.java", dest)
+        for source in (ROOT / "tools/templates/legacy/java").rglob("*.java"):
+            dest = java_dir / source.relative_to(ROOT / "tools/templates/legacy/java")
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, dest)
+        # Forge 1.16 strips RecordItem.getSound() on dedicated servers. Read
+        # the same backing value without linking that client-only method.
+        sound_field = 'java.util.function.Supplier<net.minecraft.sounds.SoundEvent> soundSupplier' if target['loader'] == 'forge' else 'net.minecraft.sounds.SoundEvent sound'
+        sound_value = 'soundSupplier.get()' if target['loader'] == 'forge' else 'sound'
+        sound_registry = 'net.minecraftforge.registries.ForgeRegistries.SOUND_EVENTS' if target['loader'] == 'forge' else 'net.minecraft.core.Registry.SOUND_EVENT'
+        write(java_dir / PACKAGE / 'mixin/RecordSoundMixin.java', '''package dev.eyecrasher.jukeboxplaylists.mixin;
+import dev.eyecrasher.jukeboxplaylists.LegacyRecordSound;
+import net.minecraft.world.item.RecordItem;
+import org.spongepowered.asm.mixin.*;
+@Mixin(RecordItem.class)
+public abstract class RecordSoundMixin implements LegacyRecordSound {
+    @Shadow''' + ('(remap = false)' if target['loader'] == 'forge' else '') + ' @Final private ' + sound_field + ''';
+    @Override public String playlist$soundId() {
+        Object id = ''' + sound_registry + '.getKey(' + sound_value + ''');
+        return id == null ? null : id.toString();
+    }
+}
+''')
     fields = "@Unique private long playlist$elapsed;" if legacy else "@Shadow private boolean isPlaying;" if not songs else ""
     get_item = "getRecord()" if legacy or classic else "getItem(0)" if v < (1, 20, 3) else "getTheItem()"
     if legacy or classic:
@@ -51,7 +71,8 @@ def prepare(target, output, tests=False, lazo_tests=False):
     if legacy:
         tick = '''if (!playlist$current().isEmpty() && playlist$elapsed >= 0) {
             long length = dev.eyecrasher.jukeboxplaylists.LegacyDiscLengths.ticks(playlist$current());
-            if (length > 0 && playlist$elapsed++ >= length + 20) {
+            // Count playback while the first background resource scan runs.
+            if (playlist$elapsed++ >= length + 20 && length > 0) {
                 playlist$elapsed = -1;
                 Playlists.advance(this, true);
             }
@@ -163,6 +184,8 @@ public final class JukeboxPlaylistsMod {{ public JukeboxPlaylistsMod() {{}} }}
     config = {"required": True, "minVersion": "0.8", "package": "dev.eyecrasher.jukeboxplaylists.mixin",
               "compatibilityLevel": compatibility, "mixins": ["JukeboxMixin", "LazoPlaybackMixin"] + ([] if mc == "1.16.5" else ["JukeboxBlockMixin"]),
               "injectors": {"defaultRequire": 1}}
+    if legacy:
+        config['mixins'].append('RecordSoundMixin')
     if mc == '1.16.5':
         formatter = 'Lnet/minecraft/class_2338;method_23854()Ljava/lang/String;' if target['loader'] == 'fabric' else 'Lnet/minecraft/util/math/BlockPos;func_229422_x_()Ljava/lang/String;'
         write(java_dir / PACKAGE / 'mixin/LazoLegacyPositionMixin.java', (ROOT / 'tools/templates/templates/LazoLegacyPositionMixin.java.in').read_text().replace('@FORMATTER@', formatter))
@@ -251,6 +274,12 @@ def prepare_tests(target, java_dir, resources):
     eject = "entity.popOutTheItem();" if v >= (1, 21) else "entity.popOutRecord();" if v >= (1, 19, 4) else "((JukeboxBlock) Blocks.JUKEBOX).use(world.getBlockState(POS), world, POS, null, InteractionHand.MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(POS), Direction.UP, POS, false));"
     tick = "((net.minecraft.world.level.block.entity.TickableBlockEntity) entity).tick();" if mc == "1.16.5" else "((JukeboxBlock) Blocks.JUKEBOX).getTicker(world, entity.getBlockState(), (net.minecraft.world.level.block.entity.BlockEntityType) entity.getType()).tick(world, POS, entity.getBlockState(), entity);"
     source = (ROOT / "tools/templates/templates/PlaylistSmoke.java.in").read_text()
+    if v < (1, 19, 1):
+        from legacy_audio import prepare_fixture
+        prepare_fixture(target, java_dir, resources)
+        write(java_dir / PACKAGE / 'LegacyDiscChecks.java', (ROOT / 'tools/templates/templates/LegacyDiscChecks.java.in').read_text())
+        source = source.replace('        System.out.println("PLAYLIST TESTS PASSED:',
+                                '        LegacyDiscChecks.run(world);\n        System.out.println("PLAYLIST TESTS PASSED:')
     copper = ""
     if v >= (1, 21, 9):
         variants = [wax + oxidation + "copper_chest" for wax in ("", "waxed_") for oxidation in ("", "exposed_", "weathered_", "oxidized_")]
@@ -332,6 +361,7 @@ def adapt_forge1165(java_dir):
         "net.minecraft.world.level.block.state.BlockState": "net.minecraft.block.BlockState",
         "net.minecraft.world.level.block.state.properties.ChestType": "net.minecraft.state.properties.ChestType",
         "net.minecraft.resources.ResourceLocation": "net.minecraft.util.ResourceLocation",
+        "net.minecraft.sounds.SoundEvent": "net.minecraft.util.SoundEvent",
         "net.minecraft.nbt.CompoundTag": "net.minecraft.nbt.CompoundNBT",
         "net.minecraft.world.InteractionHand": "net.minecraft.util.Hand",
         "net.minecraft.core.Direction": "net.minecraft.util.Direction",

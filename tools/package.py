@@ -68,7 +68,7 @@ def main():
         releases.append({**target, "file": str(Path(result["build"]["artifact"]).relative_to("dist")),
                          "sha256": result["build"]["sha256"],
                          "runtime_tested": result.get("runtime", {}).get("success", False),
-                         "client_runtime_tested": result.get("client_runtime", {}).get("success", False),
+                         "client_runtime_tested": result.get("client_runtime", {}).get("success", False) or result.get("legacy_discs_client_runtime", {}).get("success", False),
                          "pair_runtime_tested": result.get("pair_runtime", {}).get("success", False),
                          "lazodiscs_runtime_tested": result.get("lazo_runtime", {}).get("success", False) and result.get("lazo_runtime", {}).get("audio_verified", False) and (result.get("lazo_runtime", {}).get("sha256") == result["build"]["sha256"] or result.get("lazo_runtime", {}).get("packaging_only_update", False)),
                          "lazodiscs_pair_runtime_tested": result.get("lazo_pair_runtime", {}).get("success", False),
@@ -82,7 +82,7 @@ def main():
                              "tested_sha256": evidence.get('sha256'),
                              "exact_release_jar": evidence.get('sha256') == result['build']['sha256'],
                              "packaging_only_update": evidence.get('packaging_only_update', False),
-                         } for kind in ('client_runtime', 'pair_runtime', 'lazo_runtime', 'lazo_dependency_runtime', 'lazo_client_runtime', 'lazo_pair_runtime') if (evidence := result.get(kind))}})
+                         } for kind in ('client_runtime', 'legacy_discs_client_runtime', 'pair_runtime', 'lazo_runtime', 'lazo_dependency_runtime', 'lazo_client_runtime', 'lazo_pair_runtime') if (evidence := result.get(kind))}})
     compatibility_files, fixes = [], []
     for pin in pins.values():
         if pin.get('dependency_patch'):

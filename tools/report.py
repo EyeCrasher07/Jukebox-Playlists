@@ -31,7 +31,7 @@ def main():
             artifact = ROOT / proof['artifact']
             if not artifact.is_file() or hashlib.sha256(artifact.read_bytes()).hexdigest() != proof['sha256']:
                 proof['success'] = False
-        for kind in ('client_runtime', 'pair_runtime', 'lazo_runtime', 'lazo_dependency_runtime', 'lazo_pair_runtime', 'lazo_client_runtime'):
+        for kind in ('client_runtime', 'legacy_discs_client_runtime', 'pair_runtime', 'lazo_runtime', 'lazo_dependency_runtime', 'lazo_pair_runtime', 'lazo_client_runtime'):
             result = item.get(kind, {})
             if result.get('success') and result.get('artifact'):
                 artifact = ROOT / item.get('build', {}).get('artifact', result['artifact'])
@@ -46,6 +46,7 @@ def main():
     def passes(kind):
         return {key: item[kind] for key, item in status.items() if item.get(kind, {}).get('success')}
     built, runtime, clients = passes('build'), passes('runtime'), passes('client_runtime')
+    clients.update(passes('legacy_discs_client_runtime'))
     pairs, lazo, lazo_pairs = passes('pair_runtime'), passes('lazo_runtime'), passes('lazo_pair_runtime')
     patched = {}
     for pin in pins['targets']:

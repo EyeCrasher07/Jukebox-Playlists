@@ -1,0 +1,59 @@
+package dev.eyecrasher.jukeboxplaylists;
+
+import dev.eyecrasher.playlistchecks.LegacyDiscFixture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+
+/** Runs real modded records through the installed jukebox ticker. Test-only. */
+public final class LegacyDiscChecks {
+    private static int checks;
+    public static void run(Level world) {
+        awaitLength(LegacyDiscFixture.shortDisc(), 45);
+        awaitLength(LegacyDiscFixture.slowDisc(), 131);
+        awaitLength(LegacyDiscFixture.variantsDisc(), 66);
+        BlockPos pos = new BlockPos(4, 100, 0);
+        world.removeBlock(pos.above(), false);
+        world.removeBlock(pos, false);
+        world.setBlock(pos, Blocks.JUKEBOX.defaultBlockState(), 3);
+        world.setBlock(pos.above(), Blocks.CHEST.defaultBlockState(), 3);
+        PlaylistJukebox box = (PlaylistJukebox) world.getBlockEntity(pos);
+        Container chest = (Container) world.getBlockEntity(pos.above());
+        chest.setItem(0, new ItemStack(LegacyDiscFixture.shortDisc()));
+        chest.setItem(2, new ItemStack(LegacyDiscFixture.slowDisc()));
+        box.playlist$tick();
+        check(box.playlist$current().getItem() == LegacyDiscFixture.shortDisc(), "genuine modded disc starts from chest");
+        for (int i = 0; i < 65; i++) box.playlist$tick();
+        check(box.playlist$current().getItem() == LegacyDiscFixture.shortDisc(), "OGG track and one-second gap complete before exchange");
+        box.playlist$tick();
+        check(box.playlist$current().getItem() == LegacyDiscFixture.slowDisc(), "OGG-derived duration advances automatically");
+        check(chest.getItem(2).getItem() == LegacyDiscFixture.shortDisc(), "automatic transition retains the modded record");
+        for (int i = 0; i < 151; i++) box.playlist$tick();
+        check(box.playlist$current().getItem() == LegacyDiscFixture.slowDisc(), "nested sound-event pitch extends playback");
+        box.playlist$tick();
+        check(box.playlist$current().getItem() == LegacyDiscFixture.shortDisc(), "modded playlist loops after the slowed track");
+        chest.setItem(2, new ItemStack(Items.MUSIC_DISC_CAT));
+        box.playlist$play(new ItemStack(LegacyDiscFixture.missingDisc()));
+        for (int i = 0; i < 8000; i++) box.playlist$tick();
+        check(box.playlist$current().getItem() == LegacyDiscFixture.missingDisc(), "unknown audio is not cut off by a guessed duration");
+        System.out.println("LEGACY MODDED DISC TESTS PASSED: " + checks + " assertions");
+    }
+    private static void awaitLength(Item item, long expected) {
+        long deadline = System.nanoTime() + 10_000_000_000L;
+        ItemStack stack = new ItemStack(item);
+        long length;
+        while ((length = LegacyDiscLengths.ticks(stack)) <= 0 && System.nanoTime() < deadline) {
+            try { Thread.sleep(10); } catch (InterruptedException exception) { throw new AssertionError(exception); }
+        }
+        check(length == expected, "bundled OGG duration for " + item + " = " + length);
+    }
+    private static void check(boolean condition, String message) {
+        if (!condition) throw new AssertionError(message);
+        checks++;
+        System.out.println("LEGACY MODDED DISC CHECK: " + message);
+    }
+}

@@ -6,25 +6,45 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.apache.logging.log4j.LogManager;
 import net.minecraft.item.ItemStack;
 
 /** Song metadata for releases before the server had native record durations. */
 public final class LegacyDiscLengths {
     private static final Properties LENGTHS = load();
+    private static final LegacySoundLengths SOUNDS = new LegacySoundLengths(LegacyDiscLengths.class.getClassLoader());
+    private static final ConcurrentHashMap<String, CompletableFuture<Long>> DISCOVERED = new ConcurrentHashMap<>();
+    private static final ExecutorService READER = Executors.newSingleThreadExecutor(task -> {
+        Thread thread = new Thread(task, "Jukebox Playlists sound lengths");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     private LegacyDiscLengths() {}
 
     public static long ticks(ItemStack stack) {
         String value = LENGTHS.getProperty(stack.getItem().getDescriptionId());
-        if (value == null) {
-            return -1;
+        if (value != null) {
+            try {
+                long ticks = Long.parseLong(value);
+                if (ticks > 0 && ticks <= Long.MAX_VALUE - 20) return ticks;
+            } catch (NumberFormatException ignored) {}
         }
-        try {
-            long ticks = Long.parseLong(value);
-            return ticks > 0 ? ticks : -1;
-        } catch (NumberFormatException ignored) {
-            return -1;
-        }
+        if (!(stack.getItem() instanceof LegacyRecordSound)) return -1;
+        String sound = ((LegacyRecordSound) stack.getItem()).playlist$soundId();
+        if (sound == null) return -1;
+        return DISCOVERED.computeIfAbsent(sound, id -> CompletableFuture.supplyAsync(() -> {
+            long ticks = SOUNDS.ticks(id);
+            if (ticks <= 0) LogManager.getLogger("Jukebox Playlists").warn(
+                "Cannot determine length of {} ({}). If its audio is supplied only by a client resource pack, "
+                + "set its ticks in config/jukebox-playlists-song-lengths.properties.",
+                stack.getItem().getDescriptionId(), id);
+            return ticks;
+        }, READER)).getNow(-1L);
     }
 
     private static Properties load() {
