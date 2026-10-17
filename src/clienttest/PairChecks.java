@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.nio.file.*;
 import java.util.List;
+import java.util.Collection;
+import java.lang.reflect.Method;
 import java.util.concurrent.*;
 import java.util.function.BooleanSupplier;
 import net.minecraft.client.Minecraft;
@@ -64,6 +66,18 @@ public final class PairChecks {
                         await(() -> call(() -> MC.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.ContainerScreen), 10000);
                         screenshot();
                         client(() -> { MC.player.closeContainer(); return null; });
+                    } else if (action.equals("lazo") || action.equals("lazo-skip") || action.equals("lazo-hold")) {
+                        if (action.equals("lazo-skip")) use(new BlockPos(0, 100, 0));
+                        String track = step.get("track").getAsString();
+                        await(() -> call(() -> lazoActive(track) && activeCount() == 0), 120000);
+                        if (action.equals("lazo-hold")) {
+                            long end = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(step.get("millis").getAsLong());
+                            while (System.nanoTime() < end) {
+                                if (!call(() -> lazoActive(track) && activeCount() == 0)) throw new AssertionError("Custom audio interrupted before its real end");
+                                Thread.sleep(100);
+                            }
+                        }
+                        screenshot();
                     } else {
                         if (action.equals("skip")) use(new BlockPos(0, 100, 0));
                         String track = step.get("track").getAsString();
@@ -103,6 +117,7 @@ public final class PairChecks {
         result.addProperty("role", ROLE);
         result.addProperty("record_events", RECORDS.size());
         result.addProperty("active_records", call(() -> activeCount()));
+        if (Boolean.getBoolean("playlist.lazo")) result.addProperty("lazo_sources", call(() -> lazoSummary()));
         return result;
     }
     private static boolean active(String track) {
@@ -114,6 +129,32 @@ public final class PairChecks {
         int count = 0;
         for (SoundInstance sound : RECORDS) if (MC.getSoundManager().isActive(sound)) count++;
         return count;
+    }
+    private static Collection<?> lazoSources() throws Exception {
+        Object voice = Class.forName("su.plo.voice.client.ModVoiceClient").getField("INSTANCE").get(null);
+        Object manager = voice.getClass().getMethod("getSourceManager").invoke(voice);
+        return (Collection<?>) manager.getClass().getMethod("getSources").invoke(manager);
+    }
+    private static boolean lazoActive(String track) throws Exception {
+        int playing = 0;
+        boolean found = false;
+        Class<?> api = Class.forName("su.plo.voice.api.client.audio.source.ClientAudioSource");
+        Method infoMethod = Class.forName("su.plo.voice.api.audio.source.AudioSource").getMethod("getSourceInfo");
+        for (Object source : lazoSources()) {
+            if (!(Boolean) api.getMethod("isActivated").invoke(source)) continue;
+            if (((Number) api.getMethod("getEffectiveVolume").invoke(source)).floatValue() <= 0) continue;
+            Object info = infoMethod.invoke(source);
+            if (!"lazodiscs".equals(info.getClass().getMethod("getAddonId").invoke(info))) continue;
+            playing++;
+            found |= track.equals(info.getClass().getMethod("getName").invoke(info));
+        }
+        return found && playing == 1;
+    }
+    private static String lazoSummary() throws Exception {
+        StringBuilder text = new StringBuilder();
+        Method info = Class.forName("su.plo.voice.api.audio.source.AudioSource").getMethod("getSourceInfo");
+        for (Object source : lazoSources()) text.append(info.invoke(source)).append(';');
+        return text.toString();
     }
     private static void screenshot() throws Exception {
         Thread.sleep(1200);

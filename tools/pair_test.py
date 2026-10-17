@@ -4,8 +4,11 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 import hashlib
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+import functools
 import json
 import os
+import re
 from pathlib import Path
 import secrets
 import shutil
@@ -15,6 +18,7 @@ import struct
 import subprocess
 import time
 import traceback
+import threading
 import wave
 
 from build import gradle
@@ -68,7 +72,7 @@ def until(condition, seconds, message):
     raise TimeoutError(message)
 
 
-def prepare(target, folder, role, coord, port, release, java_paths):
+def prepare(target, folder, role, coord, port, release, java_paths, lazo=False, voice_port=None):
     original = ROOT / 'build/targets' / target['id']
     folder.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(original / 'settings.gradle', folder / 'settings.gradle')
@@ -80,9 +84,24 @@ def prepare(target, folder, role, coord, port, release, java_paths):
     build += "\nversion='pair-probe'\nsourceSets.main { java.setSrcDirs(['probe/java']); resources.setSrcDirs(['probe/resources']) }\n"
     build += "dependencies { productionRuntimeMods 'net.fabricmc.fabric-api:fabric-api:" + target['fabric_api'] + "' }\n"
     mods = "configurations.productionRuntimeMods, file(" + json.dumps(str(release)) + ")"
+    if lazo:
+        from lazo_deps import files
+        mods += ', ' + ', '.join('file(' + json.dumps(str(p)) + ')' for p in files(target['id']))
     run = folder / 'game'
     run.mkdir(exist_ok=True)
     write(run / '.modtest-owned', '')
+    if lazo:
+        if role == 'server':
+            config = run / 'config/plasmovoice/server/config.toml'
+            if not config.exists():
+                write(config, '[host]\nip="127.0.0.1"\nport=' + str(voice_port) + '\n')
+            config = run / 'config/lazodiscs/config.toml'
+            if not config.exists():
+                write(config, '[security]\nallowHttp=true\nallowedDomains=["127.0.0.1"]\n')
+        else:
+            config = run / 'config/plasmovoice/client.toml'
+            if not config.exists():
+                write(config, 'check_for_updates=false\n[voice]\nmicrophone_disabled=true\ndisable_input_device=true\n')
     if role == 'server':
         build += '''tasks.register('runPair', net.fabricmc.loom.task.prod.ServerProductionRunTask) {
     mods.setFrom(MODS)
@@ -123,11 +142,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
         build += '''tasks.register('runPair', net.fabricmc.loom.task.prod.ClientProductionRunTask) {
     mods.setFrom(tasks.named('jar'), MODS)
     runDir=layout.projectDirectory.dir('game')
-    jvmArgs.addAll('-Xmx1500M', COORD, ROLE)
+    jvmArgs.addAll('-Xmx1500M', COORD, ROLE, LAZO)
     programArgs.addAll(ARGS)
     outputs.upToDateWhen { false }
 }
-'''.replace('MODS', mods).replace('COORD', json.dumps('-Dplaylist.coord=' + str(coord))).replace('ROLE', json.dumps('-Dplaylist.role=' + role)).replace('ARGS', ', '.join(map(json.dumps, args)))
+'''.replace('MODS', mods).replace('COORD', json.dumps('-Dplaylist.coord=' + str(coord))).replace('ROLE', json.dumps('-Dplaylist.role=' + role)).replace('LAZO', json.dumps('-Dplaylist.lazo=' + str(lazo).lower())).replace('ARGS', ', '.join(map(json.dumps, args)))
         write(run / 'options.txt', 'onboardAccessibility:false\nguiScale:2\nrenderDistance:3\nsimulationDistance:5\nmaxFps:40\nenableVsync:false\nlang:en_us\ntutorialStep:none\nskipMultiplayerWarning:true\nsoundCategory_music:0.0\nsoundCategory_master:0.5\nsoundCategory_record:1.0\npauseOnLostFocus:false\n')
     write(folder / 'build.gradle', build)
     return run
@@ -139,27 +158,40 @@ def main():
     parser.add_argument('--java-path', action='append', default=[], type=Path)
     parser.add_argument('--offline', action='store_true')
     parser.add_argument('--audio', action='store_true', help='Capture each test client through its own temporary PulseAudio sink')
+    parser.add_argument('--lazo', action='store_true', help='Exercise LazoDiscs + Plasmo Voice, including a track longer than its vanilla disc')
     args = parser.parse_args()
     if not args.eula_file.is_file() or 'eula=true' not in args.eula_file.read_text().lower():
         parser.error('Use an existing accepted EULA file')
     target = next(t for t in json.loads((ROOT / 'versions.json').read_text())['targets'] if t['id'] == 'fabric-26.3')
-    release = ROOT / 'dist/fabric/jukebox-playlists-fabric-26.3-0.1.0.jar'
+    mod_version = json.loads((ROOT / 'versions.json').read_text())['mod_version']
+    release = ROOT / f'dist/fabric/jukebox-playlists-fabric-26.3-{mod_version}.jar'
     digest = hashlib.sha256(release.read_bytes()).hexdigest()
     attempt = datetime.now().strftime('%Y%m%d-%H%M%S')
-    folder = ROOT / 'build/targets/pair-fabric-26.3' / attempt
-    evidence = ROOT / 'build/evidence/pair-fabric-26.3' / attempt
+    case = 'lazo-pair-fabric-26.3' if args.lazo else 'pair-fabric-26.3'
+    folder = ROOT / 'build/targets' / case / attempt
+    evidence = ROOT / 'build/evidence' / case / attempt
     evidence.mkdir(parents=True)
     write(evidence / 'supervisor.pid', str(os.getpid()))
     port, rcon_port = free_port(), free_port()
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.bind(('127.0.0.1', 0))
+        voice_port = sock.getsockname()[1]
     password = secrets.token_hex(16)
     processes, sinks, outputs = [], {}, []
     client_pids, copied_frames = {}, set()
     checks = []
-    receipt = {'target': target['id'], 'kind': 'pair_runtime', 'result': {'success': False, 'artifact': str(release.relative_to(ROOT)), 'sha256': digest, 'evidence': str(evidence.relative_to(ROOT)), 'topology': 'production dedicated server + two production client JVMs', 'loader_version': target['loader_version']}}
+    kind = 'lazo_pair_runtime' if args.lazo else 'pair_runtime'
+    http = None
+    receipt = {'target': target['id'], 'kind': kind, 'result': {'success': False, 'artifact': str(release.relative_to(ROOT)), 'sha256': digest, 'evidence': str(evidence.relative_to(ROOT)), 'topology': 'production dedicated server + two production client JVMs', 'loader_version': target['loader_version']}}
+    def interrupted(number, frame):
+        raise InterruptedError('Pair supervisor received signal ' + str(number))
+    signal.signal(signal.SIGTERM, interrupted)
     def check(condition, message):
         if not condition:
             raise AssertionError(message)
         checks.append(message)
+        receipt['result']['checks'] = checks
+        write(evidence / 'progress.json', json.dumps(receipt, indent=2) + '\n')
         print('PAIR CHECK: ' + message, flush=True)
     def command(text):
         response = rcon(rcon_port, password, text)
@@ -170,7 +202,7 @@ def main():
         return response
     def launch(role, phase, coord):
         project = folder / role
-        prepare(target, project, role, coord, port, release, args.java_path)
+        prepare(target, project, role, coord, port, release, args.java_path, args.lazo, voice_port)
         logfile = evidence / f'{phase}-{role}.log'
         output = logfile.open('w')
         outputs.append(output)
@@ -203,6 +235,11 @@ def main():
         client_pids.update({role: record['pid'] for role, record in zip(('owner', 'observer'), records)})
         check(records[0]['pid'] != records[1]['pid'], 'owner and observer are separate client JVMs: ' + ', '.join(str(r['pid']) for r in records))
         check(all(r['java'].startswith('25.') for r in records), 'both game JVMs use Java 25')
+        if args.lazo:
+            import tomllib
+            for role in ('owner', 'observer'):
+                config = tomllib.loads((folder / role / 'game/config/plasmovoice/client.toml').read_text())
+                check(config['voice']['microphone_disabled'] and config['voice']['disable_input_device'], role + ' microphone input stays disabled')
         if args.audio:
             for role, record in zip(('owner', 'observer'), records):
                 until(lambda: route_audio(role), 15, 'Find only the test client audio stream: ' + role)
@@ -254,6 +291,23 @@ def main():
                 destination.parent.mkdir(exist_ok=True)
                 shutil.copyfile(screenshot, destination)
                 copied_frames.add(screenshot)
+    def capture_tones(label, frequency):
+        for role in ('owner', 'observer'):
+            check(route_audio(role), role + ' test audio routing before ' + label)
+        def capture(role):
+            path = evidence / (role + '-' + label + '.wav')
+            subprocess.run(['ffmpeg', '-nostdin', '-loglevel', 'error', '-f', 'pulse', '-i', sinks[role]['name'] + '.monitor', '-t', '6', '-ar', '22050', '-ac', '1', '-c:a', 'pcm_s16le', str(path)], check=True, timeout=20)
+            with wave.open(str(path)) as wav:
+                rate = wav.getframerate()
+                values = struct.unpack('<' + 'h' * wav.getnframes(), wav.readframes(wav.getnframes()))
+            rms = (sum(v * v for v in values) / len(values)) ** .5
+            crossings = sum((a < 0) != (b < 0) for a, b in zip(values, values[1:]))
+            return {'rms': rms, 'frequency_hz': crossings * rate / (2 * len(values))}
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            recordings = dict(zip(('owner', 'observer'), pool.map(capture, ('owner', 'observer'))))
+        receipt['result'].setdefault('tone_captures', {})[label] = recordings
+        for role, result in recordings.items():
+            check(result['rms'] > 10 and abs(result['frequency_hz'] - frequency) < 25, role + ' receives the expected ' + str(frequency) + ' Hz LazoDiscs tone')
     try:
         if args.audio:
             for role in ('owner', 'observer'):
@@ -262,7 +316,7 @@ def main():
                 sinks[role] = {'name': name, 'module': module}
         coord = evidence / 'phase1'
         coord.mkdir()
-        server_run = prepare(target, folder / 'server', 'server', coord, port, release, args.java_path)
+        server_run = prepare(target, folder / 'server', 'server', coord, port, release, args.java_path, args.lazo, voice_port)
         shutil.copyfile(args.eula_file, server_run / 'eula.txt')
         settings = {'layers': [{'height': 1, 'block': 'minecraft:bedrock'}, {'height': 3, 'block': 'minecraft:dirt'}, {'height': 1, 'block': 'minecraft:grass_block'}], 'biome': 'minecraft:plains'}
         write(server_run / 'server.properties', f'online-mode=false\nwhite-list=false\nserver-ip=127.0.0.1\nserver-port={port}\nenable-rcon=true\nrcon.port={rcon_port}\nrcon.password={password}\nlevel-type=minecraft:flat\ngenerator-settings=' + json.dumps(settings) + '\ngamemode=creative\ndifficulty=peaceful\nspawn-protection=0\nview-distance=3\nsimulation-distance=5\nallow-flight=true\nenforce-secure-profile=false\npause-when-empty-seconds=0\n')
@@ -274,6 +328,80 @@ def main():
             command(text)
         clients = [launch(role, 'phase1', coord) for role in ('owner', 'observer')]
         ready_clients(coord, clients)
+        if args.lazo:
+            from lazo_test import audio_fixtures
+            audio = evidence / 'audio'
+            audio_fixtures(audio, durations=(104, 24))
+            class Handler(SimpleHTTPRequestHandler):
+                def copyfile(self, source, output):
+                    try:
+                        super().copyfile(source, output)
+                    except (BrokenPipeError, ConnectionResetError):
+                        pass
+
+                def log_message(self, message, *values):
+                    with (evidence / 'http.log').open('a') as output:
+                        output.write(message % values + '\n')
+            http = ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Handler, directory=str(audio)))
+            threading.Thread(target=http.serve_forever, daemon=True).start()
+            base = 'http://127.0.0.1:' + str(http.server_port)
+            command('setblock 0 100 0 air')
+            command('op PlaylistOwner')
+            for name, title, slot in (('a', 'Playlist Lazo A', 3), ('b', 'Playlist Lazo B', 7)):
+                command('item replace entity PlaylistOwner weapon.mainhand with music_disc_11')
+                command('execute as PlaylistOwner run lazodisc burn ' + base + '/' + name + '.wav ' + title)
+                predicate = 'execute if items entity PlaylistOwner weapon.mainhand music_disc_11[custom_data~{lazodiscs:{title:"' + title + '"}}]'
+                until(lambda: 'Test passed' in command(predicate), 60, 'LazoDiscs burn completes: ' + title)
+                command('item replace block 0 101 0 container.' + str(slot) + ' from entity PlaylistOwner weapon.mainhand')
+                command('clear PlaylistOwner')
+            command('item replace block 0 101 0 container.0 with stone')
+            command('item replace block 0 101 0 container.15 with music_disc_13')
+            recording_started = int(re.findall(r'\d+', command('time query gametime'))[-1])
+            command('setblock 0 100 0 jukebox')
+            step(coord, {r: {'action': 'lazo', 'track': 'Playlist Lazo A'} for r in ('owner', 'observer')})
+            saved_a = command('data get block 0 100 0')
+            check(base + '/a.wav' in saved_a and 'Playlist Lazo A' in saved_a, 'burned disc A reaches the playlist unchanged')
+            step(coord, {'owner': {'action': 'chest'}})
+            step(coord, {r: {'action': 'lazo-hold', 'track': 'Playlist Lazo A', 'millis': 78000} for r in ('owner', 'observer')})
+            elapsed = int(re.findall(r'\d+', command('time query gametime'))[-1]) - recording_started
+            receipt['result']['long_recording_server_ticks'] = elapsed
+            check(elapsed > 1440, '104-second custom audio survives the underlying vanilla timer: ' + str(elapsed) + ' server ticks')
+            if args.audio:
+                capture_tones('custom-a', 440)
+            step(coord, {r: {'action': 'lazo', 'track': 'Playlist Lazo B'} for r in ('owner', 'observer')})
+            saved_b = command('data get block 0 100 0')
+            check(base + '/b.wav' in saved_b and 'Playlist Lazo B' in saved_b, 'real custom audio end exchanges A for B')
+            if args.audio:
+                capture_tones('custom-b', 880)
+            check(command('data get block 0 100 0 playlist_position').rstrip().endswith(': 7'), 'recorded playlist cursor before restart is slot 7')
+            command('forceload remove all')
+            finish_clients(coord, clients)
+            collect('phase1')
+            command('stop')
+            check(server.wait(timeout=60) == 0, 'LazoDiscs dedicated server saves and exits normally')
+            coord = evidence / 'phase2'
+            coord.mkdir()
+            server = launch('server', 'phase2', coord)
+            ready_server(server)
+            clients = [launch(role, 'phase2', coord) for role in ('owner', 'observer')]
+            ready_clients(coord, clients)
+            step(coord, {r: {'action': 'lazo', 'track': 'Playlist Lazo B'} for r in ('owner', 'observer')})
+            restored = command('data get block 0 100 0')
+            check(base + '/b.wav' in restored and 'Playlist Lazo B' in restored, 'recorded disc resumes after a full server/client restart')
+            check(command('data get block 0 100 0 playlist_position').rstrip().endswith(': 7'), 'custom-disc restart retains the playlist cursor')
+            step(coord, {'owner': {'action': 'skip', 'track': '13'}, 'observer': {'action': 'track', 'track': '13'}})
+            check(command('data get block 0 100 0 playlist_position').rstrip().endswith(': 15'), 'owner eject switches both clients from Plasmo audio to the next vanilla disc')
+            step(coord, {'owner': {'action': 'lazo-skip', 'track': 'Playlist Lazo A'}, 'observer': {'action': 'lazo', 'track': 'Playlist Lazo A'}})
+            check(base + '/a.wav' in command('data get block 0 100 0'), 'vanilla eject returns to the preserved recording A')
+            check('minecraft:stone' in command('data get block 0 101 0'), 'unrelated chest item survives the entire mixed playlist')
+            finish_clients(coord, clients)
+            collect('phase2')
+            command('stop')
+            check(server.wait(timeout=60) == 0, 'restarted LazoDiscs server exits normally')
+            check(hashlib.sha256(release.read_bytes()).hexdigest() == digest, 'installed playlist JAR hash is unchanged')
+            receipt['result']['success'] = True
+            print('PLAYLIST LAZO PAIR TESTS PASSED', flush=True)
+            return
         for text in ('item replace block 0 101 0 container.0 with stone', 'item replace block 0 101 0 container.3 with music_disc_11', 'item replace block 0 101 0 container.7 with music_disc_cat[custom_name={text:"Playlist named cat"}]'):
             command(text)
         step(coord, {r: {'action': 'track', 'track': '11'} for r in ('owner', 'observer')})
@@ -353,8 +481,11 @@ def main():
             subprocess.run(['pactl', 'unload-module', sink['module']], check=False)
         for output in outputs:
             output.close()
+        if http is not None:
+            http.shutdown()
+            http.server_close()
         write(evidence / 'result.json', json.dumps(receipt, indent=2) + '\n')
-        write(ROOT / 'build/results/fabric-26.3-pair_runtime.json', json.dumps(receipt, indent=2) + '\n')
+        write(ROOT / 'build/results' / ('fabric-26.3-' + kind + '.json'), json.dumps(receipt, indent=2) + '\n')
 
 
 if __name__ == '__main__':

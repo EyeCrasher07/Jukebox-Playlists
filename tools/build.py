@@ -12,10 +12,10 @@ from pathlib import Path
 from generate import ROOT, version, write
 
 
-def project(target, tests=False, java_paths=(), production=False):
+def project(target, tests=False, java_paths=(), production=False, folder_name=None):
     loader, mc, pin = target["loader"], target["minecraft"], target["loader_version"]
     v = version(mc)
-    folder = ROOT / "build/targets" / (("production-test-" if production else "test-" if tests else "") + target["id"])
+    folder = ROOT / "build/targets" / (folder_name or (("production-test-" if production else "test-" if tests else "") + target["id"]))
     folder.mkdir(parents=True, exist_ok=True)
     repositories = '''maven { url = 'https://maven.fabricmc.net/' }
         maven { url = 'https://maven.minecraftforge.net/' }
@@ -115,6 +115,18 @@ tasks.withType(net.neoforged.gradle.common.runtime.tasks.JavaSourceTransformer).
 repositories { mavenCentral() }
 '''
         gradle_version = "9.5.1"
+    if tests:
+        # Several isolated servers share this workstation during the matrix.
+        if loader == 'fabric':
+            body += "loom.runs.server { vmArg '-Xmx1500M'; vmArg '-XX:ActiveProcessorCount=2' }\n"
+        elif loader == 'forge':
+            body += "minecraft.runs.named('server') { jvmArgs '-Xmx1500M', '-XX:ActiveProcessorCount=2' }\n"
+        elif mc == '1.20.1':
+            body += "legacyForge.runs.server { jvmArgument '-Xmx1500M'; jvmArgument '-XX:ActiveProcessorCount=2' }\n"
+        elif v < (1, 20, 4) or mc == '1.20.5':
+            body += "runs.server { jvmArguments.addAll('-Xmx1500M', '-XX:ActiveProcessorCount=2') }\n"
+        else:
+            body += "neoForge.runs.server { jvmArgument '-Xmx1500M'; jvmArgument '-XX:ActiveProcessorCount=2' }\n"
     write(folder / "build.gradle", plugins + header + body + shared)
     return folder, gradle_version
 
@@ -188,7 +200,8 @@ def main():
             success = success and "PLAYLIST TESTS PASSED" in log.read_text(errors="replace")
         entry = {"success": success, "seconds": round(time.monotonic() - started, 1), "loader_version": target["loader_version"], "log": str(log.relative_to(ROOT))}
         if success and not args.smoke:
-            jars = [p for p in (folder / "build/libs").glob("*.jar") if not any(p.name.endswith(x + ".jar") for x in ("-dev", "-sources", "-slim"))]
+            artifact_name = f"jukebox-playlists-{target['loader']}-{target['minecraft']}-{data['mod_version']}.jar"
+            jars = [p for p in (folder / "build/libs").glob(artifact_name) if p.is_file()]
             if len(jars) != 1:
                 raise RuntimeError(f"Expected one production artifact for {target['id']}: {jars}")
             dest = ROOT / "dist" / target["loader"] / jars[0].name

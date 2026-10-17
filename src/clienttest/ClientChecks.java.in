@@ -70,6 +70,10 @@ public final class ClientChecks {
         client(() -> { @CLOSE_SCREEN@; return null; });
         server(() -> {
             var world = mc.getSingleplayerServer().overworld();
+            net.minecraft.server.MinecraftServer fixtureServer = mc.getSingleplayerServer();
+            for (String command : new String[]{@ENVIRONMENT_COMMANDS@}) {
+                fixtureServer.getCommands().@EXECUTE_COMMAND@(fixtureServer.createCommandSourceStack(), command);
+            }
             for (int x = -5; x <= 5; x++) for (int z = -5; z <= 5; z++) {
                 world.setBlock(new BlockPos(x, 99, z), Blocks.STONE.defaultBlockState(), 3);
                 for (int y = 100; y <= 105; y++) world.setBlock(new BlockPos(x, y, z), Blocks.AIR.defaultBlockState(), 3);
@@ -84,6 +88,7 @@ public final class ClientChecks {
             return null;
         });
         Thread.sleep(2000);
+        @LAZO_AUDIO_CHECK@
         // Place records only after the client has received the chunk, so that the
         // actual level-event packet must start the audio on the observing client.
         server(() -> {
@@ -129,6 +134,8 @@ public final class ClientChecks {
         check(server(() -> box().playlist$current().getItem() == Items.MUSIC_DISC_11 && chest().getItem(0).getItem() == Items.STONE), "repeat retains the current disc and unrelated items");
         shot("04-repeat-11");
     }
+
+    @LAZO_CLIENT_METHODS@
 
     private static PlaylistJukebox box() { return (PlaylistJukebox) mc.getSingleplayerServer().overworld().getBlockEntity(POS); }
     private static Container chest() { return (Container) mc.getSingleplayerServer().overworld().getBlockEntity(POS.above()); }

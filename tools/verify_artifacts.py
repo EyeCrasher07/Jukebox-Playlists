@@ -31,12 +31,15 @@ def main():
                     assert archive.read(name) == resource.read_bytes(), "Stale generated resource: " + target["id"] + "/" + name
             assert "pack.mcmeta" in names, "Missing mod data pack metadata"
             assert not any(n.startswith("net/minecraft/") for n in names), "Minecraft classes in mod jar"
-            assert not any("Smoke" in n or "ServerTestMixin" in n or n.startswith(("dev/eyecrasher/playlistchecks/", "dev/eyecrasher/playlistpair/"))
+            assert not any(n.startswith(('com/eyecrasher/lazodiscs/', 'su/plo/voice/', 'com/sedmelluq/')) for n in names), "Bundled optional audio dependency"
+            assert not any("Smoke" in n or "ServerTestMixin" in n or n.startswith(("dev/eyecrasher/playlistchecks/", "dev/eyecrasher/playlistpair/", "dev/eyecrasher/playlistlazochecks/"))
                            for n in names), "Test code in production jar"
             config = json.loads(archive.read("jukebox-playlists.mixins.json"))
             assert config["required"] and config["injectors"]["defaultRequire"] == 1
             for mixin in config["mixins"]:
                 assert config["package"].replace(".", "/") + "/" + mixin + ".class" in names
+            if config.get('plugin'):
+                assert config['plugin'].replace('.', '/') + '.class' in names
             if "refmap" in config:
                 refmap = json.loads(archive.read(config["refmap"]))
                 assert refmap.get("mappings"), "Empty production refmap for " + target["id"]

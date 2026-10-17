@@ -14,7 +14,7 @@ def version(value):
     return tuple(map(int, value.split(".")))
 
 
-def prepare(target, output, tests=False):
+def prepare(target, output, tests=False, lazo_tests=False):
     mc = target["minecraft"]
     v = version(mc)
     legacy = v < (1, 19, 1)
@@ -30,6 +30,7 @@ def prepare(target, output, tests=False):
         dest = java_dir / source.relative_to(ROOT / "src/main/java")
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, dest)
+    write(java_dir / PACKAGE / 'mixin/LazoPlaybackMixin.java', (ROOT / 'src/templates/LazoPlaybackMixin.java.in').read_text())
     if legacy:
         dest = java_dir / PACKAGE / "LegacyDiscLengths.java"
         shutil.copyfile(ROOT / "src/legacy/java" / PACKAGE / "LegacyDiscLengths.java", dest)
@@ -145,6 +146,7 @@ public final class Platform {{
     public static boolean isClient(Level level) {{ return {client}; }}
     public static boolean isPlaylistContainer(BlockState state) {{ return {check_tag}; }}
     public static boolean isDisc(ItemStack stack) {{ return !stack.isEmpty() && {disc}; }}
+    public static boolean lazoSetterStartsPlayback() {{ return {str(v < (1, 19, 4)).lower()}; }}
 }}
 ''')
     if target["loader"] != "fabric":
@@ -159,8 +161,17 @@ public final class JukeboxPlaylistsMod {{ public JukeboxPlaylistsMod() {{}} }}
         # Forge 50 ships Mixin 0.8.5, whose compatibility enum predates JAVA_21.
         compatibility = 'JAVA_17'
     config = {"required": True, "minVersion": "0.8", "package": "dev.eyecrasher.jukeboxplaylists.mixin",
-              "compatibilityLevel": compatibility, "mixins": ["JukeboxMixin"] + ([] if mc == "1.16.5" else ["JukeboxBlockMixin"]),
+              "compatibilityLevel": compatibility, "mixins": ["JukeboxMixin", "LazoPlaybackMixin"] + ([] if mc == "1.16.5" else ["JukeboxBlockMixin"]),
               "injectors": {"defaultRequire": 1}}
+    if mc == '1.16.5':
+        formatter = 'Lnet/minecraft/class_2338;method_23854()Ljava/lang/String;' if target['loader'] == 'fabric' else 'Lnet/minecraft/util/math/BlockPos;func_229422_x_()Ljava/lang/String;'
+        write(java_dir / PACKAGE / 'mixin/LazoLegacyPositionMixin.java', (ROOT / 'src/templates/LazoLegacyPositionMixin.java.in').read_text().replace('@FORMATTER@', formatter))
+        config['mixins'].append('LazoLegacyPositionMixin')
+    if target['id'] == 'forge-1.21':
+        for name, subfolder in (('LazoBootstrapMixin', 'mixin/'), ('LazoBootstrapPlugin', '')):
+            write(java_dir / PACKAGE / (subfolder + name + '.java'), (ROOT / 'src/templates' / (name + '.java.in')).read_text())
+        config['mixins'].append('LazoBootstrapMixin')
+        config['plugin'] = 'dev.eyecrasher.jukeboxplaylists.LazoBootstrapPlugin'
     if (target["loader"] == "forge" and v < (1, 20, 5)) or (target["loader"] == "neoforge" and mc == "1.20.1"):
         config["refmap"] = "main.refmap.json"
     write(resources / "jukebox-playlists.mixins.json", json.dumps(config, indent=2) + "\n")
@@ -212,6 +223,16 @@ side="BOTH"
         write(resources / "META-INF" / filename, metadata)
     if tests:
         prepare_tests(target, java_dir, resources)
+        if lazo_tests:
+            source = (ROOT / 'src/templates/LazoSmoke.java.in').read_text()
+            eject = 'entity.popOutTheItem();' if songs else 'entity.popOutRecord();' if v >= (1, 19, 4) else '((net.minecraft.world.level.block.JukeboxBlock) Blocks.JUKEBOX).use(world.getBlockState(POS), world, POS, null, net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(POS), net.minecraft.core.Direction.UP, POS, false));'
+            write(java_dir / PACKAGE / 'LazoSmoke.java', source.replace('@EJECT@', eject))
+            mixin = java_dir / PACKAGE / 'mixin/ServerTestMixin.java'
+            text = mixin.read_text()
+            start = text.index('        if (!playlist$tested)')
+            end = text.index('\n    }', start)
+            text = text[:start] + '        dev.eyecrasher.jukeboxplaylists.LazoSmoke.tick((MinecraftServer) (Object) this);' + text[end:]
+            write(mixin, text)
     if target["loader"] == "forge" and mc == "1.16.5":
         adapt_forge1165(java_dir)
 
@@ -243,13 +264,19 @@ def prepare_tests(target, java_dir, resources):
         source = source.replace("@" + key + "@", value)
     write(java_dir / PACKAGE / "PlaylistSmoke.java", source)
     shutdown = '''
-    // Forge 59.0.5 leaves NightConfig's scheduled watcher alive after the
+    // These Forge builds leave NightConfig's scheduled watcher alive after the
     // dedicated server has saved and stopped. Close it only in this fixture.
     @Inject(method = "stopServer", at = @At("TAIL"))
     private void playlist$closeWatcher(CallbackInfo ci) {
         net.minecraftforge.fml.config.ConfigTracker.INSTANCE.forceUnload();
     }
-''' if target['id'] == 'forge-1.21.9' else ''
+''' if target['id'] == 'forge-1.21.9' else '''
+    // Close the test process's NightConfig watcher only after world saving.
+    @Inject(method = "stopServer", at = @At("TAIL"))
+    private void playlist$closeWatcher(CallbackInfo ci) throws java.io.IOException {
+        com.electronwill.nightconfig.core.file.FileWatcher.defaultInstance().stop();
+    }
+''' if target['id'] == 'forge-1.21' else ''
     write(java_dir / PACKAGE / "mixin/ServerTestMixin.java", '''package dev.eyecrasher.jukeboxplaylists.mixin;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.*;
@@ -327,9 +354,10 @@ def main():
     parser.add_argument("--target", required=True)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--tests", action="store_true")
+    parser.add_argument("--lazo-tests", action="store_true")
     args = parser.parse_args()
     target = next(t for t in json.loads((ROOT / "versions.json").read_text())["targets"] if t["id"] == args.target)
-    prepare(target, args.output, args.tests)
+    prepare(target, args.output, args.tests or args.lazo_tests, args.lazo_tests)
 
 
 if __name__ == "__main__":

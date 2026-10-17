@@ -1,4 +1,4 @@
-version = '0.1.0'
+version = new groovy.json.JsonSlurper().parse(new File(playlistRoot, 'versions.json')).mod_version
 group = 'dev.eyecrasher.jukeboxplaylists'
 base { archivesName = 'jukebox-playlists-' + playlistTarget.loader + '-' + playlistTarget.minecraft }
 def repositoryRoot = file(playlistRoot)

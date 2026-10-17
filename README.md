@@ -32,6 +32,35 @@ item.example.my_music_disc=4200
 Начиная с 1.19.1 используются штатный таймер проигрывателя и длительность, указанная модом пластинки;
 с 1.21 поддерживаются предметы с компонентом `jukebox_playable`.
 
+## LazoDiscs
+
+Версия **0.2.0** поддерживает записи [LazoDiscs 1.0.7](https://github.com/EyeCrasher07/LazoDiscs).
+Установите Jukebox Playlists, LazoDiscs и подходящий Plasmo Voice на сервер и клиенты; для Fabric также нужна Fabric API.
+Сервер должен использовать совместимый Fabric, Forge или NeoForge. Vanilla/Paper эти JAR не загружают; гибридные ядра отдельно не проверялись.
+Точные опубликованные сочетания и контрольные суммы LazoDiscs/Plasmo Voice закреплены в [lazodiscs-compatibility.json](lazodiscs-compatibility.json).
+Это 52 сочетания: 25 Fabric, 15 Forge и 12 NeoForge. Для остальных версий из основной матрицы релиз LazoDiscs 1.0.7 отсутствует.
+
+**Forge 1.20.2:** опубликованный Plasmo Voice `plasmovoice-forge-1.20.4-2.1.17.jar` объявляет поддержку Minecraft 1.20.2–1.20.4,
+но требует Forge/FML 49; в Minecraft 1.20.2 используется 48. Для этого сочетания нужна отдельная локальная копия с исправленными метаданными:
+
+```bash
+python3 tools/patch_plasmo_voice.py /path/to/plasmovoice-forge-1.20.4-2.1.17.jar
+```
+
+Установите полученный `plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar` вместо исходного PV на сервер и клиенты.
+Утилита проверяет SHA-512 оригинала, меняет два минимальных номера загрузчика и добавляет описание изменения;
+классы, библиотеки, лицензии и исходный файл сохраняются. Это локальное исправление, не официальный релиз Plasmo Voice.
+На остальных сочетаниях используются опубликованные JAR без изменений.
+
+Запишите пластинку обычной командой LazoDiscs и положите её в сундук над проигрывателем.
+В одной очереди можно смешивать записи LazoDiscs и обычные пластинки. Обмен сохраняет URL, название, UUID, радиус и громкость.
+Следующий трек запускается спустя секунду после окончания **настоящего аудио**, а таймер исходной ванильной пластинки не обрывает запись.
+Это работает и на 1.16.5–1.19 без файла длительностей. Пустая очередь повторяет запись, извлечение переключает дальше.
+Если LazoDiscs сообщает об ошибке загрузки, через ту же паузу очередь переходит дальше; для единственной записи повторяется попытка.
+
+Совместимость необязательна: без LazoDiscs мод работает с обычными пластинками.
+Библиотеки звука и зависимости LazoDiscs в JAR плейлистов не включены.
+
 ## Сборка и проверка
 
 Нужны Python 3 и JDK: 17 для ранних версий, 21 для 1.20.5–1.21.11 и 25 для 26.x.
@@ -75,6 +104,7 @@ python3 tools/runtime_matrix.py --eula-file /path/to/accepted/eula.txt
 ```bash
 python3 tools/client_test.py --target fabric-26.3
 python3 tools/client_test.py --target forge-1.16.5 --java-path /path/to/java8
+python3 tools/client_matrix.py --java-path /path/to/java8  # шесть клиентских сочетаний по очереди
 ```
 
 Клиентская проверка доступна для 1.16.5, 26.3 и Fabric/Forge 1.20.6. Сначала нужен мир соответствующей версии из серверной проверки Fabric.
@@ -86,6 +116,22 @@ python3 tools/client_test.py --target forge-1.16.5 --java-path /path/to/java8
 ```bash
 python3 tools/pair_test.py --audio --eula-file /path/to/accepted/eula.txt
 ```
+
+Сценарии совместимости используют опубликованные JAR LazoDiscs/Plasmo Voice и неизменённый JAR плейлистов:
+
+```bash
+python3 tools/lazo_deps.py
+python3 tools/lazo_test.py --target fabric-26.3 --eula-file /path/to/accepted/eula.txt
+python3 tools/lazo_matrix.py --eula-file /path/to/accepted/eula.txt
+python3 tools/client_test.py --target forge-1.21 --lazo-startup --java-path /path/to/java8
+python3 tools/pair_test.py --lazo --audio --eula-file /path/to/accepted/eula.txt
+```
+
+В серверных сценариях отдельный тестовый мод проверяет завершение настоящих WAV-записей, обмен, повтор, смешанную очередь,
+устаревший callback и разрушение блока. Forge 1.16.5–1.20.4 запускается через официальный установщик; Fabric — через production launcher;
+остальные сочетания — в SDK с готовыми модами. Для установленного Forge 1.16.5 передайте Java 8 через `--java-path`.
+Парный сценарий на Fabric 26.3 дополнительно проверяет запись командой `/lazodisc burn`, 104-секундный трек поверх пластинки «11»,
+приём разных звуков обоими клиентами и полный перезапуск. Микрофоны тестовых клиентов отключены.
 
 Проверяются передача начала/перехода/переключения трека обоим клиентам и сохранение порядка после полного перезапуска сервера и клиентов.
 `--audio` требует PulseAudio/PipeWire и FFmpeg: он записывает только отдельные временные аудиоканалы тестовых клиентов.

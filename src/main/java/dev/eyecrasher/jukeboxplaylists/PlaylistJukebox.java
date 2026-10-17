@@ -9,4 +9,5 @@ public interface PlaylistJukebox {
     int playlist$position();
     void playlist$position(int position);
     void playlist$tick();
+    void playlist$customFinished();
 }

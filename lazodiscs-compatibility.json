@@ -1,0 +1,1312 @@
+{
+  "source": "https://github.com/EyeCrasher07/LazoDiscs",
+  "revision": "0c0d6096fb83331ef8ee7fb3829387e71a7909bf",
+  "lazodiscs_version": "1.0.7",
+  "targets": [
+    {
+      "target": "fabric-1.16.5",
+      "minecraft": "1.16.5",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.16.5",
+        "filename": "lazodiscs-fabric-1.0.7+1.16.5.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/XQWkH1TJ/lazodiscs-fabric-1.0.7%2B1.16.5.jar",
+        "hashes": {
+          "sha512": "13c9162df4258f75c89f8f63e1a60d2626cd9e0a33686a51272a04db71ba71913402b8cff6b8e97b238ae1f6087796db4d3c8736b82b59a83c56238d361556cf",
+          "sha1": "b24456fd9acf54466f1f7f63b1217321a4925ff9"
+        },
+        "size": 35998359
+      },
+      "plasmo": {
+        "version": "fabric-1.16.5-2.1.17",
+        "filename": "plasmovoice-fabric-1.16.5-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/gEu4XS1L/plasmovoice-fabric-1.16.5-2.1.17.jar",
+        "hashes": {
+          "sha512": "5a95ba718c2cc3046039c48646a0f7ae0c43fc054540517bf7a997eecba4e19876ffa28bc22090e8a2a33ae81b824b45720c1408008a8d5a6addf432410c6fbd",
+          "sha1": "c05ac4b1f53ea06e5aa44e35bf93635ffe84863a"
+        },
+        "size": 12335242
+      }
+    },
+    {
+      "target": "fabric-1.17.1",
+      "minecraft": "1.17.1",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.17.1",
+        "filename": "lazodiscs-fabric-1.0.7+1.17.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/v1cDb8ks/lazodiscs-fabric-1.0.7%2B1.17.1.jar",
+        "hashes": {
+          "sha1": "3083f12b9de579433c35fa1f0612d040ce05fadd",
+          "sha512": "ca0a824286ab4e89777d65c4a82ba327af4756be4c1cbc937d82d10a7a40544d5f925c5a5dc80959b43c44d4c6016159363546e931962a08b310035831b0c080"
+        },
+        "size": 35955248
+      },
+      "plasmo": {
+        "version": "fabric-1.17.1-2.1.17",
+        "filename": "plasmovoice-fabric-1.17.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/fHEQPw5a/plasmovoice-fabric-1.17.1-2.1.17.jar",
+        "hashes": {
+          "sha1": "ca438a7310330cae74726c0b8cd608acba7c63f2",
+          "sha512": "65bbd1275f16cd8f4be769d6a4d671d73e45c984d2d6f768d3885463fa78798916c9fb9882bbc65c2aaa5a5a001883a86c9b4a54b24ea6090f5938eabc8337a2"
+        },
+        "size": 12348730
+      }
+    },
+    {
+      "target": "fabric-1.18.2",
+      "minecraft": "1.18.2",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.18.2",
+        "filename": "lazodiscs-fabric-1.0.7+1.18.2.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/zjtTZSZ1/lazodiscs-fabric-1.0.7%2B1.18.2.jar",
+        "hashes": {
+          "sha1": "d3569e982227175f6877c297de03caceada16468",
+          "sha512": "42de701a1d6d3ae87a616fa6d2cf6964710343747dbaf181e57be9eacbdd74819c6eeca74ecbdfb677bc03f19591836ff6957cfc597b5c1917259ea25c7e1479"
+        },
+        "size": 35975956
+      },
+      "plasmo": {
+        "version": "fabric-1.18.2-2.1.17",
+        "filename": "plasmovoice-fabric-1.18.2-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/wwrYyVoj/plasmovoice-fabric-1.18.2-2.1.17.jar",
+        "hashes": {
+          "sha512": "bd559d023ce9096ca3f60f0e8a4d1fd38b82d13b053181172e6d249bac403a6daef0f90c17e23695cccd32a1b8857471c36749be052e763f1ede970a540ac4e2",
+          "sha1": "e2b12e0848a6c4767468674caf9f1045521a248e"
+        },
+        "size": 12350980
+      }
+    },
+    {
+      "target": "fabric-1.19",
+      "minecraft": "1.19",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.19",
+        "filename": "lazodiscs-fabric-1.0.7+1.19.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/ylvcRcOU/lazodiscs-fabric-1.0.7%2B1.19.jar",
+        "hashes": {
+          "sha1": "82d0e282092a4c75f3ec0f04a493987fa5dd5901",
+          "sha512": "f50b55fcb9fc2ac0c93afe35e1ee30af1cdba3292c31286d57b83f829bf7a630308fc81bba98fe783b722ae6587a449dd978f964c8aa984c318d4d0da14fd204"
+        },
+        "size": 35975945
+      },
+      "plasmo": {
+        "version": "fabric-1.19.2-2.1.17",
+        "filename": "plasmovoice-fabric-1.19.2-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/MRO4EUl3/plasmovoice-fabric-1.19.2-2.1.17.jar",
+        "hashes": {
+          "sha512": "26edb5288b77fd9df2ea40fa4fcc6406dba1b53804dde6b2761bbf90e1ab3e70f3febeac54ff77a15a2944cd9053b2451a246cb72978ef93babd7bc4551c3094",
+          "sha1": "c41e41bfbd71d037213ffcd459d1e69d476d4710"
+        },
+        "size": 12352072
+      }
+    },
+    {
+      "target": "fabric-1.19.1",
+      "minecraft": "1.19.1",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.19.1",
+        "filename": "lazodiscs-fabric-1.0.7+1.19.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/Di3XRpiD/lazodiscs-fabric-1.0.7%2B1.19.1.jar",
+        "hashes": {
+          "sha512": "3fa4e58ffc81bbcd3456c200aef79617d8a0a890fbd529d086f68b92d38783b09dd837a8af7b3a6fba947d85d99258a82eda14b65db86534c9aec9077ae6dbcb",
+          "sha1": "c9b99105a4e4905be0a35936821348b7bd4926a4"
+        },
+        "size": 35975950
+      },
+      "plasmo": {
+        "version": "fabric-1.19.2-2.1.17",
+        "filename": "plasmovoice-fabric-1.19.2-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/MRO4EUl3/plasmovoice-fabric-1.19.2-2.1.17.jar",
+        "hashes": {
+          "sha512": "26edb5288b77fd9df2ea40fa4fcc6406dba1b53804dde6b2761bbf90e1ab3e70f3febeac54ff77a15a2944cd9053b2451a246cb72978ef93babd7bc4551c3094",
+          "sha1": "c41e41bfbd71d037213ffcd459d1e69d476d4710"
+        },
+        "size": 12352072
+      }
+    },
+    {
+      "target": "fabric-1.19.2",
+      "minecraft": "1.19.2",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.19.2",
+        "filename": "lazodiscs-fabric-1.0.7+1.19.2.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/wRa4gEGg/lazodiscs-fabric-1.0.7%2B1.19.2.jar",
+        "hashes": {
+          "sha1": "8e241cddf834be9edd0e85b550960f78764519ac",
+          "sha512": "c477f333ae2a2348205511a2d1b4d7ace1d7b90d2562cfbf56418a229a68566c7343b96534a1134d504451058fc68ead9124593a01d6a66874ebd1f19f972623"
+        },
+        "size": 35975950
+      },
+      "plasmo": {
+        "version": "fabric-1.19.2-2.1.17",
+        "filename": "plasmovoice-fabric-1.19.2-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/MRO4EUl3/plasmovoice-fabric-1.19.2-2.1.17.jar",
+        "hashes": {
+          "sha512": "26edb5288b77fd9df2ea40fa4fcc6406dba1b53804dde6b2761bbf90e1ab3e70f3febeac54ff77a15a2944cd9053b2451a246cb72978ef93babd7bc4551c3094",
+          "sha1": "c41e41bfbd71d037213ffcd459d1e69d476d4710"
+        },
+        "size": 12352072
+      }
+    },
+    {
+      "target": "fabric-1.19.3",
+      "minecraft": "1.19.3",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.19.3",
+        "filename": "lazodiscs-fabric-1.0.7+1.19.3.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/qpp8N6EK/lazodiscs-fabric-1.0.7%2B1.19.3.jar",
+        "hashes": {
+          "sha1": "af51818bf66c316bda5ad160e9f6982fef0719b5",
+          "sha512": "0908171e1e92dbfa063b842fd438028b7f2b5e6b590e02e1d2ba0d9d0cc4dec6f418a1fa3160fffb7c1324d8e1a53bfadee79bcc10227414c5cfed68e2b44faa"
+        },
+        "size": 35975260
+      },
+      "plasmo": {
+        "version": "fabric-1.19.3-2.1.17",
+        "filename": "plasmovoice-fabric-1.19.3-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/tLodvyUL/plasmovoice-fabric-1.19.3-2.1.17.jar",
+        "hashes": {
+          "sha512": "20314736c7d74e25beb5b561240e66f7cf1dcf78a374c8bb63fc42ec4f43751a868bf76c1b34e3c0aa0db436ac93d30ab3d64639d2e64c5d545aedeca8ac772d",
+          "sha1": "2ddd82703481550dcc83ee7a51d06466cec18a08"
+        },
+        "size": 12354024
+      }
+    },
+    {
+      "target": "fabric-1.19.4",
+      "minecraft": "1.19.4",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.19.4",
+        "filename": "lazodiscs-fabric-1.0.7+1.19.4.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/LGoL6f3f/lazodiscs-fabric-1.0.7%2B1.19.4.jar",
+        "hashes": {
+          "sha1": "80207e1d202d4f2510d33dc49894dc0a51ac78e8",
+          "sha512": "59e395cd7bf439feaf75208fc6e1ea72ce5520a0c61a03e89a026bae53c458be79f6b5ee4da095d574803f9db2768f4c4ec0db82f52d6b6e4c814b0c156480f0"
+        },
+        "size": 35975759
+      },
+      "plasmo": {
+        "version": "fabric-1.19.4-2.1.17",
+        "filename": "plasmovoice-fabric-1.19.4-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/UcXNz7M6/plasmovoice-fabric-1.19.4-2.1.17.jar",
+        "hashes": {
+          "sha512": "30cc763442b2621e196bbe475b7059d979e29fa7c971c8593591559e40303eda800dc359ebd169c96a9888a9f010c9c01de9f7de4cf0567c7227ce7d98de62c5",
+          "sha1": "b730c6deeb8ff560cd985a8103fad966b79423fc"
+        },
+        "size": 12353982
+      }
+    },
+    {
+      "target": "fabric-1.20",
+      "minecraft": "1.20",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.20",
+        "filename": "lazodiscs-fabric-1.0.7+1.20.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/J6IdN0wC/lazodiscs-fabric-1.0.7%2B1.20.jar",
+        "hashes": {
+          "sha512": "b800885ad66bda5d6839fd6eab753b1df66c6ba21d6cc25bd3b0c4ee6bf7ad8f687fde931b4a4303974c3db1f5d6446140130b3d7d446c4b07a0bc919ef00530",
+          "sha1": "fba57a91c788d6a44c3582b3d083a10e471c4d10"
+        },
+        "size": 34440921
+      },
+      "plasmo": {
+        "version": "fabric-1.20.1-2.1.17",
+        "filename": "plasmovoice-fabric-1.20.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/rFDDAPes/plasmovoice-fabric-1.20.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "33e8768c1997291539e6cc10b4ab7d7b4169680559956e9d9f9aa30e18c09150ac2e2f3e19a9c170e3302e1fd702650c1ee0a89938155c16853a78e90ad79ad2",
+          "sha1": "d6a2e19c985067895a4be8b21c413d3d130ee55a"
+        },
+        "size": 12354369
+      }
+    },
+    {
+      "target": "fabric-1.20.1",
+      "minecraft": "1.20.1",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.20.1",
+        "filename": "lazodiscs-fabric-1.0.7+1.20.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/Fa0M45cB/lazodiscs-fabric-1.0.7%2B1.20.1.jar",
+        "hashes": {
+          "sha512": "e1fef53bdee622fd70a8165fd6b729659a6ffd6d2c2a696765787d67d2bbf6cdc995553051bd953df9fff9912f8fcfa3aa85ebad7460fceab17d4532ac10128d",
+          "sha1": "b1683fb6e6b98e14e68fc6829e1a65118d11cdaa"
+        },
+        "size": 34440923
+      },
+      "plasmo": {
+        "version": "fabric-1.20.1-2.1.17",
+        "filename": "plasmovoice-fabric-1.20.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/rFDDAPes/plasmovoice-fabric-1.20.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "33e8768c1997291539e6cc10b4ab7d7b4169680559956e9d9f9aa30e18c09150ac2e2f3e19a9c170e3302e1fd702650c1ee0a89938155c16853a78e90ad79ad2",
+          "sha1": "d6a2e19c985067895a4be8b21c413d3d130ee55a"
+        },
+        "size": 12354369
+      }
+    },
+    {
+      "target": "fabric-1.20.2",
+      "minecraft": "1.20.2",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.20.2",
+        "filename": "lazodiscs-fabric-1.0.7+1.20.2.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/ZnUC6Lt2/lazodiscs-fabric-1.0.7%2B1.20.2.jar",
+        "hashes": {
+          "sha512": "58cafb98732cfc6918b838e9e23e19ab808aa2d94968a27e08b3542c491ce94f7d6b651198cbf55a27f46b56a466794b5c70d4a0118870358a2748cadf0b94cb",
+          "sha1": "1fd2f08c3ec61704eea776e1aef4481735dfec38"
+        },
+        "size": 34440963
+      },
+      "plasmo": {
+        "version": "fabric-1.20.4-2.1.17",
+        "filename": "plasmovoice-fabric-1.20.4-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/VsQ7zzMT/plasmovoice-fabric-1.20.4-2.1.17.jar",
+        "hashes": {
+          "sha512": "b96dbd4895fb9ac167895794e20ee4d81e21ac1bafd2e2e5db007010d601346b8b42d460e4c60f9f0a26c5fb67e36ef53b486ae82164f013e04f34322afa4d59",
+          "sha1": "7ad085a33675e8bfb38d8fb142eb59f8b3edd411"
+        },
+        "size": 12359557
+      }
+    },
+    {
+      "target": "fabric-1.20.3",
+      "minecraft": "1.20.3",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.20.3",
+        "filename": "lazodiscs-fabric-1.0.7+1.20.3.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/ygR9PCLj/lazodiscs-fabric-1.0.7%2B1.20.3.jar",
+        "hashes": {
+          "sha512": "e6d23fb208e7992105058f8d7ec1eaf6afbda8403e2c01ee95ede396518cbc4c8d546c7d5e089dbf72396c18a40986b44bbc570536cc70b03b76f9cfb6429dee",
+          "sha1": "5f260b2a72a2e727781b14c3869bc1d497a64665"
+        },
+        "size": 34440980
+      },
+      "plasmo": {
+        "version": "fabric-1.20.4-2.1.17",
+        "filename": "plasmovoice-fabric-1.20.4-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/VsQ7zzMT/plasmovoice-fabric-1.20.4-2.1.17.jar",
+        "hashes": {
+          "sha512": "b96dbd4895fb9ac167895794e20ee4d81e21ac1bafd2e2e5db007010d601346b8b42d460e4c60f9f0a26c5fb67e36ef53b486ae82164f013e04f34322afa4d59",
+          "sha1": "7ad085a33675e8bfb38d8fb142eb59f8b3edd411"
+        },
+        "size": 12359557
+      }
+    },
+    {
+      "target": "fabric-1.20.4",
+      "minecraft": "1.20.4",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.20.4",
+        "filename": "lazodiscs-fabric-1.0.7+1.20.4.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/Q3dIXfls/lazodiscs-fabric-1.0.7%2B1.20.4.jar",
+        "hashes": {
+          "sha512": "af7ea137d1c19d334eb1dac6b9adec3d39237514552ecb6b2665fc4840f13732234035969e7bc6f26e0468da0f4248d9b2e536d7f48bd198e026e4553279843e",
+          "sha1": "6cfa6cd99481e9543d50960fd2ea457f1291146f"
+        },
+        "size": 34440980
+      },
+      "plasmo": {
+        "version": "fabric-1.20.4-2.1.17",
+        "filename": "plasmovoice-fabric-1.20.4-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/VsQ7zzMT/plasmovoice-fabric-1.20.4-2.1.17.jar",
+        "hashes": {
+          "sha512": "b96dbd4895fb9ac167895794e20ee4d81e21ac1bafd2e2e5db007010d601346b8b42d460e4c60f9f0a26c5fb67e36ef53b486ae82164f013e04f34322afa4d59",
+          "sha1": "7ad085a33675e8bfb38d8fb142eb59f8b3edd411"
+        },
+        "size": 12359557
+      }
+    },
+    {
+      "target": "fabric-1.21",
+      "minecraft": "1.21",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21",
+        "filename": "lazodiscs-fabric-1.0.7+1.21.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/xSUN6YGx/lazodiscs-fabric-1.0.7%2B1.21.jar",
+        "hashes": {
+          "sha512": "cbd973227370c60c3ffb4479b4e9fcb74eee18153df09d876a5d19880aec3d879e89c4badf7daa0a57d982544064c94b4eb45b687c9f580758fdeff2a7b0c182",
+          "sha1": "1c0f926b032e1b62ff2af2062ed5e8dd7df32a8d"
+        },
+        "size": 34441177
+      },
+      "plasmo": {
+        "version": "fabric-1.21.1-2.1.17",
+        "filename": "plasmovoice-fabric-1.21.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/6Q2QmcUp/plasmovoice-fabric-1.21.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "64e609532300865bc0388392f287fc0e62b030b2f3e637d058b88ee52967d515b6b018990149d65d7768f3ca8e94f007fcb3588b7dd49c5b5949f5ccefba6bba",
+          "sha1": "1465f749d64c0861a5c91ec249167e9a59a6b1c0"
+        },
+        "size": 12365966
+      }
+    },
+    {
+      "target": "fabric-1.21.1",
+      "minecraft": "1.21.1",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.1",
+        "filename": "lazodiscs-fabric-1.0.7+1.21.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/o8kkqE1H/lazodiscs-fabric-1.0.7%2B1.21.1.jar",
+        "hashes": {
+          "sha1": "0a552466d6533e6f22812f35b90384c617779e6c",
+          "sha512": "a0f010f2a910488e8773c7da925800279ba3472594da2b3185084260ff7d42a5811ff9d5ddc60dfb2edfe86371c12cc1da7c96b2d3132c5d41187cfd3a7438f0"
+        },
+        "size": 34441179
+      },
+      "plasmo": {
+        "version": "fabric-1.21.1-2.1.17",
+        "filename": "plasmovoice-fabric-1.21.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/6Q2QmcUp/plasmovoice-fabric-1.21.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "64e609532300865bc0388392f287fc0e62b030b2f3e637d058b88ee52967d515b6b018990149d65d7768f3ca8e94f007fcb3588b7dd49c5b5949f5ccefba6bba",
+          "sha1": "1465f749d64c0861a5c91ec249167e9a59a6b1c0"
+        },
+        "size": 12365966
+      }
+    },
+    {
+      "target": "fabric-1.21.11",
+      "minecraft": "1.21.11",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.11",
+        "filename": "lazodiscs-fabric-1.0.7+1.21.11.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/P2MKyeGs/lazodiscs-fabric-1.0.7%2B1.21.11.jar",
+        "hashes": {
+          "sha512": "71e276e2472433d67e755cf25064e11e114306e6e031744f63e36b348bd400d7de594f7755edcd89a0bb50ed721877cf1d019af749866f9e6b5fb2573273cf9e",
+          "sha1": "50edbecbf762e65eb03318c498055b72a496df2e"
+        },
+        "size": 34441302
+      },
+      "plasmo": {
+        "version": "fabric-1.21.11-2.1.17",
+        "filename": "plasmovoice-fabric-1.21.11-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/eK4Sv4pO/plasmovoice-fabric-1.21.11-2.1.17.jar",
+        "hashes": {
+          "sha512": "a9d4d0f6a51d69b420656463225cca34ebac79982d514aca90ebef604ce850865579d47962043d1db78998c076d40d70cf965c54c392e93c71a9364bf7aa99f3",
+          "sha1": "c8a6e49502b536343f418632754ade2b7f5bbb00"
+        },
+        "size": 12345170
+      }
+    },
+    {
+      "target": "fabric-1.21.4",
+      "minecraft": "1.21.4",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.4",
+        "filename": "lazodiscs-fabric-1.0.7+1.21.4.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/pfx7Xl7o/lazodiscs-fabric-1.0.7%2B1.21.4.jar",
+        "hashes": {
+          "sha512": "91b4ba28023c511d6535f3b305db9ad4438c69cf71745696345203a3a69bfe1c1bef35514c09d35c0cbe4f97fee8810c757eda320f6d01cff590ec8669dd186e",
+          "sha1": "cea9573b6b0d304b4c87b53ec05010fed04efcde"
+        },
+        "size": 34441235
+      },
+      "plasmo": {
+        "version": "fabric-1.21.4-2.1.17",
+        "filename": "plasmovoice-fabric-1.21.4-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/zueqcgC8/plasmovoice-fabric-1.21.4-2.1.17.jar",
+        "hashes": {
+          "sha512": "6dc5b023fdb267429fbd7fd8e8832256b5ec7a77a3387668ef56721572bd6adfff450e8ab7bc2ef8da0babe85f7f9624dc68ef1994127e1059a5d089c0e5c9c2",
+          "sha1": "db48dde813e9cfde5a3fedfb10cb26bb8d1138db"
+        },
+        "size": 12366300
+      }
+    },
+    {
+      "target": "fabric-1.21.6",
+      "minecraft": "1.21.6",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.6",
+        "filename": "lazodiscs-fabric-1.0.7+1.21.6.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/EPnPQ9ls/lazodiscs-fabric-1.0.7%2B1.21.6.jar",
+        "hashes": {
+          "sha1": "794403f27b742ae2bff4957fd2d87582bf7ac335",
+          "sha512": "80857c811bd16e58cde6866964a7a17f12fdf33377284fea1bcc0ae79a953400ea04a76f0e0ea45f5a06a2c9aa11888fbb92915d19e86753e2a5b8e448829c26"
+        },
+        "size": 34441125
+      },
+      "plasmo": {
+        "version": "fabric-1.21.6-2.1.17",
+        "filename": "plasmovoice-fabric-1.21.6-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/FoUzQj6E/plasmovoice-fabric-1.21.6-2.1.17.jar",
+        "hashes": {
+          "sha512": "fadcddaa8ffa9206027308c3075408b630fffc6e3b9f2bfc7ca0524042deb5f6207dd5a28800dd9af23bc5b7fbf119b2e53deae0b722455bc7c6d69534588334",
+          "sha1": "428e0e7e1720ac681369c000b61f6c02e9d74c6c"
+        },
+        "size": 12338939
+      }
+    },
+    {
+      "target": "fabric-1.21.7",
+      "minecraft": "1.21.7",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.7",
+        "filename": "lazodiscs-fabric-1.0.7+1.21.7.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/rsHDjzR4/lazodiscs-fabric-1.0.7%2B1.21.7.jar",
+        "hashes": {
+          "sha1": "6a5fefacd7d8aca347f11c42e8edbd13c7f13640",
+          "sha512": "ecfaabdeea77c959b8685a4823072579030aae258469cbce1e61a98623b19a33d0a176d407b0ae50b178f194ade2e600030def85ca7c3cf27b7900ac5df85156"
+        },
+        "size": 34441126
+      },
+      "plasmo": {
+        "version": "fabric-1.21.6-2.1.17",
+        "filename": "plasmovoice-fabric-1.21.6-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/FoUzQj6E/plasmovoice-fabric-1.21.6-2.1.17.jar",
+        "hashes": {
+          "sha512": "fadcddaa8ffa9206027308c3075408b630fffc6e3b9f2bfc7ca0524042deb5f6207dd5a28800dd9af23bc5b7fbf119b2e53deae0b722455bc7c6d69534588334",
+          "sha1": "428e0e7e1720ac681369c000b61f6c02e9d74c6c"
+        },
+        "size": 12338939
+      }
+    },
+    {
+      "target": "fabric-1.21.8",
+      "minecraft": "1.21.8",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.8",
+        "filename": "lazodiscs-fabric-1.0.7+1.21.8.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/8nQCtc49/lazodiscs-fabric-1.0.7%2B1.21.8.jar",
+        "hashes": {
+          "sha512": "2cda461c7f551e6e79cd630a17b0c1b967e82f62be11a43e2348f480ea0a0d5971a116c51ba99c91eeffa0aed9990e9849ac51352ee57440fb3327a359f41de8",
+          "sha1": "6592ca2fa0de67472cdab9f4aae58721fad6e8dc"
+        },
+        "size": 34441125
+      },
+      "plasmo": {
+        "version": "fabric-1.21.6-2.1.17",
+        "filename": "plasmovoice-fabric-1.21.6-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/FoUzQj6E/plasmovoice-fabric-1.21.6-2.1.17.jar",
+        "hashes": {
+          "sha512": "fadcddaa8ffa9206027308c3075408b630fffc6e3b9f2bfc7ca0524042deb5f6207dd5a28800dd9af23bc5b7fbf119b2e53deae0b722455bc7c6d69534588334",
+          "sha1": "428e0e7e1720ac681369c000b61f6c02e9d74c6c"
+        },
+        "size": 12338939
+      }
+    },
+    {
+      "target": "fabric-26.1",
+      "minecraft": "26.1",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc26.1",
+        "filename": "lazodiscs-fabric-1.0.7+26.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/TXFOHjCB/lazodiscs-fabric-1.0.7%2B26.1.jar",
+        "hashes": {
+          "sha1": "fd663350e322bc8be958f56f6e3a146a21db24ae",
+          "sha512": "cb302994f51614649e4afc3efc9233b93319f67008fb58e5c2ed5b4d4dd107abd3e27b0b4ea0d2542f7c9d67348f3b9ff7c6d05effe2699345f8e6d44a6a061d"
+        },
+        "size": 34307952
+      },
+      "plasmo": {
+        "version": "fabric-26.1-2.1.17",
+        "filename": "plasmovoice-fabric-26.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/AWrwR3ci/plasmovoice-fabric-26.1-2.1.17.jar",
+        "hashes": {
+          "sha1": "e1a18d23b634980270c6082ea80b3673d7d3871e",
+          "sha512": "2c15ec6e2ffcf07ce09691152decdd2436051d6cd2eb629e8801a341572c2fe104d2bcfdebe40af1d998bb1e613b18a976e275529b81304d3ed0f7665375cf13"
+        },
+        "size": 12245734
+      }
+    },
+    {
+      "target": "fabric-26.1.1",
+      "minecraft": "26.1.1",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc26.1.1",
+        "filename": "lazodiscs-fabric-1.0.7+26.1.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/pjzpKRdl/lazodiscs-fabric-1.0.7%2B26.1.1.jar",
+        "hashes": {
+          "sha512": "168ffdaea4473d8abc559f9f7157f95c017c2321c0abe9fbd2562fd22b64360d6fd7c6f832534a04b93746c9e4ac0836d18c2c600939536fa494f359a3282c79",
+          "sha1": "ed09c9e89e242484c0849cd782c1ec684ce69ff7"
+        },
+        "size": 34307956
+      },
+      "plasmo": {
+        "version": "fabric-26.1-2.1.17",
+        "filename": "plasmovoice-fabric-26.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/AWrwR3ci/plasmovoice-fabric-26.1-2.1.17.jar",
+        "hashes": {
+          "sha1": "e1a18d23b634980270c6082ea80b3673d7d3871e",
+          "sha512": "2c15ec6e2ffcf07ce09691152decdd2436051d6cd2eb629e8801a341572c2fe104d2bcfdebe40af1d998bb1e613b18a976e275529b81304d3ed0f7665375cf13"
+        },
+        "size": 12245734
+      }
+    },
+    {
+      "target": "fabric-26.1.2",
+      "minecraft": "26.1.2",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc26.1.2",
+        "filename": "lazodiscs-fabric-1.0.7+26.1.2.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/58S3yibU/lazodiscs-fabric-1.0.7%2B26.1.2.jar",
+        "hashes": {
+          "sha512": "b136c5d101129477f9a6f167aba4cb3fac7d60e87ffa01ad5ba2d109dadfe3ef94970e9cc9fb78babee1aa9cc68f7b8f76e851b1aaea0464e485ec74984a80c7",
+          "sha1": "dcd4e874de10473818c10365251eae9ba14b9f46"
+        },
+        "size": 34307956
+      },
+      "plasmo": {
+        "version": "fabric-26.1-2.1.17",
+        "filename": "plasmovoice-fabric-26.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/AWrwR3ci/plasmovoice-fabric-26.1-2.1.17.jar",
+        "hashes": {
+          "sha1": "e1a18d23b634980270c6082ea80b3673d7d3871e",
+          "sha512": "2c15ec6e2ffcf07ce09691152decdd2436051d6cd2eb629e8801a341572c2fe104d2bcfdebe40af1d998bb1e613b18a976e275529b81304d3ed0f7665375cf13"
+        },
+        "size": 12245734
+      }
+    },
+    {
+      "target": "fabric-26.2",
+      "minecraft": "26.2",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc26.2",
+        "filename": "lazodiscs-fabric-1.0.7+26.2.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/yCQoS3Jq/lazodiscs-fabric-1.0.7%2B26.2.jar",
+        "hashes": {
+          "sha1": "6f4f5cb7f6b5bbac9beb3cf9c150ae725c3a5b71",
+          "sha512": "dc50b097ad57ff906d74c85763f919906df3e7bfc2dcd36fe0c61ea42d528f9e91bd17a149ffeaa8dde140a67a4f4919f46adfbc36e37d156345d09a08b62187"
+        },
+        "size": 34307951
+      },
+      "plasmo": {
+        "version": "fabric-26.2-2.1.17",
+        "filename": "plasmovoice-fabric-26.2-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/lmQvyHuY/plasmovoice-fabric-26.2-2.1.17.jar",
+        "hashes": {
+          "sha1": "c7313bca7a4e0c9273a6a79f159ebb4c6f3e1584",
+          "sha512": "653fb434622343ca3758f46ad6fac6de73120aeb5e842bc258170b2c66c44a146401bd487c9213926a4eecc34506a0978245f8b8ddd38d304cef49f231599c88"
+        },
+        "size": 12247451
+      }
+    },
+    {
+      "target": "fabric-26.3",
+      "minecraft": "26.3",
+      "loader": "fabric",
+      "lazodiscs": {
+        "version": "1.0.7+mc26.3",
+        "filename": "lazodiscs-fabric-1.0.7+26.3.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/pK9XgX2x/lazodiscs-fabric-1.0.7%2B26.3.jar",
+        "hashes": {
+          "sha512": "ee474d26e7094050ab506913fc65f2b5814dda4f5d540c4b5cca6e53e89f945376a83a78f70779cac6e2c5502df84de14c6bd5531f92acc70f154456d0c63e07",
+          "sha1": "4a98ab465d173746a84050250f3bb50eaaf17660"
+        },
+        "size": 34307950
+      },
+      "plasmo": {
+        "version": "fabric-26.3-2.1.17",
+        "filename": "plasmovoice-fabric-26.3-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/vKP6gBRn/plasmovoice-fabric-26.3-2.1.17.jar",
+        "hashes": {
+          "sha512": "00090edb493fc6b632a6825c765ff797f8469625f2c30a44b8d07d920b6fa7159e6671d585d122d272d2e7a6e6a11f2c1cb5f81cbaf2738354ad80abd9fe8f83",
+          "sha1": "f4fd4483284c2aca75bd22d97e39fc85398c05a0"
+        },
+        "size": 12248022
+      }
+    },
+    {
+      "target": "forge-1.16.5",
+      "minecraft": "1.16.5",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.16.5",
+        "filename": "lazodiscs-forge-1.0.7+1.16.5.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/CHJhBn3D/lazodiscs-forge-1.0.7%2B1.16.5.jar",
+        "hashes": {
+          "sha512": "64ab9866cdc9db2e3912405260dd42bb89260630c04a8e634f8930a730ac93130f663c23e22d4b0281ce090f0be4c2786622a0fa72d8cd663ac7c796f6febfaf",
+          "sha1": "12215f63c305f547d57cfa5981fd3254dc5913c1"
+        },
+        "size": 35446147
+      },
+      "plasmo": {
+        "version": "forge-1.16.5-2.1.17",
+        "filename": "plasmovoice-forge-1.16.5-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/sVbz4VTK/plasmovoice-forge-1.16.5-2.1.17.jar",
+        "hashes": {
+          "sha1": "63cde88e7781b6f7a2ae3822ba7739a014d8e1e9",
+          "sha512": "8e4ad565953e3536d98313577f7fddf23385cd31d3ba06795808055037921b5f27b88e94789c85ea58f4842f6d4db6416bcc227d4b278e97c02385673bac4de2"
+        },
+        "size": 12319461
+      }
+    },
+    {
+      "target": "forge-1.17.1",
+      "minecraft": "1.17.1",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.17.1",
+        "filename": "lazodiscs-forge-1.0.7+1.17.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/m7UMss1e/lazodiscs-forge-1.0.7%2B1.17.1.jar",
+        "hashes": {
+          "sha512": "a7e12fa5a92556e23480da8a992a443b96a4963f87bf8c4057f0cff57d0381d0061bdc93a5e2e86fa9d8dde35e6275340c6087121997ddef41c029c9e5c57e9f",
+          "sha1": "7da705dd63183845314696d6e6d0b41632770018"
+        },
+        "size": 35403761
+      },
+      "plasmo": {
+        "version": "forge-1.17.1-2.1.17",
+        "filename": "plasmovoice-forge-1.17.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/bHsbPNxp/plasmovoice-forge-1.17.1-2.1.17.jar",
+        "hashes": {
+          "sha1": "ff68171e5c13449559ee1f190a6df3abf1087424",
+          "sha512": "cf64d605e0002407411868885bda605c961f8537c8588f94b49e8f91926bd21c48f2dd3de18c587450321cd8e627f5597bf96483345f3bcc4ad9798f40095902"
+        },
+        "size": 12330165
+      }
+    },
+    {
+      "target": "forge-1.18.2",
+      "minecraft": "1.18.2",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.18.2",
+        "filename": "lazodiscs-forge-1.0.7+1.18.2.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/EmHBYLQB/lazodiscs-forge-1.0.7%2B1.18.2.jar",
+        "hashes": {
+          "sha512": "48f5eaac7d8e2fa75d092761191e7d6057aa53547b3572eb330d21924d50adbad1f896c12c3b0e7d5f23a7f0a98b1b00030ce35cbab1c4e9fdd98aa16a21f96d",
+          "sha1": "7167f6619ab314c7ebc1386765acb3ec0b31bfeb"
+        },
+        "size": 35424602
+      },
+      "plasmo": {
+        "version": "forge-1.18.2-2.1.17",
+        "filename": "plasmovoice-forge-1.18.2-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/agUvymvl/plasmovoice-forge-1.18.2-2.1.17.jar",
+        "hashes": {
+          "sha1": "863418301acacb2e810c874bbb4777ad381235e2",
+          "sha512": "3f9f97f2f35ccb6fc406656b9d7ba58a5fe3af4327327bd153c19b7ff016cc4901c6f0abd89ca093828722fab54c6cf26634653ef80243a1eeab4bdb3fc6a272"
+        },
+        "size": 12333052
+      }
+    },
+    {
+      "target": "forge-1.19",
+      "minecraft": "1.19",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.19",
+        "filename": "lazodiscs-forge-1.0.7+1.19.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/csihJaPV/lazodiscs-forge-1.0.7%2B1.19.jar",
+        "hashes": {
+          "sha1": "f57d4ef959edc77c844cc201b9b22d43409cf969",
+          "sha512": "ad04b067669a41b3a7dd1dcb15ccaa43628466215929c465719e5bc51d804807037584743bf18430d029862bf613bd882c44de49702ec81cf1798b79f5851229"
+        },
+        "size": 35424492
+      },
+      "plasmo": {
+        "version": "forge-1.19.2-2.1.17",
+        "filename": "plasmovoice-forge-1.19.2-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/F1VKyzib/plasmovoice-forge-1.19.2-2.1.17.jar",
+        "hashes": {
+          "sha512": "9f38f7d42f6724fb2eaeca2d6583c263b8031a0ea0e54ca8f51ce09e3599ea6a95488fd5e408af6abb873ffadf4a72611e554992291a4a091f1bd7afea3b5b3f",
+          "sha1": "f1133e5ae36d92e0d197b46dd408499d652b6a7b"
+        },
+        "size": 12335111
+      }
+    },
+    {
+      "target": "forge-1.19.1",
+      "minecraft": "1.19.1",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.19.1",
+        "filename": "lazodiscs-forge-1.0.7+1.19.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/rwYyWMvR/lazodiscs-forge-1.0.7%2B1.19.1.jar",
+        "hashes": {
+          "sha512": "d0cf82648766569336a02623ddfd96dfe8acbe4da0e49f561f3a80beb9f512e689a14d51d049668dfebd598796836dcb0b5abaa49658097901ac6750053bdec2",
+          "sha1": "e1200f75799f5c37ebd68972a76174f2ed002715"
+        },
+        "size": 35424495
+      },
+      "plasmo": {
+        "version": "forge-1.19.2-2.1.17",
+        "filename": "plasmovoice-forge-1.19.2-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/F1VKyzib/plasmovoice-forge-1.19.2-2.1.17.jar",
+        "hashes": {
+          "sha512": "9f38f7d42f6724fb2eaeca2d6583c263b8031a0ea0e54ca8f51ce09e3599ea6a95488fd5e408af6abb873ffadf4a72611e554992291a4a091f1bd7afea3b5b3f",
+          "sha1": "f1133e5ae36d92e0d197b46dd408499d652b6a7b"
+        },
+        "size": 12335111
+      }
+    },
+    {
+      "target": "forge-1.19.2",
+      "minecraft": "1.19.2",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.19.2",
+        "filename": "lazodiscs-forge-1.0.7+1.19.2.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/GPoPexM3/lazodiscs-forge-1.0.7%2B1.19.2.jar",
+        "hashes": {
+          "sha512": "049c1a01855f7e268fc3639e77d5f1ec0ced24dd31b2d3574469e40113c1608de81acbf409c67ccf7300bc329e6925c08c570c1c15e062198d33173ee4924d7e",
+          "sha1": "0316fe959ad1fea3f4f251e6eee4bfc96d8bcfa3"
+        },
+        "size": 35424497
+      },
+      "plasmo": {
+        "version": "forge-1.19.2-2.1.17",
+        "filename": "plasmovoice-forge-1.19.2-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/F1VKyzib/plasmovoice-forge-1.19.2-2.1.17.jar",
+        "hashes": {
+          "sha512": "9f38f7d42f6724fb2eaeca2d6583c263b8031a0ea0e54ca8f51ce09e3599ea6a95488fd5e408af6abb873ffadf4a72611e554992291a4a091f1bd7afea3b5b3f",
+          "sha1": "f1133e5ae36d92e0d197b46dd408499d652b6a7b"
+        },
+        "size": 12335111
+      }
+    },
+    {
+      "target": "forge-1.19.3",
+      "minecraft": "1.19.3",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.19.3",
+        "filename": "lazodiscs-forge-1.0.7+1.19.3.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/dpsneByk/lazodiscs-forge-1.0.7%2B1.19.3.jar",
+        "hashes": {
+          "sha512": "f108bd8b871fa0e4ca4b9b4837f7fe391093ca79103407c5abb277cd943177ecd792f241862e9531dbc8e044362c2b10468e7bfbbaac5072a6385980da674180",
+          "sha1": "9f773974f665b7627c606f4f191df0ea9cf1dbab"
+        },
+        "size": 35423762
+      },
+      "plasmo": {
+        "version": "forge-1.19.3-2.1.17",
+        "filename": "plasmovoice-forge-1.19.3-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/8v1jTdZF/plasmovoice-forge-1.19.3-2.1.17.jar",
+        "hashes": {
+          "sha512": "707090f5474aa140610f1a5fc54efe6050e4ccf15bd3cf709e2d233932bc28a0b4197cbf34d0d1fd0c57f710d572085a494572321fc05bbc95e4701a17d32185",
+          "sha1": "f6f2bbfcd846997913b2717de6790c67e520fb3f"
+        },
+        "size": 12337043
+      }
+    },
+    {
+      "target": "forge-1.19.4",
+      "minecraft": "1.19.4",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.19.4",
+        "filename": "lazodiscs-forge-1.0.7+1.19.4.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/Z0HHFktn/lazodiscs-forge-1.0.7%2B1.19.4.jar",
+        "hashes": {
+          "sha1": "4435c6808c7778aa26a305e81f0057f46624cb87",
+          "sha512": "176d1859c9b2c37971068afa49f62a03face697a62c4843fe37194640f277ada1bc53905096e3004a89815f81a9570dfc716bcf3f2f8351f78f4f8989678e334"
+        },
+        "size": 35424269
+      },
+      "plasmo": {
+        "version": "forge-1.19.4-2.1.17",
+        "filename": "plasmovoice-forge-1.19.4-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/7qYx9ePB/plasmovoice-forge-1.19.4-2.1.17.jar",
+        "hashes": {
+          "sha512": "58688675a5ac399a5a71e33ce501872d828aa9b7c2688ccca940c759b6e9b3cb06c559db4895dab66100ad4cf4e3d6496b260b2d6b927b5e8106f3da78467662",
+          "sha1": "ca63810c34c6af6a335b5eb04500354ff866034b"
+        },
+        "size": 12337044
+      }
+    },
+    {
+      "target": "forge-1.20",
+      "minecraft": "1.20",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.20",
+        "filename": "lazodiscs-forge-1.0.7+1.20.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/CH46rC2u/lazodiscs-forge-1.0.7%2B1.20.jar",
+        "hashes": {
+          "sha512": "95747142c872a21cf5dd7ee3a2eeb0c803f57a39941ae5cbf02a5b5089e30513bb981bba09d5b05507aa110005be6e28d1c4f1bb6c646c01602b3cfe2959b4b8",
+          "sha1": "fdca3d602cb30a67f4b5a05ca6561e5f0123bf20"
+        },
+        "size": 33912117
+      },
+      "plasmo": {
+        "version": "forge-1.20.1-2.1.17",
+        "filename": "plasmovoice-forge-1.20.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/KoHwlbDf/plasmovoice-forge-1.20.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "78dffc701631a7ae7a4ad5982b27e99391de254879bbcc80591f4e0fa877b07b2126e9bc95bad96b4e6e990cd80a8df4dfcfcdc42471c095c493f64edd599d57",
+          "sha1": "a2bfe43a4c5b5077626d7f0af89fbe9972ba723f"
+        },
+        "size": 12337455
+      }
+    },
+    {
+      "target": "forge-1.20.1",
+      "minecraft": "1.20.1",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.20.1",
+        "filename": "lazodiscs-forge-1.0.7+1.20.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/xYBxyXfw/lazodiscs-forge-1.0.7%2B1.20.1.jar",
+        "hashes": {
+          "sha1": "a99843cccd1ea4ab5e7933b97040f9412acbc722",
+          "sha512": "3bf6919242cd3cea0405a64ab3f9957a1ae934ec4092d2b3002e433db1a082f419bba80397af247dee752d4517fe12a24f9dd036c62779ca4c6f22f476c16e4a"
+        },
+        "size": 33912121
+      },
+      "plasmo": {
+        "version": "forge-1.20.1-2.1.17",
+        "filename": "plasmovoice-forge-1.20.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/KoHwlbDf/plasmovoice-forge-1.20.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "78dffc701631a7ae7a4ad5982b27e99391de254879bbcc80591f4e0fa877b07b2126e9bc95bad96b4e6e990cd80a8df4dfcfcdc42471c095c493f64edd599d57",
+          "sha1": "a2bfe43a4c5b5077626d7f0af89fbe9972ba723f"
+        },
+        "size": 12337455
+      }
+    },
+    {
+      "target": "forge-1.20.2",
+      "minecraft": "1.20.2",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.20.2",
+        "filename": "lazodiscs-forge-1.0.7+1.20.2.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/IZaNScVE/lazodiscs-forge-1.0.7%2B1.20.2.jar",
+        "hashes": {
+          "sha512": "7cd7d7ac2534ef6c713ce1a6515710b6123b6cdeb0107762bb0f94f3625ffbd19c0010b9e27955e4390203d9456933bf17dfdae7ebcbb9ca8cf48346f186cce4",
+          "sha1": "a3758fe14e5974c0b05951fc57f89d2ab1a2696f"
+        },
+        "size": 33912167
+      },
+      "plasmo": {
+        "version": "forge-1.20.4-2.1.17",
+        "filename": "plasmovoice-forge-1.20.4-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/emtfYObu/plasmovoice-forge-1.20.4-2.1.17.jar",
+        "hashes": {
+          "sha1": "7274996eb50cb0c2c3f94833d55a3fb1924e5f2a",
+          "sha512": "3608e221c283801d887a078d564f38651719622bc1df4bc1b783a3bb1a20ac2ab2af5295ef4874aeaae11ecb2bca7666a1aac399b34af0b137c804fc2bae4f52"
+        },
+        "size": 12337472
+      },
+      "dependency_patch": {
+        "tool": "tools/patch_plasmo_voice.py",
+        "filename": "plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar",
+        "reason": "Published Plasmo Voice file declares Minecraft 1.20.2 support, but requires FML/Forge 49; Forge 1.20.2 uses 48. Only loader/Forge metadata minimum is corrected; upstream classes and licenses unchanged."
+      }
+    },
+    {
+      "target": "forge-1.20.3",
+      "minecraft": "1.20.3",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.20.3",
+        "filename": "lazodiscs-forge-1.0.7+1.20.3.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/ZCKW4x0L/lazodiscs-forge-1.0.7%2B1.20.3.jar",
+        "hashes": {
+          "sha1": "d1872feebf6405ac78083056d3a7426d7fd01e5f",
+          "sha512": "5f15d49fc2309917871c821001660e9999f0c7d5a07e190bc5a6111e8923f37577a1a6d098609535053d1b9c3817e6bdb6ee4c77aaa8e3c271791727f3a008a9"
+        },
+        "size": 33912190
+      },
+      "plasmo": {
+        "version": "forge-1.20.4-2.1.17",
+        "filename": "plasmovoice-forge-1.20.4-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/emtfYObu/plasmovoice-forge-1.20.4-2.1.17.jar",
+        "hashes": {
+          "sha1": "7274996eb50cb0c2c3f94833d55a3fb1924e5f2a",
+          "sha512": "3608e221c283801d887a078d564f38651719622bc1df4bc1b783a3bb1a20ac2ab2af5295ef4874aeaae11ecb2bca7666a1aac399b34af0b137c804fc2bae4f52"
+        },
+        "size": 12337472
+      }
+    },
+    {
+      "target": "forge-1.20.4",
+      "minecraft": "1.20.4",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.20.4",
+        "filename": "lazodiscs-forge-1.0.7+1.20.4.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/k0t58Lgv/lazodiscs-forge-1.0.7%2B1.20.4.jar",
+        "hashes": {
+          "sha512": "2e5b7fb98f568239ff54f2cc5b96717c094f4b00f6cdfc3933fdb1b30916fc061d64458f2756084cb416cad281826afb1a5c9f675b4dae76f7bb9f807ebdc525",
+          "sha1": "f78a4c1ba3faba6e22bf19d76dde97ed78c108c0"
+        },
+        "size": 33912191
+      },
+      "plasmo": {
+        "version": "forge-1.20.4-2.1.17",
+        "filename": "plasmovoice-forge-1.20.4-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/emtfYObu/plasmovoice-forge-1.20.4-2.1.17.jar",
+        "hashes": {
+          "sha1": "7274996eb50cb0c2c3f94833d55a3fb1924e5f2a",
+          "sha512": "3608e221c283801d887a078d564f38651719622bc1df4bc1b783a3bb1a20ac2ab2af5295ef4874aeaae11ecb2bca7666a1aac399b34af0b137c804fc2bae4f52"
+        },
+        "size": 12337472
+      }
+    },
+    {
+      "target": "forge-1.21",
+      "minecraft": "1.21",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21",
+        "filename": "lazodiscs-forge-1.0.7+1.21.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/jjICSAQk/lazodiscs-forge-1.0.7%2B1.21.jar",
+        "hashes": {
+          "sha512": "2ab82fa7ce78f7092b7dd5fc550fc2534f885480d8519e2a8f675a12e62e21a7b43778c2e5046e305deba9bb1374818baa6757b3c36856440002f7ca6538f72e",
+          "sha1": "f2819609acaa0511252e5fac84ae78ea04d52fd2"
+        },
+        "size": 34300084
+      },
+      "plasmo": {
+        "version": "forge-1.21.1-2.1.17",
+        "filename": "plasmovoice-forge-1.21.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/lkNAkqrJ/plasmovoice-forge-1.21.1-2.1.17.jar",
+        "hashes": {
+          "sha1": "efd769c0ce00aa402acbc202d4179f325e27d074",
+          "sha512": "1c47682c32e6e7e2a738bb40770b654eb58387730fc1ac1fa6ab8ab032506a4dd1ee11f129661c7ed203a13691839b3075ad099c124024a56a13856f8e32b427"
+        },
+        "size": 12341307
+      }
+    },
+    {
+      "target": "forge-1.21.1",
+      "minecraft": "1.21.1",
+      "loader": "forge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.1",
+        "filename": "lazodiscs-forge-1.0.7+1.21.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/9UBBhWjO/lazodiscs-forge-1.0.7%2B1.21.1.jar",
+        "hashes": {
+          "sha512": "8c56e17427d874dfcd8e9b1a56b5696154791f804a736bcd3b7fd61d9d35f4758672c10407b5800e55e623e458869e9aadd6889d586f4fdbfc1f089a2e4bb7a6",
+          "sha1": "4ca66fe86efcfd6a7aa63426deeaf2db2826ae57"
+        },
+        "size": 34300049
+      },
+      "plasmo": {
+        "version": "forge-1.21.1-2.1.17",
+        "filename": "plasmovoice-forge-1.21.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/lkNAkqrJ/plasmovoice-forge-1.21.1-2.1.17.jar",
+        "hashes": {
+          "sha1": "efd769c0ce00aa402acbc202d4179f325e27d074",
+          "sha512": "1c47682c32e6e7e2a738bb40770b654eb58387730fc1ac1fa6ab8ab032506a4dd1ee11f129661c7ed203a13691839b3075ad099c124024a56a13856f8e32b427"
+        },
+        "size": 12341307
+      }
+    },
+    {
+      "target": "neoforge-1.21",
+      "minecraft": "1.21",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21",
+        "filename": "lazodiscs-neoforge-1.0.7+1.21.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/FUOaNHmG/lazodiscs-neoforge-1.0.7%2B1.21.jar",
+        "hashes": {
+          "sha512": "0492a33fd619c223279753468a063698d8c192ba512492c9e0b6f36cc498048b93863a21f471411052c05affe7b4bd46e291c75a27a9ac7f830f6d654f5fc3aa",
+          "sha1": "fe7923f2970dfec303c616ab823ece56148b4435"
+        },
+        "size": 34300014
+      },
+      "plasmo": {
+        "version": "neoforge-1.21.1-2.1.17",
+        "filename": "plasmovoice-neoforge-1.21.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/97HOKGM0/plasmovoice-neoforge-1.21.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "6847a3d4b8ab6fcb14d57777bf54cca8798c23d746b4f4cf80fe31fae4a86995e7e1c5a6ad7e7ecc2a94afe3a79094d3afffcc0df7cf061e7a96c3eff6ac2d32",
+          "sha1": "79494a08be1cc40c30b7027ed128bd75949dfcc4"
+        },
+        "size": 12341959
+      }
+    },
+    {
+      "target": "neoforge-1.21.1",
+      "minecraft": "1.21.1",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.1",
+        "filename": "lazodiscs-neoforge-1.0.7+1.21.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/fPhWgro2/lazodiscs-neoforge-1.0.7%2B1.21.1.jar",
+        "hashes": {
+          "sha1": "62cdb179c16a55d2bbea140545b80ac4ec04fb7d",
+          "sha512": "8fc3e115b949100d2095101280850b4f344be46a0019321235c7d81368bd0204f0d5abf90509fc75a905050bdda514efd647b8c8a2dff69f52f690e3339391b5"
+        },
+        "size": 34300014
+      },
+      "plasmo": {
+        "version": "neoforge-1.21.1-2.1.17",
+        "filename": "plasmovoice-neoforge-1.21.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/97HOKGM0/plasmovoice-neoforge-1.21.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "6847a3d4b8ab6fcb14d57777bf54cca8798c23d746b4f4cf80fe31fae4a86995e7e1c5a6ad7e7ecc2a94afe3a79094d3afffcc0df7cf061e7a96c3eff6ac2d32",
+          "sha1": "79494a08be1cc40c30b7027ed128bd75949dfcc4"
+        },
+        "size": 12341959
+      }
+    },
+    {
+      "target": "neoforge-1.21.11",
+      "minecraft": "1.21.11",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.11",
+        "filename": "lazodiscs-neoforge-1.0.7+1.21.11.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/qoTEgpI6/lazodiscs-neoforge-1.0.7%2B1.21.11.jar",
+        "hashes": {
+          "sha1": "d80f57280e9376b1733cbadca1949f6d1b33f754",
+          "sha512": "87f649bd71aadfdfb540175f5fe2eb2d1447b8c08d4cec43931b554aa7015b4b8b56dd7ec707728c069cf2ac4e26fbb51ff0056234408d8e9ac9c5a30457bac0"
+        },
+        "size": 34300431
+      },
+      "plasmo": {
+        "version": "neoforge-1.21.11-2.1.17",
+        "filename": "plasmovoice-neoforge-1.21.11-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/u1ZZ3y0Y/plasmovoice-neoforge-1.21.11-2.1.17.jar",
+        "hashes": {
+          "sha512": "599b1a7372ff3c43b41c036a19ef725d1d7b4ee1ca762826371a9ab7a786f61ffd8aba4f34b6ea24ea5bdb7dc16f42cc735b2812a05e33619df23c0828b6744d",
+          "sha1": "ad2816688b3b4e9d57031f3f8a6b5020bbae9f6c"
+        },
+        "size": 12321695
+      }
+    },
+    {
+      "target": "neoforge-1.21.4",
+      "minecraft": "1.21.4",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.4",
+        "filename": "lazodiscs-neoforge-1.0.7+1.21.4.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/jvn3Qelh/lazodiscs-neoforge-1.0.7%2B1.21.4.jar",
+        "hashes": {
+          "sha1": "1bfe488b913e27d37d4601fdc98066d0185fb26e",
+          "sha512": "9c660b150f01d58a4ffbad183ad4165111f6f67421cbaad8ac4a6f64b1463a0a77c89788e8eabc88923b9eca80600a81d75df673fa3fd7f8a6226057e2f198c0"
+        },
+        "size": 34300079
+      },
+      "plasmo": {
+        "version": "neoforge-1.21.4-2.1.17",
+        "filename": "plasmovoice-neoforge-1.21.4-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/8rd5gky9/plasmovoice-neoforge-1.21.4-2.1.17.jar",
+        "hashes": {
+          "sha1": "38d6e9abb09ce73241cf32a38e2bed521d2e76f8",
+          "sha512": "f78aa672d86c516a47b710932d6695c2196fe757afc53513069436354a7dd9f9a62aa5cc6dffde75546f5b22885e8e775dce9f88004d7752c07f85e6b76dc4cd"
+        },
+        "size": 12341476
+      }
+    },
+    {
+      "target": "neoforge-1.21.6",
+      "minecraft": "1.21.6",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.6",
+        "filename": "lazodiscs-neoforge-1.0.7+1.21.6.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/J5Dj1A15/lazodiscs-neoforge-1.0.7%2B1.21.6.jar",
+        "hashes": {
+          "sha1": "22f759aef2c9f9f4ca4a2598d60a1c581b434926",
+          "sha512": "60198e2f7e264954efec7e58937f44a19a9ea024174baf3f460bc0570a2149a986993331b3617b3003e350155ac2a91d332afdcad7880fadbeb3f6916cfbf962"
+        },
+        "size": 34300340
+      },
+      "plasmo": {
+        "version": "neoforge-1.21.6-2.1.17",
+        "filename": "plasmovoice-neoforge-1.21.6-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/2te5OiFQ/plasmovoice-neoforge-1.21.6-2.1.17.jar",
+        "hashes": {
+          "sha512": "133c2040f17414bf3fecac71d263a83ab33594bd832ffcfd3390fa20fe8a98becedfcfbfd6cefe42049b3e5817f67facf17f9577a444d4286a24f6bee553f19f",
+          "sha1": "7852693bea40e63335f3f4d9b0a639833728774d"
+        },
+        "size": 12315465
+      }
+    },
+    {
+      "target": "neoforge-1.21.7",
+      "minecraft": "1.21.7",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.7",
+        "filename": "lazodiscs-neoforge-1.0.7+1.21.7.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/ocBceVZd/lazodiscs-neoforge-1.0.7%2B1.21.7.jar",
+        "hashes": {
+          "sha1": "4e0b0fcc7cbc2cf20068555f1a9c9c209158fa55",
+          "sha512": "b7b7809d6f09fa23b7e86d3ba1ed8ea6197096466ff235f2bc992698c5c8edb7671ffea51526d9ee01afede98d48994b1512ffe931e067586b4177f116129a85"
+        },
+        "size": 34300340
+      },
+      "plasmo": {
+        "version": "neoforge-1.21.7-2.1.17",
+        "filename": "plasmovoice-neoforge-1.21.7-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/6tIx8oXd/plasmovoice-neoforge-1.21.7-2.1.17.jar",
+        "hashes": {
+          "sha1": "c038bc3a0a2ee52da5ff1bc5ab5e95aef2ad9d4d",
+          "sha512": "16a6bd17ea56ff314d397ab7a8618e991cf781080299ca41a91d95b92af8a217cffe1627695d546d6497cc7973d1f8c66810629101f77b55ae8d2e7b9cd92ac9"
+        },
+        "size": 12315531
+      }
+    },
+    {
+      "target": "neoforge-1.21.8",
+      "minecraft": "1.21.8",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc1.21.8",
+        "filename": "lazodiscs-neoforge-1.0.7+1.21.8.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/jjvGECx6/lazodiscs-neoforge-1.0.7%2B1.21.8.jar",
+        "hashes": {
+          "sha512": "bf1b06f4d103e04432dcd89ef7121b708f06268ac2be1c8a60d3c731f453b172f7024bf066b58235fe712ba3b5f9d5abe3a2d6db2c1965cad5dea04b14cabc8c",
+          "sha1": "75e9af09ed2a28db3b9b1348b483da0b83412c4e"
+        },
+        "size": 34300339
+      },
+      "plasmo": {
+        "version": "neoforge-1.21.7-2.1.17",
+        "filename": "plasmovoice-neoforge-1.21.7-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/6tIx8oXd/plasmovoice-neoforge-1.21.7-2.1.17.jar",
+        "hashes": {
+          "sha1": "c038bc3a0a2ee52da5ff1bc5ab5e95aef2ad9d4d",
+          "sha512": "16a6bd17ea56ff314d397ab7a8618e991cf781080299ca41a91d95b92af8a217cffe1627695d546d6497cc7973d1f8c66810629101f77b55ae8d2e7b9cd92ac9"
+        },
+        "size": 12315531
+      }
+    },
+    {
+      "target": "neoforge-26.1",
+      "minecraft": "26.1",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc26.1",
+        "filename": "lazodiscs-neoforge-1.0.7+26.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/9vaW0k3z/lazodiscs-neoforge-1.0.7%2B26.1.jar",
+        "hashes": {
+          "sha512": "6c51eb62cc51e2c05edd24646bcac1f5223b0c9c8071bf68cd5d084a7f9f666c36de3337b5f49dff8d14db327e08c665d8ed1cad5089f2a0c46edb47d85b8a32",
+          "sha1": "1f1976d6395bcca60f3ad28f6127d80edcf54445"
+        },
+        "size": 34300770
+      },
+      "plasmo": {
+        "version": "neoforge-26.1-2.1.17",
+        "filename": "plasmovoice-neoforge-26.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/xRZUtLOh/plasmovoice-neoforge-26.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "055fc453d957bf336d1f218340f83b2e501258c1c950d7e2cf9cb7ca28b1c6d01a31ef3a029ebff7017ab2e0f4c75a83b4f066af5da47ae97f125fe6c0cf5d7a",
+          "sha1": "762d14569c2e04e5c92ed97c8ee172052695cfb6"
+        },
+        "size": 12219257
+      }
+    },
+    {
+      "target": "neoforge-26.1.1",
+      "minecraft": "26.1.1",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc26.1.1",
+        "filename": "lazodiscs-neoforge-1.0.7+26.1.1.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/T0Sw2NvA/lazodiscs-neoforge-1.0.7%2B26.1.1.jar",
+        "hashes": {
+          "sha512": "9495d7e4185b905a908bfd3c41231b2cd4fbcc8eca2c23cfdba3c8a91df4429b4d5e3e794156d3e1a9e991f7e2b7b0bff3c0509aa4f347c5a2b9e5db5cd84d88",
+          "sha1": "1b4782ddc5162031a0cb679e5956e13f8f8410cf"
+        },
+        "size": 34300772
+      },
+      "plasmo": {
+        "version": "neoforge-26.1-2.1.17",
+        "filename": "plasmovoice-neoforge-26.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/xRZUtLOh/plasmovoice-neoforge-26.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "055fc453d957bf336d1f218340f83b2e501258c1c950d7e2cf9cb7ca28b1c6d01a31ef3a029ebff7017ab2e0f4c75a83b4f066af5da47ae97f125fe6c0cf5d7a",
+          "sha1": "762d14569c2e04e5c92ed97c8ee172052695cfb6"
+        },
+        "size": 12219257
+      }
+    },
+    {
+      "target": "neoforge-26.1.2",
+      "minecraft": "26.1.2",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc26.1.2",
+        "filename": "lazodiscs-neoforge-1.0.7+26.1.2.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/X6kH5spB/lazodiscs-neoforge-1.0.7%2B26.1.2.jar",
+        "hashes": {
+          "sha512": "24dd70789a291dd81057a151cdd149cdd7bd4e1e79f5d5ff4bca1937a0a17dc6259d9452035438149810cd91e4ac6bfa40f5dceb551f3892ada821c75d1d7a8e",
+          "sha1": "db74b05903eefe332013847656abbb50de4ac2ab"
+        },
+        "size": 34300756
+      },
+      "plasmo": {
+        "version": "neoforge-26.1-2.1.17",
+        "filename": "plasmovoice-neoforge-26.1-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/xRZUtLOh/plasmovoice-neoforge-26.1-2.1.17.jar",
+        "hashes": {
+          "sha512": "055fc453d957bf336d1f218340f83b2e501258c1c950d7e2cf9cb7ca28b1c6d01a31ef3a029ebff7017ab2e0f4c75a83b4f066af5da47ae97f125fe6c0cf5d7a",
+          "sha1": "762d14569c2e04e5c92ed97c8ee172052695cfb6"
+        },
+        "size": 12219257
+      }
+    },
+    {
+      "target": "neoforge-26.2",
+      "minecraft": "26.2",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc26.2",
+        "filename": "lazodiscs-neoforge-1.0.7+26.2.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/SsG2uOnS/lazodiscs-neoforge-1.0.7%2B26.2.jar",
+        "hashes": {
+          "sha512": "c747edd569e09e7b3ad04a9e6b7a4b31737690e62cc214ac06b559a611d2d3c9b7afaa819426b6aa27388f16456e7c1ba8bca2faa5f96ebc977dc6c17323ca97",
+          "sha1": "51d4129043b274aadfaecbdafa2dec07b086ae84"
+        },
+        "size": 34300751
+      },
+      "plasmo": {
+        "version": "neoforge-26.2-2.1.17",
+        "filename": "plasmovoice-neoforge-26.2-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/QqZ4grre/plasmovoice-neoforge-26.2-2.1.17.jar",
+        "hashes": {
+          "sha512": "6db001b584bad981985673e9596c3de25326147d751d2d9b401c755e4ea024af03db562a495ba5c8b6a1c20087b491b6e7ebd9a43500175df97f82317eaf9d5d",
+          "sha1": "6f7d8ea696cc5fdbd22cae9bc437701733b32ed7"
+        },
+        "size": 12220926
+      }
+    },
+    {
+      "target": "neoforge-26.3",
+      "minecraft": "26.3",
+      "loader": "neoforge",
+      "lazodiscs": {
+        "version": "1.0.7+mc26.3",
+        "filename": "lazodiscs-neoforge-1.0.7+26.3.jar",
+        "url": "https://cdn.modrinth.com/data/bgknC1pg/versions/hAJIuGM0/lazodiscs-neoforge-1.0.7%2B26.3.jar",
+        "hashes": {
+          "sha1": "fd2885ef545ace2fd8ff780e89482a9663b1b26b",
+          "sha512": "928105c1c27f72924988d8ac63f450b2a03a7ebdf9094aba184e446a9dc5734b3e8388f008ba927334fac60f606a85035786cca05c19f54b34434ab41629a831"
+        },
+        "size": 34300756
+      },
+      "plasmo": {
+        "version": "neoforge-26.3-2.1.17",
+        "filename": "plasmovoice-neoforge-26.3-2.1.17.jar",
+        "url": "https://cdn.modrinth.com/data/1bZhdhsH/versions/l4DODz7G/plasmovoice-neoforge-26.3-2.1.17.jar",
+        "hashes": {
+          "sha1": "1f6887b498bc74a2a4f43baf132a1b8d0e5e40b8",
+          "sha512": "0d4d36e84fd2b3776096fb0c3329168ca5387e246428198c64177278887477b854c99f1232750f3b5eb0d9b394268e1a5a6c474dfb3933ebee521b5146da4c9c"
+        },
+        "size": 12221486
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-"""Normal Forge 1.16.5 client launch, isolated from the development mappings."""
+"""Installed legacy Forge launches, isolated from development mappings."""
 import hashlib
 import json
 import os
@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import urllib.error
 import urllib.request
 import zipfile
 
@@ -18,7 +19,12 @@ def download(url, destination, sha1=None):
     if destination.is_file() and (not sha1 or hashlib.sha1(destination.read_bytes()).hexdigest() == sha1):
         return
     temporary = destination.with_suffix(destination.suffix + '.part')
-    urllib.request.urlretrieve(url, temporary)
+    try:
+        urllib.request.urlretrieve(url, temporary)
+    except urllib.error.HTTPError as error:
+        if error.code != 403:
+            raise
+        subprocess.run(['curl', '-fsSL', '--retry', '2', url, '-o', str(temporary)], check=True, timeout=180)
     if sha1 and hashlib.sha1(temporary.read_bytes()).hexdigest() != sha1:
         raise RuntimeError('Downloaded file hash mismatch: ' + url)
     temporary.replace(destination)
@@ -56,6 +62,55 @@ def allowed(value):
             continue
         result = rule['action'] == 'allow'
     return result
+
+
+def run_server(folder, run, target, audio_base, java_paths, output):
+    """Install Forge normally; only the independent probe is remapped/rewritten."""
+    mc, pin = target['minecraft'], target['loader_version']
+    homes = [Path(p) for p in java_paths if (Path(p) / 'release').is_file()]
+    def java_for(number):
+        for home in homes:
+            release = (home / 'release').read_text()
+            if (number == 8 and '1.8.' in release) or ('JAVA_VERSION="' + str(number) + '.') in release:
+                return home / 'bin/java'
+        raise RuntimeError('Pass Java ' + str(number) + ' using --java-path')
+    game_java = java_for(8 if mc == '1.16.5' else 17)
+    installer = ROOT / 'build' / ('forge-' + pin + '-installer.jar')
+    download(f'https://maven.minecraftforge.net/net/minecraftforge/forge/{pin}/forge-{pin}-installer.jar', installer)
+    with zipfile.ZipFile(installer) as jar:
+        profile = json.loads(jar.read('install_profile.json'))
+    for library in profile.get('libraries', []):
+        if library.get('downloads', {}).get('artifact', {}).get('url'):
+            library_file(library, run)
+    metadata = json.loads((GRADLE / 'caches/fabric-loom' / mc / 'mojang_minecraft_info.json').read_text())
+    server = metadata['downloads']['server']
+    download(server['url'], run / ('minecraft_server.' + mc + '.jar'), server['sha1'])
+    subprocess.run([str(game_java), '-jar', str(installer), '--installServer', str(run)], stdout=output, stderr=subprocess.STDOUT, timeout=360, check=True)
+    probe = folder / 'build/libs/playlist-lazo-checks-checks.jar'
+    if not probe.is_file():
+        raise FileNotFoundError(probe)
+    with zipfile.ZipFile(probe) as original, zipfile.ZipFile(run / 'mods' / probe.name, 'w') as installed:
+        for entry in original.infolist():
+            if entry.filename.startswith('META-INF/services/'):
+                continue
+            data = original.read(entry.filename)
+            if entry.filename == 'main.refmap.json':
+                entry.filename = 'playlist-lazo-checks.refmap.json'
+            installed.writestr(entry, data)
+    command = [str(game_java), '-Xmx1500M', '-XX:ActiveProcessorCount=2', '-Dplaylist.audioBase=' + audio_base]
+    if mc == '1.16.5':
+        command += ['-jar', str(run / ('forge-' + pin + '.jar')), 'nogui']
+    else:
+        arguments = run / 'libraries/net/minecraftforge/forge' / pin / 'unix_args.txt'
+        if arguments.is_file():
+            command += ['@' + str(arguments), 'nogui']
+        else:
+            shim = run / ('forge-' + pin + '-shim.jar')
+            if not shim.is_file():
+                raise FileNotFoundError('Installed Forge launch files missing: ' + str(arguments))
+            command += ['-jar', str(shim), 'nogui']
+    output.flush()
+    return subprocess.run(command, cwd=run, stdout=output, stderr=subprocess.STDOUT, timeout=240)
 
 
 def run_client(folder, release, loader_pin, java_paths, output):

@@ -3,6 +3,7 @@ package dev.eyecrasher.jukeboxplaylists.mixin;
 import dev.eyecrasher.jukeboxplaylists.PlaylistJukebox;
 import dev.eyecrasher.jukeboxplaylists.Playlists;
 import dev.eyecrasher.jukeboxplaylists.Platform;
+import dev.eyecrasher.jukeboxplaylists.LazoDiscsCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
@@ -23,6 +24,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(JukeboxBlockEntity.class)
 public abstract class JukeboxMixin implements PlaylistJukebox@INTERFACES@ {
     @Unique private int playlist$cursor = -1;
+    @Unique private int playlist$customEndDelay = -1;
+    @Unique private ItemStack playlist$finishedItem = ItemStack.EMPTY;
     @FIELDS@
 
     @Override public int playlist$position() { return playlist$cursor; }
@@ -33,6 +36,9 @@ public abstract class JukeboxMixin implements PlaylistJukebox@INTERFACES@ {
 
     @Override public void playlist$play(ItemStack stack) {
         JukeboxBlockEntity jukebox = (JukeboxBlockEntity) (Object) this;
+        playlist$customEndDelay = -1;
+        playlist$finishedItem = ItemStack.EMPTY;
+        if (LazoDiscsCompat.play(this, stack)) return;
         @SET_ITEM@
     }
 
@@ -40,8 +46,23 @@ public abstract class JukeboxMixin implements PlaylistJukebox@INTERFACES@ {
         JukeboxBlockEntity jukebox = (JukeboxBlockEntity) (Object) this;
         Level level = jukebox.getLevel();
         if (level == null || Platform.isClient(level) || jukebox.isRemoved()) return;
-        @TICK@
+        if (LazoDiscsCompat.isCustom(playlist$current())) {
+            // Keep vanilla's one-second gap, including for unavailable URLs;
+            // never start a tight retry loop on the audio loader thread.
+            if (playlist$current() != playlist$finishedItem) playlist$customEndDelay = -1;
+            if (playlist$customEndDelay > 0 && --playlist$customEndDelay == 0) {
+                playlist$customEndDelay = -1;
+                Playlists.advance(this, true);
+            }
+        } else {
+            @TICK@
+        }
         if (playlist$current().isEmpty()) Playlists.advance(this, false);
+    }
+
+    @Override public void playlist$customFinished() {
+        playlist$finishedItem = playlist$current();
+        playlist$customEndDelay = 20;
     }
 
     @EXTRA_METHODS@

@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """Exercise an unchanged release JAR in a real Minecraft client and audio engine."""
 import argparse
+import functools
 import hashlib
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 import re
 from pathlib import Path
 import shutil
+import socket
 import subprocess
+import threading
 import time
 import traceback
 import zipfile
@@ -15,13 +19,13 @@ from build import gradle
 from generate import ROOT, adapt_forge1165, write
 
 
-def prepare(target, java_paths=()):
+def prepare(target, java_paths=(), lazo=False, audio_base=None):
     mc, loader = target['minecraft'], target['loader']
     modern = mc == '26.3'
     legacy = mc == '1.16.5'
-    if not modern and not (loader in ('fabric', 'forge') and mc in ('1.16.5', '1.20.6')):
+    if not modern and not (loader in ('fabric', 'forge') and mc in ('1.16.5', '1.20.6')) and not (lazo and target['id'] == 'forge-1.21'):
         raise ValueError('Client fixture supports 26.3, 1.16.5 and Fabric/Forge 1.20.6')
-    folder = ROOT / 'build/targets' / ('client-' + target['id'])
+    folder = ROOT / 'build/targets' / (('client-lazo-' if lazo else 'client-') + target['id'])
     folder.mkdir(parents=True, exist_ok=True)
     original = ROOT / 'build/targets' / target['id']
     for name in ('settings.gradle', 'gradle.properties'):
@@ -33,7 +37,8 @@ def prepare(target, java_paths=()):
         properties = '\n'.join(line for line in properties.splitlines() if not line.startswith(marker)) + '\n'
         properties += marker + ','.join(filter(None, [existing, *map(str, java_paths)])) + '\n'
         write(folder / 'gradle.properties', properties)
-    release = ROOT / 'dist' / loader / f'jukebox-playlists-{loader}-{mc}-0.1.0.jar'
+    mod_version = json.loads((ROOT / 'versions.json').read_text())['mod_version']
+    release = ROOT / 'dist' / loader / f'jukebox-playlists-{loader}-{mc}-{mod_version}.jar'
     if not release.is_file():
         raise FileNotFoundError(release)
     src = folder / 'probe/java/dev/eyecrasher/playlistchecks'
@@ -42,8 +47,12 @@ def prepare(target, java_paths=()):
     use = lambda pos: f'mc.gameMode.useItemOn(mc.player, ' + ('mc.level, ' if legacy else '') + f'InteractionHand.MAIN_HAND, {hit(pos)})'
     source = (ROOT / 'src/clienttest/ClientChecks.java.in').read_text()
     replacements = {
+        'LAZO_AUDIO_CHECK': 'lazoScenario();' if lazo else '',
+        'LAZO_CLIENT_METHODS': (ROOT / 'src/clienttest/LazoClientScenario.java.in').read_text() if lazo else '',
+        'EXECUTE_COMMAND': 'performCommand' if legacy else 'performPrefixedCommand',
+        'ENVIRONMENT_COMMANDS': ', '.join(map(json.dumps, ['time set day', 'weather clear', 'difficulty peaceful'] + (['gamerule advance_time false', 'gamerule advance_weather false', 'gamerule spawn_mobs false'] if modern else ['gamerule doDaylightCycle false', 'gamerule doWeatherCycle false', 'gamerule doMobSpawning false']))),
         'SOUND_ID': 'getIdentifier' if modern else 'getLocation',
-        'OPEN_WORLD': 'if (!opened && ticks > 100 && mc.screen instanceof net.minecraft.client.gui.screens.TitleScreen && mc.getOverlay() == null) { opened = true; mc.loadLevel("playlist-client-fixture"); }' if legacy else '',
+        'OPEN_WORLD': 'if (!opened && ticks > 100 && mc.screen instanceof net.minecraft.client.gui.screens.TitleScreen && mc.getOverlay() == null) { opened = true; mc.loadLevel("playlist-client-fixture"); }' if legacy else 'if (!opened && ticks > 100 && mc.screen instanceof net.minecraft.client.gui.screens.TitleScreen && mc.getOverlay() == null) { opened = true; mc.createWorldOpenFlows().openWorld("playlist-client-fixture", () -> {}); }' if lazo else '',
         'CLOSE_SCREEN': 'mc.gui.setScreen(null)' if modern else 'mc.setScreen(null)',
         'CLOSE_CONTAINER': 'mc.player.closeContainer()',
         'SCREEN': 'mc.gui.screen()' if modern else 'mc.screen',
@@ -151,7 +160,7 @@ tasks.named('processResources') { dependsOn tasks.named('compileJava'); destinat
     if not seed.is_dir():
         raise FileNotFoundError('Prepare a Fabric smoke-test seed first: ' + str(seed))
     args = ['--username', 'PlaylistTester', '--accessToken', '0', '--version', 'Playlist-test', '--width', '960', '--height', '540']
-    if not legacy:
+    if not legacy and not lazo:
         args += ['--quickPlaySingleplayer', 'playlist-client-fixture']
     if loader != 'fabric':
         args[args.index('--version'):args.index('--version') + 2] = []
@@ -184,8 +193,10 @@ def prepareClientFixture = {
     else:
         build += 'minecraft.runs { register("client") { workingDir = layout.buildDirectory.dir("run/client"); args ' + ', '.join(json.dumps(a) for a in args) + "; jvmArgs '-Xmx2G' } }\n"
         build += "tasks.configureEach { if (name == 'runClient') doFirst { prepareClientFixture() } }\n"
-        if mc == '1.20.6':
+        if mc in ('1.20.6', '1.21'):
             build += "configurations.configureEach { resolutionStrategy.force 'net.sf.jopt-simple:jopt-simple:5.0.4' }\n"
+        if lazo and audio_base:
+            build += 'minecraft.runs.named("client") { systemProperty "playlist.audioBase", ' + json.dumps(audio_base) + ' }\n'
         if mc == '1.16.5':
             build += '''
 def legacyNatives = configurations.create('playlistLegacyNatives') { transitive=false }
@@ -210,6 +221,19 @@ minecraft.runs.named('client') {
 tasks.configureEach { if (name == 'runClient') { getClient().set(true); dependsOn tasks.named('preparePlaylistNatives') } }
 '''
     write(folder / 'build.gradle', build)
+    if lazo:
+        from lazo_deps import files
+        run = folder / 'build/run/client'
+        mods = run / 'mods'
+        mods.mkdir(parents=True, exist_ok=True)
+        for dependency in files(target['id']):
+            shutil.copyfile(dependency, mods / dependency.name)
+        write(run / 'config/plasmovoice/client.toml', 'check_for_updates=false\n[voice]\nmicrophone_disabled=true\ndisable_input_device=true\n')
+        write(run / 'config/lazodiscs/config.toml', '[security]\nallowHttp=true\nallowedDomains=["127.0.0.1"]\n')
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.bind(('127.0.0.1', 0))
+            port = sock.getsockname()[1]
+        write(run / 'config/plasmovoice/server/config.toml', '[host]\nip="127.0.0.1"\nport=' + str(port) + '\n')
     gv = '9.7.1' if loader == 'fabric' and modern else '8.14.5' if loader == 'fabric' else '9.5.1'
     return folder, gv, release
 
@@ -219,15 +243,46 @@ def main():
     parser.add_argument('--target', required=True)
     parser.add_argument('--offline', action='store_true', help='Resolve Gradle dependencies from cache')
     parser.add_argument('--prepare-only', action='store_true')
+    parser.add_argument('--lazo-startup', action='store_true', help='Forge 1.21: burn and play LazoDiscs through Plasmo Voice, then run the native regression')
     parser.add_argument('--java-path', action='append', type=Path, default=[])
     args = parser.parse_args()
     target = next(t for t in json.loads((ROOT / 'versions.json').read_text())['targets'] if t['id'] == args.target)
-    folder, gv, release = prepare(target, args.java_path)
+    if args.lazo_startup and target['id'] != 'forge-1.21':
+        parser.error('--lazo-startup currently covers Forge 1.21')
     if args.prepare_only:
+        folder, _, _ = prepare(target, args.java_path, args.lazo_startup)
         print(folder)
         return
+    attempt = time.strftime('%Y%m%d-%H%M%S')
+    evidence = ROOT / 'build/evidence' / (('lazo-client-' if args.lazo_startup else '') + target['id']) / attempt
+    evidence.mkdir(parents=True)
+    http = None
+    if args.lazo_startup:
+        from lazo_test import audio_fixtures
+        audio = evidence / 'audio'
+        audio_fixtures(audio, (18, 12))
+        class Handler(SimpleHTTPRequestHandler):
+            def copyfile(self, source, output):
+                try:
+                    super().copyfile(source, output)
+                except (BrokenPipeError, ConnectionResetError):
+                    pass  # Removing the jukebox intentionally closes its stream.
+
+            def log_message(self, message, *values):
+                with (evidence / 'http.log').open('a') as output:
+                    output.write((message % values) + '\n')
+        http = ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Handler, directory=str(audio)))
+        threading.Thread(target=http.serve_forever, daemon=True).start()
+    folder, gv, release = prepare(target, args.java_path, args.lazo_startup,
+                                 'http://127.0.0.1:' + str(http.server_port) if http else None)
+    # Retain older test installations without loading two versions together.
+    for old in (folder / 'build/run/client/mods').glob('jukebox-playlists-*.jar'):
+        if old.name != release.name or old.read_bytes() != release.read_bytes():
+            previous = folder / 'build/previous-mods' / attempt / old.name
+            previous.parent.mkdir(parents=True, exist_ok=True)
+            old.rename(previous)
     before = hashlib.sha256(release.read_bytes()).hexdigest()
-    log = ROOT / 'build/logs' / ('client-' + target['id'] + '.log')
+    log = evidence / 'minecraft.log'
     command = gradle(gv) + ['--console=plain', '--max-workers=2']
     if args.offline:
         command += ['--offline']
@@ -241,26 +296,38 @@ def main():
                 from installed_forge import run_client
                 result = run_client(folder, release, target['loader_version'], args.java_path, output)
             success = result.returncode == 0 and 'PLAYLIST CLIENT TESTS PASSED' in log.read_text(errors='replace')
+            if success and args.lazo_startup:
+                import tomllib
+                config = tomllib.loads((folder / 'build/run/client/config/plasmovoice/client.toml').read_text())
+                text = log.read_text(errors='replace')
+                requests = (evidence / 'http.log').read_text() if (evidence / 'http.log').exists() else ''
+                success = config['voice']['microphone_disabled'] and config['voice']['disable_input_device'] and 'LazoDiscs Plasmo Voice addon initialized' in text and text.count('Streaming LazoDisc audio sender started') >= 2 and 'Failed to start streaming LazoDisc' not in text and all(name in requests for name in ('/a.wav', '/b.wav'))
         except subprocess.TimeoutExpired:
             success = False
         except Exception:
             traceback.print_exc(file=output)
             success = False
+        finally:
+            if http:
+                http.shutdown()
+                http.server_close()
     assert before == hashlib.sha256(release.read_bytes()).hexdigest(), 'Release JAR changed during the test'
-    evidence = ROOT / 'build/evidence' / target['id']
     screenshots = []
     if success:
         evidence.mkdir(parents=True, exist_ok=True)
         stages = ('01-playing-11', '02-chest', '03-natural-transition-cat', '04-repeat-11')
-        images = sorted((folder / 'build/run/client/screenshots').glob('*.png'), key=lambda p: p.stat().st_mtime)[-4:]
+        if args.lazo_startup:
+            stages = ('00-lazodiscs-a', '00-lazodiscs-b', *stages)
+        images = sorted((folder / 'build/run/client/screenshots').glob('*.png'), key=lambda p: p.stat().st_mtime)[-len(stages):]
         for stage, screenshot in zip(stages, images):
             dest = evidence / (stage + '.png')
             shutil.copyfile(screenshot, dest)
             screenshots.append(str(dest.relative_to(ROOT)))
-        shutil.copyfile(log, evidence / 'minecraft.log')
         shutil.copyfile(folder / 'build/run/client/client-checks.txt', evidence / 'checks.txt')
-    record = {'target': target['id'], 'kind': 'client_runtime', 'result': {'success': success, 'seconds': round(time.monotonic() - started, 1), 'loader_version': target['loader_version'], 'artifact': str(release.relative_to(ROOT)), 'sha256': before, 'log': str(log.relative_to(ROOT)), 'screenshots': screenshots}}
-    write(ROOT / 'build/results' / (target['id'] + '-client_runtime.json'), json.dumps(record, indent=2) + '\n')
+    kind = 'lazo_client_runtime' if args.lazo_startup else 'client_runtime'
+    record = {'target': target['id'], 'kind': kind, 'result': {'success': success, 'seconds': round(time.monotonic() - started, 1), 'loader_version': target['loader_version'], 'artifact': str(release.relative_to(ROOT)), 'sha256': before, 'log': str(log.relative_to(ROOT)), 'screenshots': screenshots}}
+    write(evidence / 'result.json', json.dumps(record, indent=2) + '\n')
+    write(ROOT / 'build/results' / (target['id'] + '-' + kind + '.json'), json.dumps(record, indent=2) + '\n')
     print(('PASS ' if success else 'FAIL ') + target['id'], flush=True)
     if not success:
         print('\n'.join(log.read_text(errors='replace').splitlines()[-70:]))

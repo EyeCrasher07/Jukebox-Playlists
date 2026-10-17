@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Package only verified production artifacts and their installation evidence."""
 import json
+import hashlib
 import zipfile
 from pathlib import Path
 
@@ -15,14 +16,24 @@ def main():
     verify_artifacts.main()
     matrix = json.loads((ROOT / "versions.json").read_text())
     status = json.loads((ROOT / "build/status.json").read_text())
+    pins = {p['target']: p for p in json.loads((ROOT / 'lazodiscs-compatibility.json').read_text())['targets']}
     releases = []
     for target in matrix["targets"]:
         result = status[target["id"]]
+        dependency_patch = pins.get(target['id'], {}).get('dependency_patch')
+        dependency_result = result.get('lazo_dependency_runtime', {})
+        expected = ROOT / 'build/compat-deps' / dependency_patch['filename'] if dependency_patch else None
+        dependency_verified = bool(expected and expected.is_file() and dependency_result.get('success') and dependency_result.get('audio_verified') and dependency_result.get('sha256') == result['build']['sha256'] and any(d.get('sha256') == hashlib.sha256(expected.read_bytes()).hexdigest() for d in dependency_result.get('dependencies', [])))
         releases.append({**target, "file": str(Path(result["build"]["artifact"]).relative_to("dist")),
                          "sha256": result["build"]["sha256"],
                          "runtime_tested": result.get("runtime", {}).get("success", False),
                          "client_runtime_tested": result.get("client_runtime", {}).get("success", False),
                          "pair_runtime_tested": result.get("pair_runtime", {}).get("success", False),
+                         "lazodiscs_runtime_tested": result.get("lazo_runtime", {}).get("success", False) and result.get("lazo_runtime", {}).get("audio_verified", False) and result.get("lazo_runtime", {}).get("sha256") == result["build"]["sha256"],
+                         "lazodiscs_pair_runtime_tested": result.get("lazo_pair_runtime", {}).get("success", False),
+                         "lazodiscs_client_runtime_tested": result.get("lazo_client_runtime", {}).get("success", False),
+                         "lazodiscs_dependency_patch": dependency_patch,
+                         "lazodiscs_patched_dependency_runtime_tested": dependency_verified,
                          "production_runtime_tested": result.get("production_runtime", {}).get("success", False)})
     manifest = {"version": matrix["mod_version"], "releases": releases}
     (ROOT / "dist/manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
@@ -40,6 +51,26 @@ def main():
 Подходят обычные сундуки, сундуки-ловушки и медные сундуки в версиях, где они есть.
 Двойные сундуки исключены. Устанавливайте мод на сервер и клиенты.
 
+Для записей LazoDiscs установите также LazoDiscs 1.0.7 и соответствующий Plasmo Voice 2.1.17
+на сервер и клиенты. Совместимые опубликованные версии и хеши: lazodiscs-compatibility.json.
+Положите записанные диски в тот же сундук; их можно смешивать с обычными.
+Переход происходит через секунду после завершения аудио, без ограничения длительностью ванильного трека.
+URL, название, UUID, громкость и радиус записи сохраняются при обмене.
+Если LazoDiscs сообщает об ошибке загрузки, очередь продолжает поиск через ту же паузу.
+
+Для Forge 1.20.2 нужна отдельная копия Plasmo Voice с исправленными метаданными.
+Скачайте исходный plasmovoice-forge-1.20.4-2.1.17.jar по URL из lazodiscs-compatibility.json,
+затем из распакованного комплекта выполните (нужен Python 3):
+
+```bash
+python3 tools/patch_plasmo_voice.py /path/to/plasmovoice-forge-1.20.4-2.1.17.jar
+```
+
+В mods сервера и клиентов установите полученный plasmovoice-forge-1.20.2-2.1.17-metadata-fix.jar вместо исходного PV.
+Оригинал не изменяется. Исправляются только два минимальных номера Forge/FML с 49 на 48;
+классы и лицензии сохраняются, добавляется уведомление. Это локальная копия, не официальный выпуск PV.
+Другие сочетания используют опубликованные зависимости без изменений. Сторонние моды в этот ZIP не входят.
+
 В 1.16.5–1.19 длительность нестандартных пластинок задаётся в
 config/jukebox-playlists-song-lengths.properties, например:
 
@@ -47,7 +78,7 @@ config/jukebox-playlists-song-lengths.properties, например:
 item.example.my_music_disc=4200
 ```
 
-Значение — тики, 20 тиков = 1 секунда. Для ванильных пластинок настройки не нужны.
+Значение — тики, 20 тиков = 1 секунда. Для ванильных пластинок и записей LazoDiscs настройки не нужны.
 После изменения конфигурации перезапустите игру или сервер.
 
 Результаты проверок: docs/VERIFICATION.md. Подробности механики: docs/MECHANICS.md.
@@ -62,6 +93,8 @@ SHA256SUMS содержит контрольные суммы каждого JAR
                            (ROOT / "docs/MECHANICS.md", "docs/MECHANICS.md"),
                            (ROOT / "docs/VERIFICATION.md", "docs/VERIFICATION.md"),
                            (ROOT / "fabric-api-pins.json", "fabric-api-pins.json"),
+                           (ROOT / "lazodiscs-compatibility.json", "lazodiscs-compatibility.json"),
+                           (ROOT / "tools/patch_plasmo_voice.py", "tools/patch_plasmo_voice.py"),
                            (ROOT / "versions.json", "versions.json"),
                            (ROOT / "dist/SHA256SUMS", "SHA256SUMS"),
                            (ROOT / "dist/manifest.json", "manifest.json")]:
