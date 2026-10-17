@@ -1,0 +1,148 @@
+package dev.eyecrasher.playlistchecks;
+
+import dev.eyecrasher.jukeboxplaylists.PlaylistJukebox;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+
+/** Independent client fixture: the installed release JAR supplies all mod behavior. */
+public final class ClientChecks {
+    private static final BlockPos POS = new BlockPos(0, 100, 0);
+    private static final List<SoundInstance> records = new CopyOnWriteArrayList<>();
+    private static final List<String> checks = new ArrayList<>();
+    private static boolean started, opened;
+    private static int ticks;
+    private static Minecraft mc;
+
+    public static void sound(SoundInstance sound) {
+        if (sound.getSource() == SoundSource.RECORDS) {
+            records.add(sound);
+            System.out.println("PLAYLIST CLIENT SOUND: " + sound.@SOUND_ID@());
+        }
+    }
+
+    public static void tick() {
+        mc = Minecraft.getInstance();
+        mc.options.pauseOnLostFocus = false;
+        if (started) return;
+        if (++ticks > 6000) throw new AssertionError("Client did not enter the isolated world");
+        @OPEN_WORLD@
+        if (mc.player == null || mc.level == null || mc.getSingleplayerServer() == null) return;
+        started = true;
+        Thread worker = new Thread(() -> {
+            try {
+                run();
+                Files.write(Paths.get("client-checks.txt"), checks);
+                System.out.println("PLAYLIST CLIENT TESTS PASSED: " + checks.size() + " checks");
+            } catch (Throwable failure) {
+                failure.printStackTrace();
+                System.out.println("PLAYLIST CLIENT TESTS FAILED: " + failure);
+            } finally {
+                mc.execute(mc::stop);
+            }
+        }, "Playlist client checks");
+        worker.setDaemon(true);
+        worker.start();
+    }
+
+    private static void run() throws Exception {
+        client(() -> { @CLOSE_SCREEN@; return null; });
+        server(() -> {
+            var world = mc.getSingleplayerServer().overworld();
+            for (int x = -5; x <= 5; x++) for (int z = -5; z <= 5; z++) {
+                world.setBlock(new BlockPos(x, 99, z), Blocks.STONE.defaultBlockState(), 3);
+                for (int y = 100; y <= 105; y++) world.setBlock(new BlockPos(x, y, z), Blocks.AIR.defaultBlockState(), 3);
+            }
+            world.setBlock(POS, Blocks.JUKEBOX.defaultBlockState(), 3);
+            world.setBlock(POS.above(), Blocks.CHEST.defaultBlockState(), 3);
+            var player = mc.getSingleplayerServer().getPlayerList().getPlayers().get(0);
+            player.setGameMode(GameType.CREATIVE);
+            @CLEAR_INVENTORY@
+            @CLEAR_DROPS@
+            player.connection.teleport(0.5, 100, 3.3, 180, 15);
+            return null;
+        });
+        Thread.sleep(2000);
+        // Place records only after the client has received the chunk, so that the
+        // actual level-event packet must start the audio on the observing client.
+        server(() -> {
+            chest().setItem(0, new ItemStack(Items.STONE));
+            chest().setItem(3, new ItemStack(Items.MUSIC_DISC_11));
+            ItemStack named = new ItemStack(Items.MUSIC_DISC_CAT);
+            @NAME_STACK@
+            chest().setItem(7, named);
+            chest().setChanged();
+            return null;
+        });
+        await(() -> current(Items.MUSIC_DISC_11), 15000, "chest starts disc 11 in the installed mod");
+        await(() -> active("11"), 15000, "disc 11 reaches the real client sound engine");
+        check(server(() -> chest().getItem(3).isEmpty() && chest().getItem(0).getItem() == Items.STONE), "first disc leaves its chest slot; stone stays");
+        shot("01-playing-11");
+        client(() -> { @USE_CHEST@; return null; });
+        await(() -> onClient(() -> @SCREEN@ instanceof net.minecraft.client.gui.screens.inventory.ContainerScreen), 5000, "chest opens through the client interaction packet");
+        shot("02-chest");
+        client(() -> { @CLOSE_CONTAINER@; return null; });
+
+        // No synthetic jukebox ticks, shortened data packs or timer changes.
+        // Vanilla disc 11 plays its complete 71-second duration at normal TPS.
+        await(() -> current(Items.MUSIC_DISC_CAT), 100000, "normal world ticking advances after the complete disc 11");
+        await(() -> active("cat"), 10000, "next track starts on the client");
+        check(onClient(() -> activeCount() == 1), "transition leaves exactly one active record sound");
+        check(server(() -> chest().getItem(7).getItem() == Items.MUSIC_DISC_11 && box().playlist$current().getHoverName().getString().equals("Playlist named cat")), "natural exchange keeps both records and the custom name");
+        shot("03-natural-transition-cat");
+        client(() -> { @USE_JUKEBOX@; return null; });
+        await(() -> current(Items.MUSIC_DISC_11), 10000, "right-click eject skips to the next chest disc");
+        await(() -> active("11"), 10000, "skip replaces the client audio");
+        check(onClient(() -> activeCount() == 1), "ejected track stops without overlapping playback");
+        server(() -> {
+            for (int i = 1; i < chest().getContainerSize(); i++) chest().setItem(i, ItemStack.EMPTY);
+            chest().setChanged();
+            for (int i = 1; i < chest().getContainerSize(); i++) if (!chest().getItem(i).isEmpty()) throw new AssertionError("Fixture did not clear slot " + i);
+            System.out.println("PLAYLIST CLIENT REPEAT FIXTURE: " + contents());
+            return null;
+        });
+        int before = recordCount("11");
+        await(() -> { observeContents(); return recordCount("11") > before; }, 100000, "a second complete disc 11 repeats with no chest records");
+        await(() -> active("11"), 10000, "repeat restarts actual audio");
+        check(onClient(() -> activeCount() == 1), "repeat leaves exactly one active record sound");
+        check(server(() -> box().playlist$current().getItem() == Items.MUSIC_DISC_11 && chest().getItem(0).getItem() == Items.STONE), "repeat retains the current disc and unrelated items");
+        shot("04-repeat-11");
+    }
+
+    private static PlaylistJukebox box() { return (PlaylistJukebox) mc.getSingleplayerServer().overworld().getBlockEntity(POS); }
+    private static Container chest() { return (Container) mc.getSingleplayerServer().overworld().getBlockEntity(POS.above()); }
+    private static String previousContents;
+    private static String contents() { String text = ""; for (int i = 0; i < chest().getContainerSize(); i++) if (!chest().getItem(i).isEmpty()) text += i + "=" + chest().getItem(i) + ";"; return text; }
+    private static void observeContents() { try { String now = server(() -> contents()); if (!now.equals(previousContents)) { System.out.println("PLAYLIST CLIENT CHEST: " + now); previousContents = now; } } catch (Exception e) { throw new RuntimeException(e); } }
+    private static boolean current(net.minecraft.world.item.Item item) { try { return server(() -> box().playlist$current().getItem() == item); } catch (Exception e) { throw new RuntimeException(e); } }
+    private static int recordCount(String name) { int n = 0; for (SoundInstance sound : records) if (sound.@SOUND_ID@().toString().endsWith("." + name)) n++; return n; }
+    private static boolean active(String name) { return onClient(() -> { for (SoundInstance sound : records) if (sound.@SOUND_ID@().toString().endsWith("." + name) && mc.getSoundManager().isActive(sound)) return true; return false; }); }
+    private static int activeCount() { int n = 0; for (SoundInstance sound : records) if (mc.getSoundManager().isActive(sound)) n++; return n; }
+    private static void check(boolean condition, String message) { if (!condition) throw new AssertionError(message); checks.add(message); System.out.println("PLAYLIST CLIENT CHECK: " + message); }
+    private static void await(BooleanSupplier condition, long timeout, String message) throws Exception { long end = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeout); while (!condition.getAsBoolean()) { if (System.nanoTime() > end) throw new AssertionError(message); Thread.sleep(100); } check(true, message); }
+    private static <T> T client(Callable<T> action) throws Exception { FutureTask<T> task = new FutureTask<>(action); mc.execute(task); return task.get(15, TimeUnit.SECONDS); }
+    private static <T> T server(Callable<T> action) throws Exception { FutureTask<T> task = new FutureTask<>(action); mc.getSingleplayerServer().execute(task); return task.get(15, TimeUnit.SECONDS); }
+    private static boolean onClient(Callable<Boolean> action) { try { return client(action); } catch (Exception e) { throw new RuntimeException(e); } }
+    private static void shot(String name) throws Exception { Thread.sleep(1500); client(() -> { @SCREENSHOT@; return null; }); Thread.sleep(1000); System.out.println("PLAYLIST CLIENT SCREENSHOT: " + name); }
+}

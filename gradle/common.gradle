@@ -32,11 +32,38 @@ jar {
 }
 if (providers.gradleProperty('playlistTest').isPresent()) {
     if (playlistTarget.loader == 'forge') {
+        if (playlistTarget.minecraft in ['1.20.6', '1.21']) {
+            // These ModLauncher releases require jopt-simple 5's module name.
+            configurations.configureEach { resolutionStrategy.force 'net.sf.jopt-simple:jopt-simple:5.0.4' }
+        }
         // Forge's userdev scanner needs classes and metadata in one root.
         sourceSets.main.output.resourcesDir = layout.buildDirectory.dir('classes/java/main').get().asFile
         tasks.named('processResources') {
             dependsOn tasks.named('compileJava')
             destinationDir = sourceSets.main.output.resourcesDir
+        }
+        if (playlistTarget.minecraft in ['1.17.1', '1.18', '1.18.1', '1.18.2']) {
+            // SlimeLauncher's public lookup needs BootstrapLauncher's exported
+            // entry point. This affects only the development test launcher.
+            def testBootstrap = configurations.create('playlistTestBootstrap') { transitive = false }
+            dependencies.add(testBootstrap.name, 'cpw.mods:bootstraplauncher:1.1.2')
+            afterEvaluate {
+                tasks.named('runServer') {
+                    def modules = project.files(new ArrayList(patcherModules.from))
+                    patcherModules.setFrom(modules.filter { !it.name.startsWith('bootstraplauncher-') }, testBootstrap)
+                }
+            }
+        }
+        if (playlistTarget.minecraft == '1.20.2') {
+            // Forge 48 still discovers development mod folders through this
+            // environment variable; its userdev run metadata omits it.
+            tasks.withType(JavaExec).matching { it.name == 'runServer' }.configureEach {
+                doFirst {
+                    environment 'MOD_CLASSES', sourceSets.main.output.files.collect {
+                        'jukebox_playlists%%' + it.absolutePath
+                    }.join(File.pathSeparator)
+                }
+            }
         }
     }
     tasks.named('preparePlaylist') {

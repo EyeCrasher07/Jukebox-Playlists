@@ -31,7 +31,8 @@ def main():
                     assert archive.read(name) == resource.read_bytes(), "Stale generated resource: " + target["id"] + "/" + name
             assert "pack.mcmeta" in names, "Missing mod data pack metadata"
             assert not any(n.startswith("net/minecraft/") for n in names), "Minecraft classes in mod jar"
-            assert not any("Smoke" in n or "ServerTestMixin" in n for n in names), "Test code in production jar"
+            assert not any("Smoke" in n or "ServerTestMixin" in n or n.startswith(("dev/eyecrasher/playlistchecks/", "dev/eyecrasher/playlistpair/"))
+                           for n in names), "Test code in production jar"
             config = json.loads(archive.read("jukebox-playlists.mixins.json"))
             assert config["required"] and config["injectors"]["defaultRequire"] == 1
             for mixin in config["mixins"]:

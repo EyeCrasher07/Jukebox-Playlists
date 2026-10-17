@@ -21,6 +21,8 @@ def main():
         releases.append({**target, "file": str(Path(result["build"]["artifact"]).relative_to("dist")),
                          "sha256": result["build"]["sha256"],
                          "runtime_tested": result.get("runtime", {}).get("success", False),
+                         "client_runtime_tested": result.get("client_runtime", {}).get("success", False),
+                         "pair_runtime_tested": result.get("pair_runtime", {}).get("success", False),
                          "production_runtime_tested": result.get("production_runtime", {}).get("success", False)})
     manifest = {"version": matrix["mod_version"], "releases": releases}
     (ROOT / "dist/manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")

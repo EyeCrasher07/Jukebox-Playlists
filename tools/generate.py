@@ -155,6 +155,9 @@ import {namespace}.Mod;
 public final class JukeboxPlaylistsMod {{ public JukeboxPlaylistsMod() {{}} }}
 ''')
     compatibility = "JAVA_8" if mc == "1.16.5" else "JAVA_16" if v < (1, 18) else "JAVA_17" if v < (1, 20, 5) else "JAVA_21"
+    if target['loader'] == 'forge' and mc == '1.20.6':
+        # Forge 50 ships Mixin 0.8.5, whose compatibility enum predates JAVA_21.
+        compatibility = 'JAVA_17'
     config = {"required": True, "minVersion": "0.8", "package": "dev.eyecrasher.jukeboxplaylists.mixin",
               "compatibilityLevel": compatibility, "mixins": ["JukeboxMixin"] + ([] if mc == "1.16.5" else ["JukeboxBlockMixin"]),
               "injectors": {"defaultRequire": 1}}
@@ -239,6 +242,14 @@ def prepare_tests(target, java_dir, resources):
     for key, value in {"NAME_STACK": name, "SAVE_ENTITY": save, "LOAD_ENTITY": load, "EJECT": eject, "TICK_INSTALLED": tick, "COPPER_TESTS": copper}.items():
         source = source.replace("@" + key + "@", value)
     write(java_dir / PACKAGE / "PlaylistSmoke.java", source)
+    shutdown = '''
+    // Forge 59.0.5 leaves NightConfig's scheduled watcher alive after the
+    // dedicated server has saved and stopped. Close it only in this fixture.
+    @Inject(method = "stopServer", at = @At("TAIL"))
+    private void playlist$closeWatcher(CallbackInfo ci) {
+        net.minecraftforge.fml.config.ConfigTracker.INSTANCE.forceUnload();
+    }
+''' if target['id'] == 'forge-1.21.9' else ''
     write(java_dir / PACKAGE / "mixin/ServerTestMixin.java", '''package dev.eyecrasher.jukeboxplaylists.mixin;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.*;
@@ -254,7 +265,7 @@ public abstract class ServerTestMixin {
             dev.eyecrasher.jukeboxplaylists.PlaylistSmoke.run((MinecraftServer) (Object) this);
         }
     }
-}
+''' + shutdown + '''}
 ''')
     path = resources / "jukebox-playlists.mixins.json"
     config = json.loads(path.read_text())
