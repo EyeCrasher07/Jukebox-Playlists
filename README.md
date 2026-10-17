@@ -85,9 +85,9 @@ On Windows use `gradlew.bat build`. The installable JAR is in that project's `bu
 
 The recorded gameplay checks cover all 90 SDK servers, 52 LazoDiscs server/audio combinations, six native client combinations, LazoDiscs clients on Forge 1.20.2/1.21, and a dedicated Fabric 26.3 server with two separate clients, captured sound and a full restart. The LazoDiscs checks use recordings made with `/lazodisc burn`, including audio longer than its vanilla base disc.
 
-The initial release packaging sets version 1.0.0 and adds LGPL texts and author/contact metadata. Every class and runtime resource in all 90 rebuilt JARs is compared byte for byte with the gameplay-tested baseline. Original test hashes and packaging changes are recorded separately in [the verification report](docs/VERIFICATION.md) and [packaging comparison](docs/PACKAGING-VERIFICATION.json).
+The initial release packaging sets version 1.0.0 and adds GPL texts and author/contact metadata. Every class and runtime resource in all 90 rebuilt JARs is compared byte for byte with the gameplay-tested baseline. Original test hashes and packaging changes are recorded separately in [the verification report](docs/VERIFICATION.md) and [packaging comparison](docs/PACKAGING-VERIFICATION.json).
 
-Created by **EyeCrasher07**. Licensed under [LGPL-3.0-only](LICENSE); the incorporated GPL text is in [COPYING](COPYING). [Third-party notices](THIRD-PARTY-NOTICES.md).
+Created by **EyeCrasher07**. Licensed under [GPL-3.0-only](LICENSE); the incorporated GPL text is in [COPYING](COPYING). [Third-party notices](THIRD-PARTY-NOTICES.md).
 
 ---
 
@@ -129,4 +129,4 @@ item.example.my_music_disc=4200
 
 Проверки в настоящем Minecraft, звук записей LazoDiscs и границы совместимости описаны в [docs/VERIFICATION.md](docs/VERIFICATION.md). При подготовке выпуска отдельно сверено совпадение всех игровых классов и ресурсов с проверенными файлами: изменение лицензии и метаданных не выдаётся за повторный игровой прогон.
 
-Автор — **EyeCrasher07**. Лицензия — [LGPL-3.0-only](LICENSE).
+Автор — **EyeCrasher07**. Лицензия — [GPL-3.0-only](LICENSE).

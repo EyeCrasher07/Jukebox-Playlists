@@ -1,6 +1,6 @@
 modLoader="javafml"
 loaderVersion="[36,)"
-license="LGPL-3.0-only"
+license="GPL-3.0-only"
 issueTrackerURL="https://github.com/EyeCrasher07/Jukebox-Playlists/issues"
 [[mods]]
 modId="jukebox_playlists"

@@ -56,7 +56,7 @@ def main():
                     assert struct.unpack(">H", bytecode[6:8])[0] <= target["java"] + 44, "Wrong Java version in " + name
             if target["loader"] == "fabric":
                 metadata = json.loads(archive.read("fabric.mod.json"))
-                assert metadata['license'] == 'LGPL-3.0-only'
+                assert metadata['license'] == 'GPL-3.0-only'
                 assert metadata['authors'] == ['EyeCrasher07']
                 assert metadata["depends"]["minecraft"] == "=" + target["minecraft"]
                 assert not any(n.endswith("mods.toml") for n in names)
@@ -67,7 +67,7 @@ def main():
                     assert "refmap" not in config, "Fabric uses direct annotation remapping"
             else:
                 metadata = archive.read(next(n for n in names if n.endswith("mods.toml"))).decode()
-                assert 'license="LGPL-3.0-only"' in metadata
+                assert 'license="GPL-3.0-only"' in metadata
                 assert f'versionRange="[{target["minecraft"]}]"' in metadata
                 assert "fabric.mod.json" not in names
             tag_path = next(n for n in names if n.endswith("/jukebox_containers.json"))

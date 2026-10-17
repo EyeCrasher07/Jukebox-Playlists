@@ -1,6 +1,6 @@
 # Проверки
 
-Обновлено: 2026-10-17T07:59:02+00:00
+Обновлено: 2026-10-17T10:42:35+00:00
 
 Версия мода: **1.0.0**. Производственных JAR: **90/90**.
 
@@ -134,17 +134,17 @@ Fabric использует production launcher. Forge 1.16.5–1.20.4 — оф�
 ## Клиенты и звук
 
 - `fabric-26.3`: SHA-256 `b0ddd39d923a2e71123c4bf3cc53ee5dd71139ca19bba6b02c0835a960b92af8`; лог `build/evidence/fabric-26.3/20261017-085900/minecraft.log`.
-  SHA-256 выпуска после изменения упаковки: `9e7f37a9ef8af5e82f12d724ddb098baf21c95905a62e68ff218b8c60f9d829c`.
+  SHA-256 выпуска после изменения упаковки: `94db9181a6fa0f12f83eb1d1ec600d3ed4d797a5704e067759332a88b6aa3a14`.
 - `neoforge-26.3`: SHA-256 `810f694ffb8f1d119963e81e5dd4eb2057c0aea68c59a0e3b2260d8405538691`; лог `build/evidence/neoforge-26.3/20261017-090459/minecraft.log`.
-  SHA-256 выпуска после изменения упаковки: `72067a94f0ed63fa6eb44b739ae5530a0d3646fa7e88e49d932b5c67996cdacb`.
+  SHA-256 выпуска после изменения упаковки: `9d2c586aa7ad2ed272ce943df4ec1a3b90a48a3383ed84c18451e2c9e7fb921c`.
 - `forge-1.16.5`: SHA-256 `84a2c2720c1661f567871bdade2e55dff49923f2ff277db8a28659cf7564ef04`; лог `build/evidence/forge-1.16.5/20261017-084741/minecraft.log`.
-  SHA-256 выпуска после изменения упаковки: `1eea9945f0fa4d15cf5e8205126a1ade0ecb5b445a5817effdd0db88faf49563`.
+  SHA-256 выпуска после изменения упаковки: `c8877cbcc035ce077e2ac53902d866980e197ec6ffeba10225574610de2525c6`.
 - `fabric-1.16.5`: SHA-256 `2693df0c35388aeb68010f310d84bf2074c38bfdede114c753ac1d5f9d6fac03`; лог `build/evidence/fabric-1.16.5/20261017-084421/minecraft.log`.
-  SHA-256 выпуска после изменения упаковки: `c559368b5279d89c35e41f356fa8d66e671baaab6376ec2552f8ecb7e46fc314`.
+  SHA-256 выпуска после изменения упаковки: `7c7d409a67b82c14040735ec106efa6d3687ab9c903a6c18046338f82f3dbae0`.
 - `forge-1.20.6`: SHA-256 `c69a0774e1104768d104005ea62c8528b467f29fbc9d2d2d5b3d8170e02cf3a9`; лог `build/evidence/forge-1.20.6/20261017-085558/minecraft.log`.
-  SHA-256 выпуска после изменения упаковки: `f98368bc9e25fe32c1eb73d0feec8d385bf5400fdd34b876056c192a826eba27`.
+  SHA-256 выпуска после изменения упаковки: `3a84cb27b081659af9317a8eaa48b2ddd334bfddc81d733dfe800f5412ddc9cd`.
 - `forge-26.3`: SHA-256 `17d31a8c3f67f9a37fc7749db26e94784cd4086adf5d3af6629a224661bef1fb`; лог `build/evidence/forge-26.3/20261017-090204/minecraft.log`.
-  SHA-256 выпуска после изменения упаковки: `2bc9ac5536508f436ed66981b2972aa4f00d7c20cdc769e57522acb5032c4f31`.
+  SHA-256 выпуска после изменения упаковки: `e89fee7fe412ff06d0aca84361b3156fb08f5f07400bc6507d55bebafd37d3d8`.
 
 **LazoDiscs, одиночный клиент forge-1.20.2**: SHA-256 `4398a9df91b8654a630797f3e201ccefb4939549958e607db78f1720439d3ee1`; лог `build/evidence/lazo-client-forge-1.20.2/20261017-095301/minecraft.log`.
 Настоящая команда `/lazodisc burn` создаёт записи 440/880 Гц. Проверяются активный источник Plasmo Voice с положительной громкостью, отсутствие ванильного звука, естественный переход и сохранение всех данных записей; затем 15 проверок обычных пластинок. Микрофон отключён.

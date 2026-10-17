@@ -36,7 +36,7 @@ def main():
             if result.get('success') and result.get('artifact'):
                 artifact = ROOT / item.get('build', {}).get('artifact', result['artifact'])
                 current = hashlib.sha256(artifact.read_bytes()).hexdigest() if artifact.is_file() else None
-                if current != result.get('sha256') and proof.get('success') and ROOT / proof['artifact'] == artifact and proof['sha256'] == current and proof['tested_baseline_sha256'] == result.get('sha256'):
+                if current != result.get('sha256') and proof.get('success') and ROOT / proof['artifact'] == artifact and proof['sha256'] == current and result.get('sha256') in proof.get('equivalent_tested_sha256', [proof['tested_baseline_sha256']]):
                     result['packaging_only_update'] = True
                     result['release_sha256'] = current
                 elif current != result.get('sha256'):

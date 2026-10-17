@@ -94,7 +94,7 @@ def main():
             paths, fix = prepare_dependency_fix(pin)
             compatibility_files.extend(paths)
             fixes.append(fix)
-    manifest = {"version": matrix["mod_version"], "license": "LGPL-3.0-only", "releases": releases, "dependency_fixes": fixes}
+    manifest = {"version": matrix["mod_version"], "license": "GPL-3.0-only", "releases": releases, "dependency_fixes": fixes}
     (ROOT / "dist/manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     install = '''# Jukebox Playlists
 
@@ -136,7 +136,7 @@ item.example.my_music_disc=4200
 
 Результаты проверок: docs/VERIFICATION.md. Подробности механики: docs/MECHANICS.md.
 SHA256SUMS содержит контрольные суммы каждого JAR; manifest.json — версии загрузчиков и результаты игровых проверок.
-Лицензия мода — LGPL-3.0-only; тексты находятся в LICENSE и COPYING.
+Лицензия мода — GPL-3.0-only; тексты находятся в LICENSE и COPYING.
 После игровых прогонов в метаданных загрузчика установлены номер первого выпуска 1.0.0, лицензия, автор и ссылки.
 Все игровые классы и ресурсы сверены побайтно с проверенными файлами; таблица старых и новых SHA-256 — docs/PACKAGING-VERIFICATION.json.
 В manifest.json exact_release_jar отличает запуск точного файла выпуска от подтверждённого совпадения игровых классов.

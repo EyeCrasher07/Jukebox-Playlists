@@ -192,7 +192,7 @@ public final class JukeboxPlaylistsMod {{ public JukeboxPlaylistsMod() {{}} }}
     if target["loader"] == "fabric":
         metadata = {"schemaVersion": 1, "id": "jukebox_playlists", "version": mod_version,
                     "name": "Jukebox Playlists", "description": "Chest playlists for vanilla jukeboxes, backported from 26.4.",
-                    "authors": ["EyeCrasher07"], "license": "LGPL-3.0-only",
+                    "authors": ["EyeCrasher07"], "license": "GPL-3.0-only",
                     "contact": {"homepage": "https://github.com/EyeCrasher07/Jukebox-Playlists", "sources": "https://github.com/EyeCrasher07/Jukebox-Playlists", "issues": "https://github.com/EyeCrasher07/Jukebox-Playlists/issues"},
                     "environment": "*", "mixins": ["jukebox-playlists.mixins.json"],
                     "depends": {"fabricloader": ">=0.19.5", "minecraft": "=" + mc, "java": ">=" + str(target["java"])}}
@@ -205,7 +205,7 @@ public final class JukeboxPlaylistsMod {{ public JukeboxPlaylistsMod() {{}} }}
         filename = "neoforge.mods.toml" if neo and v >= (1, 20, 5) else "mods.toml"
         metadata = f'''modLoader="javafml"
 loaderVersion="{language_version}"
-license="LGPL-3.0-only"
+license="GPL-3.0-only"
 issueTrackerURL="https://github.com/EyeCrasher07/Jukebox-Playlists/issues"
 [[mods]]
 modId="jukebox_playlists"

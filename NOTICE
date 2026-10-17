@@ -1,8 +1,8 @@
 Jukebox Playlists
 Copyright (C) 2026 EyeCrasher07
 
-This project is licensed under the GNU Lesser General Public License,
-version 3 only (SPDX: LGPL-3.0-only). See LICENSE and COPYING.
+This project is licensed under the GNU General Public License,
+version 3 only (SPDX: GPL-3.0-only). See LICENSE and COPYING.
 
 An independent implementation of jukebox chest playlists introduced in
 Minecraft 26.4 Snapshot 4. Minecraft game code and assets are not included.

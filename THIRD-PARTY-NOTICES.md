@@ -1,6 +1,6 @@
 # Third-party notices
 
-Jukebox Playlists is Copyright (C) 2026 EyeCrasher07 and is distributed under **LGPL-3.0-only**. See [LICENSE](LICENSE), the incorporated GPL text in [COPYING](COPYING), and [NOTICE](NOTICE).
+Jukebox Playlists is Copyright (C) 2026 EyeCrasher07 and is distributed under **GPL-3.0-only**. See [LICENSE](LICENSE), the incorporated GPL text in [COPYING](COPYING), and [NOTICE](NOTICE).
 
 ## Gradle Wrapper
 
